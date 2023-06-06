@@ -1,4 +1,4 @@
-# Introduction
+# SHV RPC
 
 SHV RPC is just another RPC framework build around ChainPack packing schema.
 
