@@ -76,7 +76,7 @@ example:
 ### Int
 Values 0-63 are packed directly in `PackingSchema` like `64+n` to save one byte.
 
-Signed int is stored in the same way as the unsigned one, the only difference is that the sign bit is stored at possition marked by `s`
+Signed int is stored in the same way as the unsigned one, the only difference is that the sign bit is stored at position marked by `s`
 
 LSB is least significant byte
 
@@ -136,7 +136,7 @@ example:
 ```
 Exponential number with exponent of base `10`. Base `2` might be used in future for type `BinaryExp`
 
-value = mantisa * (base ^ exponent)
+value = mantissa * (base ^ exponent)
 
 both `mantisa` and `exponent` can have value of `TERM` to encode special values
 
