@@ -1,5 +1,7 @@
 # Cpon - ChainPack Object Notation
 
+Text representaion of [RpcValue](rpcvalue.md)
+
 Super-set of JSON with following extensions:
 * **String** - C-escaped Utf8 encoded string, can contain any char except of `"`, `\`, `TAB`, `CR`, `LF`, `0`. Supported escape sequences are `\0`, `\b`, `f`, `\n`, `\r`, `\t`. Octal, hexadecimal and Unicode `\xHH` and `\uHHHH` sequences are not supported yet.
 * **Blob**
@@ -15,6 +17,8 @@ Super-set of JSON with following extensions:
 * **List** and Map fields can have delimiter `,` after last item like: `[1,2,3,]`
 * C style comments are supported, for example `[1,/*2,*/3]` means `[1,3]`
 * Trailing coma separators at end of line is optional. Trailing coma after last element of list or map is enabled, for example `[1,2,3,]`.
+
+If RpcValue has meta-data, they are placed before value quoted by `<` and `>` characters, see examples below.
  
 Example:
 ```
@@ -27,4 +31,6 @@ Example:
   "birth": <"format": "ISODate">"2000-12-11",
 }
 ```
-[Tree sitter syntax definition](https://github.com/amaanq/tree-sitter-cpon)
+
+## Text editor support
+Syntax definition for tree sitter can be found at <https://github.com/amaanq/tree-sitter-cpon>
