@@ -55,6 +55,8 @@ Key      | Required | Note
 ---------|----------|-----
 `Params` | no       | Any valid [RpcValue](rpcvalue.md)
 
+**Examples**
+
 RPC call invocation,  method `switchLeft` on 
 path `test/pme/849V` with request ID `56` and parameter `true`. 
 ```
@@ -62,6 +64,8 @@ path `test/pme/849V` with request ID `56` and parameter `true`.
 ```
 
 ## RpcResponse
+
+Response to [RpcRequest](rpcrequest.md)
 
 Attributes
 
@@ -134,6 +138,8 @@ Keys
 Key      | Required | Note
 ---------|----------|-----
 `Params` | no       | Any valid [RpcValue](rpcvalue.md)
+
+**Examples**
 
 Spontaneous notification about change of `status/motorMoving` property to `true`.
 ```
