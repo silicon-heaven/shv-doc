@@ -1,7 +1,7 @@
 # SHV RPC
 
 SHV RPC is RPC framework build around ChainPack packing schema.
-RPC call is realized as sending `ChainPack` encoded [RpcMessage](rpcmessage.md) either via broker or peer-to-peer.
+RPC call is realized as sending [ChainPack](chainpack.md) encoded [RpcMessage](rpcmessage.md) either via broker or peer-to-peer.
 
 Why ChainPack? I liked XML attributes, but I dislike fact that XML attributes syntax is not XML. 
 I like JSON brevity, but you cannot have attributes, comments, utf8 in JSON. ChainPack is

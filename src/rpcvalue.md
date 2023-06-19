@@ -15,7 +15,7 @@ Type | Description
 `Blob` |  binary string
 `String` |  UTF8 encoded string
 `DateTime` | 
-`List` | list of rpcvalues 
+`List` | list of rpc values 
 `Map` | map of rpc values, keys are of `String` type
 `IMap` | map of rpc values, keys are of `Int` type
 `MetaMap` | map of rpc values, keys are of `Int` or `String` type, meta map is not basic type, it is used for storing values meta information only. 
@@ -39,7 +39,7 @@ ID Int.
 <"type":"ID">123	
 ```
 
-Adressbook entry
+Addressbook entry
 ````
 <1:"AdressBookEntry", "format":"cpon">
 {

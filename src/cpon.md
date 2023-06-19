@@ -1,6 +1,6 @@
 # Cpon - ChainPack Object Notation
 
-Text representaion of [RpcValue](rpcvalue.md)
+Text representation of [RpcValue](rpcvalue.md)
 
 Super-set of JSON with following extensions:
 * **String** - C-escaped Utf8 encoded string, can contain any char except of `"`, `\`, `TAB`, `CR`, `LF`, `0`. Supported escape sequences are `\0`, `\b`, `f`, `\n`, `\r`, `\t`. Octal, hexadecimal and Unicode `\xHH` and `\uHHHH` sequences are not supported yet.

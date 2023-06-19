@@ -9,7 +9,7 @@ There are three kinds of RPC message defined:
 
 RPC message can have meta-data attribute defined.
 
-Attribute number | Attrinbute name | Description
+Attribute number | Attribute name | Description
 ----------------:|-----------------|------------
 1                | MetaTypeId          | Always equal to `1` in case of RPC message 
 2                | MetaTypeNameSpaceId | Always equal to `0` in case of RPC message, may be omitted.
@@ -17,9 +17,9 @@ Attribute number | Attrinbute name | Description
 9                | ShvPath             | Path on which method will be called. 
 10               | Method              | Name of called RPC method 
 11               | CallerIds           | Internal attribute filled by broker to distinguish request from different clients with the same request ID.  
-13               | RevCallerIds        | Internal attribude filled by broker to enable support for multi-part messages and tunelling.
-14               | AccessGrant         | Acess granted by broker to called `shvPath` and `method` to current user. 
-16               | UserId              | ID of usser calling RPC method filled in by broker.
+13               | RevCallerIds        | Internal attribute filled by broker to enable support for multi-part messages and tunneling.
+14               | AccessGrant         | Access granted by broker to called `shvPath` and `method` to current user. 
+16               | UserId              | ID of user calling RPC method filled in by broker.
 
 Second part of RPC message is `IMap` with following possible keys.
 
@@ -28,9 +28,23 @@ Key | Key name | Description
 ---:|----------|------------
 1   | Params   | Optional method parameters, any [RpcValue](rpcvalue.md) is allowed.
 2   | Result   | Successful method call result, any [RpcValue](rpcvalue.md) is allowed.
-3   | Error    | Method call exception, see [RPC error](#rpc-error) fo more details
+3   | Error    | Method call exception, see [RPC error](#rpc-error) for more details
 
-Let describe three types of messages from example above in more details.
+`RequestId` can be any unique number assigned by side that sends request
+initially. It is used to pair up requests with their responses. The common
+approach is to just use request message counter as request ID.
+
+`CallerIds` are related to the broker and unless you are implementing a
+broker you need to know only that they are additional identifiers for the
+message alongside the `RequestId` to pair requests with their responses and thus
+should be always included in the response message if they were present in the
+request.
+
+The `ShvPath` is used to select exact node of method in the SHV tree. 
+
+`AccessGrant` is part of access control. It is assigned to request by broker according to user rights.
+Multiple grants can be specified and separated
+by comma. 
 
 ## RpcRequest
 
@@ -44,7 +58,7 @@ Attribute | Required | Note
 `RequestId`    | yes |
 `ShvPath`      | yes |
 `Method`       | yes |
-`RevCallerIds` | no  | If tunelling or multi-part message is needed
+`RevCallerIds` | no  | If tunneling or multi-part message is needed
 `CallerIds`    |     | Attributes managed by broker
 `AccessGrant`  |     | Attributes managed by broker
 `UserId`       |     | Attributes managed by broker
@@ -81,7 +95,7 @@ Keys
 Key      | Required | Note
 ---------|----------|-----
 `Result` | yes      | Required in case of successful method call result, any [RpcValue](rpcvalue.md) is allowed.
-`Error`  | yes      | Required in case of method call exception, see [RPC error](#rpc-error) fo more details.
+`Error`  | yes      | Required in case of method call exception, see [RPC error](#rpc-error) for more details.
 
 ### RPC Error
 
@@ -91,7 +105,7 @@ Key | Key name  | Required | Description
 ---:|---------- |----------|-------
 1   | `Code`    | yes      | Error code
 2   | `Message` | no       | Optional message
-3   | `MsgVals` | no       | List of values needed to localize `Message` on caller side.
+3   | `MsgData` | no       | Additional data to support for example `Message` localization on caller side. Structure is implementation specific and it is not defined by SHV RPC.
 
 Error codes
 
@@ -123,7 +137,7 @@ Exception when unknown method is called
 ## RpcSignal
 
 Spontaneous message sent without prior request and thus without `RequestId`. 
-It is used mainly notify clients that some tochological value had changed withou need to poll.
+It is used mainly notify clients that some technological value had changed without need to poll.
 
 Attributes
 
