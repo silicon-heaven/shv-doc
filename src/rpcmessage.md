@@ -2,80 +2,141 @@
 
 `RpcMessage` is `IMap` with meta-data attached from [RpcValue](rpcvalue.md) point of view.
 
-There are three types of messages used in the Silicon Heaven RPC communication.
+There are three kinds of RPC message defined:
+* [RpcRequest](#rpcrequest)
+* [RpcResponse](#rpcresponse)
+* [RpcSignal](#rpcsignal)
 
-## Request
-Message used to call some method. Such messages is required to have `requestId`, `shvPath`, `method` name and optionally `parameters`. 
-If the request goes via broker, the broker adds also `clientIds` attribute to the message meta-data to enable response back-propagation. 
-Parameters can be any valid [RpcValue](rpcvalue.md).
+RPC message can have meta-data attribute defined.
 
-## Response
+Attribute number | Attrinbute name | Description
+----------------:|-----------------|------------
+1                | MetaTypeId          | Always equal to `1` in case of RPC message 
+2                | MetaTypeNameSpaceId | Always equal to `0` in case of RPC message, may be omitted.
+8                | RequestId           | Every RPC request must have unique number per client. Matching RPC response will have the same number. 
+9                | ShvPath             | Path on which method will be called. 
+10               | Method              | Name of called RPC method 
+11               | CallerIds           | Internal attribute filled by broker to distinguish request from different clients with the same request ID.  
+13               | RevCallerIds        | Internal attribude filled by broker to enable support for multi-part messages and tunelling.
+14               | AccessGrant         | Acess granted by broker to called `shvPath` and `method` to current user. 
+16               | UserId              | ID of usser calling RPC method filled in by broker.
 
-Message sent by side that received some request. This message has to have
-`requestId` and `result` or `error` but it can’t have method name. It has to copy `clientIds` from request message if they were present. 
+Second part of RPC message is `IMap` with following possible keys.
 
-## Signal
 
-Spontaneous message sent without prior request and thus without `requestId`. It needs to specify `shvPath`, `method` and optionally `params` with any valid `RpcValue`.
+Key | Key name | Description
+---:|----------|------------
+1   | Params   | Optional method parameters, any [RpcValue](rpcvalue.md) is allowed.
+2   | Result   | Successful method call result, any [RpcValue](rpcvalue.md) is allowed.
+3   | Error    | Method call exception, see [RPC error](#rpc-error) fo more details
 
-`requestId` can be any unique number assigned by side that sends request initially. It is used to pair up requests with their responses. The common approach is to just use request message counter as `requestId`.
+Let describe three types of messages from example above in more details.
 
-Mentioned `clientIds` are related to the broker and unless you are implementing a broker you need to know only that they are additional identifiers for the message alongside the `requestId` to pair requests with their responses and thus should be always included in the response message if they were present in the request.
+## RpcRequest
 
-The SHV path is used to select exact node of method in the SHV tree. The SHV tree is discussed in the next section.
+Message used to invoke remote method.
 
+Attributes
+
+Attribute | Required | Note
+----------|----------|-----
+`MetaTypeId`   | yes | Always set to `1`
+`RequestId`    | yes |
+`ShvPath`      | yes |
+`Method`       | yes |
+`RevCallerIds` | no  | If tunelling or multi-part message is needed
+`CallerIds`    |     | Attributes managed by broker
+`AccessGrant`  |     | Attributes managed by broker
+`UserId`       |     | Attributes managed by broker
+
+Keys
+
+Key      | Required | Note
+---------|----------|-----
+`Params` | no       | Any valid [RpcValue](rpcvalue.md)
+
+RPC call invocation,  method `switchLeft` on 
+path `test/pme/849V` with request ID `56` and parameter `true`. 
 ```
-+--------+----------+---------+
-| Length | Coding   | Payload |
-+--------+----------+---------+
-```
-* `Length` - UInt (in chainpack format without leading `PackingSchema` byte) - length of message excluding `Length`, len(Coding) + len(Payload)
-* `Coding` - uint8_t 
-  * `1` - ChainPack
-* `Payload` - message payload, currently only `ChainPack` is supported.
-
-## RPC
-ChainPack RPC is relaxed form of JSON RPC, for example `jsonrpc` key is not required
-
-Each RPC message is coded as `IMap` with `MetaTypeNameSpaceId == 1 (ChainPackNS)` and `MetaTypeId == 1 (ChainPackRpcMessage)`. Meta types are defined in `metatypes.h`
-
-RequestId and RpcCallType are transmitted in message metadata. This allows us to get this information without parsing whole message. Broker can route messages according to this information without inspecting their content.
-
-Defined ChainPack meta keys (`metatypes.h`):
-```c++
-struct Tag { enum Enum {Invalid = -1, MetaTypeId = 1, MetaTypeNameSpaceId, USER = 8 }; };
-```
-Defined ChainPackRpc message keys (`rpcmessage.h`):
-```c++
-struct Tag { enum Enum {RequestId = 8, Destination = 9, Method = 10};};
-struct Key { enum Enum {Params = 1, Result, Error, ErrorCode, ErrorMessage, MAX};};
-```
-### examples:
-
-RpcRequest Id=123, method="foo", params = {"a": 45, "b":  "bar", "c": [1,2,3]}
-```
-<8:123, 10:"foo">i{1:{"a":45,"b":"bar","c":[1,2,3]}}
-10000001|00000001|10001111|00000011|00000001|10000110|01111011|00000010|10001011|00000011|01100110|01101111|01101111|00000011|10001110|00000011|00000001|01100001|01101101|00000001|01100010|10001011|00000011|01100010|01100001|01110010|00000001|01100011|10001101|00000011|01000001|01000010|01000011
-```
-
-RpcResponse SUCCESS result=42
-```
-<8:123>i{2:42u}
-10000001|00000001|10001111|00000010|00000001|10000110|01111011|00000100|00101010
-```
-RpcResponse ERROR error_code=8, error_message="Method: 'foo' doesn't exist"
-```
-<8:123>i{3:i{1:8,2:"Method: 'foo' doesn't exist"}}
+<1:1,8:56,9:"test/pme/849V",10:"switchLeft">i{1:true}
 ```
 
-#### Examples
-JSON `{"compact":true,"schema":0}` 27 bytes
+## RpcResponse
 
-MessagePack 18 bytes
+Attributes
 
-ChainPack `|Map|String|7|'c'|'o'|'m'|'p'|'a'|'c'|'t'|True|String|6|'s'|'c'|'h'|'e'|'m'|'a'|TinyUInt(0)|TERM|` 21 bytes
+Attribute | Required | Note
+----------|----------|-----
+`MetaTypeId`   | yes | Always set to `1`
+`RequestId`    | yes | ID of matching `RpcRequest`
+`RevCallerIds` | yes | Must be copied from `RpcRequest` if present.
+`CallerIds`    | yes | Must be copied from `RpcRequest` if present.
 
-## References and Links to Similar Projects
+Keys
 
-*  Concise Binary Object Representation (CBOR) [RFC8949](https://datatracker.ietf.org/doc/html/rfc8949)   
+Key      | Required | Note
+---------|----------|-----
+`Result` | yes      | Required in case of successful method call result, any [RpcValue](rpcvalue.md) is allowed.
+`Error`  | yes      | Required in case of method call exception, see [RPC error](#rpc-error) fo more details.
+
+### RPC Error
+
+RPC Error is `IMap` with following keys defined
+
+Key | Key name  | Required | Description
+---:|---------- |----------|-------
+1   | `Code`    | yes      | Error code
+2   | `Message` | no       | Optional message
+3   | `MsgVals` | no       | List of values needed to localize `Message` on caller side.
+
+Error codes
+
+Value | Name  | Description
+-----:|-------|----------
+0  | `NoError`             | 
+1  | `InvalidRequest`      | The `RpcValue` sent is not a valid RPC Request object.
+2  | `MethodNotFound`      | The method does not exist / is not available.
+3  | `InvalidParams`       | Invalid method parameter(s).
+4  | `InternalError`       | Internal RPC error.
+5  | `ParseError`          | Invalid `ChainPack` was received.
+6  | `MethodCallTimeout`   | 
+7  | `MethodCallCancelled` | 
+8  | `MethodCallException` | 
+9  | `Unknown`             | 
+32 | `UserCode`            | 
+
+**Examples**
+
+Successful response to method call from example above
+```
+<1:1,8:56>i{2:true}
+```
+Exception when unknown method is called
+```
+<1:1,8:11>i{3:i{1:8,2:"method: foo path:  what: Method: 'foo' on path 'shv/cze' doesn't exist"}}
+```
+
+## RpcSignal
+
+Spontaneous message sent without prior request and thus without `RequestId`. 
+It is used mainly notify clients that some tochological value had changed withou need to poll.
+
+Attributes
+
+Attribute | Required | Note
+----------|----------|-----
+`MetaTypeId`   | yes | Always set to `1`
+`ShvPath`      | yes | Property path
+`Method`       | yes | Signal name, the property changes have obviously method `chng`
+
+Keys
+
+Key      | Required | Note
+---------|----------|-----
+`Params` | no       | Any valid [RpcValue](rpcvalue.md)
+
+Spontaneous notification about change of `status/motorMoving` property to `true`.
+```
+<1:1,9:"shv/test/pme/849V/status/motorMoving",10:"chng">i{1:true}
+```
 
