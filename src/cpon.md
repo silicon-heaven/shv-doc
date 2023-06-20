@@ -18,7 +18,7 @@ Super-set of JSON with following extensions:
 * C style comments are supported, for example `[1,/*2,*/3]` means `[1,3]`
 * Trailing coma separators at end of line is optional. Trailing coma after last element of list or map is enabled, for example `[1,2,3,]`.
 
-If RpcValue has meta-data, they are placed before value quoted by `<` and `>` characters, see examples below.
+If [RpcValue](rpcvalue.md) has meta-data, they are placed before value quoted by `<` and `>` characters, see examples below.
  
 Example:
 ```

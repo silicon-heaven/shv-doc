@@ -12,7 +12,7 @@ The error is also raised when no byte is received for 5 seconds on an incomplete
 ```
 
 `data` consist of two parts
-* [protocol_type](https://github.com/silicon-heaven/libshv/blob/353424a9b9b1943761a6a6ec50c1eb516a00877e/libshvchainpack/src/chainpack/rpc.h#L13) - 1 byte 
+* [payload_type](https://github.com/silicon-heaven/libshv/blob/353424a9b9b1943761a6a6ec50c1eb516a00877e/libshvchainpack/src/chainpack/rpc.h#L13) - 1 byte 
   * 01 - Chainpack
   * 02 - Cpon (deprecated)
   * 03 - Json (deprecated)
@@ -33,7 +33,7 @@ The error is also raised when no byte is received for 5 seconds on an incomplete
 ```
 * `STX` start of message `0xA2`
 * `ETX` end of the message `0xA3`
-* `ESTX` escaped STX code `0xA4`
+* `ESTX` escapd STX code `0xA4`
 * `EETX` escaped ETX code `0xA5`
 * `ESC` escape `0xAA`
   * `STX` in data will be coded as `ESC` `ESTX`

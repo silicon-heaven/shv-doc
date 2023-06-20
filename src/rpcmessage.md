@@ -59,9 +59,9 @@ Attribute | Required | Note
 `ShvPath`      | yes |
 `Method`       | yes |
 `RevCallerIds` | no  | If tunneling or multi-part message is needed
-`CallerIds`    |     | Attributes managed by broker
-`AccessGrant`  |     | Attributes managed by broker
-`UserId`       |     | Attributes managed by broker
+`CallerIds`    |     | Attribute managed by broker
+`AccessGrant`  |     | Attribute managed by broker
+`UserId`       |     | Attribute managed by broker
 
 Keys
 
@@ -87,8 +87,8 @@ Attribute | Required | Note
 ----------|----------|-----
 `MetaTypeId`   | yes | Always set to `1`
 `RequestId`    | yes | ID of matching `RpcRequest`
-`RevCallerIds` | yes | Must be copied from `RpcRequest` if present.
-`CallerIds`    | yes | Must be copied from `RpcRequest` if present.
+`RevCallerIds` | no  | Must be copied from `RpcRequest` if present.
+`CallerIds`    | no  | Must be copied from `RpcRequest` if present.
 
 Keys
 
