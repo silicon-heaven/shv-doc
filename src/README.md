@@ -21,3 +21,5 @@ with great [documentation](https://elektroline-predator.gitlab.io/pyshv/master/i
 This book contains some parts of Karel's original document.
 
 There are also other [language bindings](language-bindings.md) available.
+
+Try [ShvSpy](https://github.com/silicon-heaven/shvspy) GUI client for SHV. 
