@@ -104,8 +104,8 @@ RPC Error is `IMap` with following keys defined
 Key | Key name  | Required | Description
 ---:|---------- |----------|-------
 1   | `Code`    | yes      | Error code
-2   | `Message` | no       | Optional message
-3   | `MsgData` | no       | Additional data to support for example `Message` localization on caller side. Structure is implementation specific and it is not defined by SHV RPC.
+2   | `Message` | no       | Optional message, note that `Message` can be embedded in more complex structure (for example `Map`) in case of localization.
+specific and it is not defined by SHV RPC.
 
 Error codes
 
