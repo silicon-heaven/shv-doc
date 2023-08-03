@@ -88,7 +88,7 @@ The dedicated bytes for this are escaped in the message data.
 ```
 * `STX` start of message `0xA2`
 * `ETX` end of the message `0xA3`
-* `ESTX` escapd STX code `0xA4`
+* `ESTX` escaped STX code `0xA4`
 * `EETX` escaped ETX code `0xA5`
 * `ESC` escape `0xAA`
   * `STX` in data will be coded as `ESC` `ESTX`

@@ -5,12 +5,12 @@
 There are three types of messages used in the Silicon Heaven RPC communication.
 
 [RpcRequest](rpcmessage.md#rpcrequest) -
-message used to call some method. Such messages is required to have some
+message used to call some method. Such messages are required to have some
 request ID, SHV path, method name and optionally some parameters
 
 [RpcResponse](rpcmessage.md#rpcresponse) -
 message sent by side that received some request. This message has to have
-request ID and result but it can't have method name. 
+request ID and result, but it can't have method name. 
 
 [RpcSignal](rpcmessage.md#rpcsignal) -
 spontaneous message sent without prior request and thus without request ID. It needs to
@@ -32,7 +32,7 @@ That is because broker is the only one that needs to manage multiple connections
 in parallel in such case. Clients are only connected to the broker.
 
 Clients can be simple dummy clients that only call some methods and listen for
-responses and signals but there are also clients that expose methods and nodes.
+responses and signals, but there are also clients that expose methods and nodes.
 We call these clients "devices". Device has tree of nodes where every node can
 have multiple methods associated with it. This tree can be discovered through
 method `ls` that needs to be implemented on every node. Methods associated
@@ -41,7 +41,7 @@ implemented on every node.
 
 Device's tree needs to be accessible to clients through SHV broker and this is
 archived by attaching it somewhere in the broker's tree. This operation is
-called mounting and you need to specify mount point (node in the SHV broker
+called mounting, and you need to specify mount point (node in the SHV broker
 tree) when connecting device to the SHV broker. Thanks to this client can
 communicate with multiple devices in parallel as well as device can be used by
 multiple clients.
@@ -59,7 +59,7 @@ other client. The message propagation depends on its type.
 Broker looks up the correct device it should forward message to
 based on the SHV path. It handles request itself if there is no such device mounted.
 If device is located, broker removes device mount point from request SHV path, 
-it appends client ID of caller to `CallerIds` and it assign granted access level. 
+it appends client ID of caller to `CallerIds`, and it assigns granted access level. 
 The message is then sent to the located device. 
 Broker doesn't remember this request because all the request state is contained
 in request meta-data.
@@ -93,21 +93,21 @@ otherwise.
 
 There is also special method `rejectNotSubscribed` on path `.broker/app` that
 allows users to cancel subscription without knowing the exact parameters used
-to subscribe. You need to provide `path` and `method` and it locates first
+to subscribe. You need to provide `path` and `method`, and it locates first
 matching subscription and cancels it. `true` is returned if that is successful
 and `false` otherwise. Note that by sending empty message until you get `false`
 you can unsubscribe all subscriptions. This method is used mostly by master
 broker to tell the slave one, that client who subscribed signal received, is
 not connected any more and thus the slave broker can delete this subscripted
-path from subscription list. Note, that slave broker has single subscrition list
+path from subscription list. Note, that slave broker has single subscription list
 for master broker connection, whilst master broker has subscription list for
 every connected client. More clients on master broker can share the same entry
 on slave broker subscription list. If master broker client disconnects, master
 broker does not propagate this event to the slave broker. But if the master
-broker receives signal with path, which doesn't match any entry in its clients
+broker receives signal with path, which doesn't match any entry in its client's
 subscription lists, then it sends `rejectNotSubscribed` to the slave broker. The
 slave broker removes then signal path from subscription list of master broker
-connection. Subscription lists of all brokers in hierarchy are synchonized this way.
+connection. Subscription lists of all brokers in hierarchy are synchronized this way.
 
 
 Access control
@@ -117,7 +117,7 @@ User can be limited from accessing some methods. The right of access is
 controlled by the device that handles request not by the intermediate brokers.
 At the same time devices don't and should not know about user accounts and thus
 the complete access control is in reality split to two steps. Client sends
-request to the broker and it assigns to the message some access grants based on
+request to the broker, and it assigns to the message some access grants based on
 users rules. The message is then delivered to the device that checks this
 grants and either performs the method or raises error based on it.
 
@@ -126,7 +126,7 @@ The predefined access grants are the following:
 Grant name | Description
 -----------|------------
 `bws`      | is the lowest possible access grant. This level allows user to list SHV nodes tree and to discover methods. Nothing more is allowed.
-`rd`       | provides user with read access and thus access should be allowed only to methods that perform reading of values. Those method should not have side effects.
+`rd`       | provides user with read access and thus access should be allowed only to methods that perform reading of values. Those methods should not have side effects.
 `wr`       | provides user with write access and thus access should be allowed to the method that modify some values.
 `cmd`      | provides user with access to methods that control and command the device.
 `cfg`      | provides user with access to methods used to modify device's configuration.

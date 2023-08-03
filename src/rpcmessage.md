@@ -71,7 +71,7 @@ Key      | Required | Note
 
 **Examples**
 
-RPC call invocation,  method `switchLeft` on 
+RPC call invocation, method `switchLeft` on 
 path `test/pme/849V` with request ID `56` and parameter `true`. 
 ```
 <1:1,8:56,9:"test/pme/849V",10:"switchLeft">i{1:true}

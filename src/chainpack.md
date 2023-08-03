@@ -42,7 +42,7 @@ No packed data after *PackingSchema*.
 ### UInt
 Values 0-63 are packed directly in `PackingSchema` to save one byte.
 
-LSB is least significant byte
+LSB is the least significant byte
 ```
  0 ...  7 bits  1  byte  |0|x|x|x|x|x|x|x|<-- LSB
  8 ... 14 bits  2  bytes |1|0|x|x|x|x|x|x| |x|x|x|x|x|x|x|x|<-- LSB
@@ -78,7 +78,7 @@ Values 0-63 are packed directly in `PackingSchema` like `64+n` to save one byte.
 
 Signed int is stored in the same way as the unsigned one, the only difference is that the sign bit is stored at position marked by `s`
 
-LSB is least significant byte
+LSB is the least significant byte
 
 s is sign bit
 ```
@@ -141,7 +141,7 @@ value = mantissa * (base ^ exponent)
 both `mantisa` and `exponent` can have value of `TERM` to encode special values
 
 `exponent` == `TERM` :
-* `mantisa == 1`  - `+INF`
+* `mantisa == 1` - `+INF`
 * `mantisa == -1` - `-INF`
 * `mantisa == 0` - `qNaN`
 * `mantisa == 2` - `sNaN`
@@ -240,8 +240,8 @@ i{1:"foo",2:"bar",333:15}
 ```
 ### MetaMap
 Like `IMap` but can have also `String` keys. 
-Key key order is not guaranteed.
+Key order is not guaranteed.
 
 ### RpcValue with MetaData
-MetaData are prepend before packed RpcValue in form of dictionary quoted by `<` and `>`. MetaMap may contain Int and String keys.
+MetaData are prepended before packed RpcValue in form of dictionary quoted by `<` and `>`. MetaMap may contain Int and String keys.
 

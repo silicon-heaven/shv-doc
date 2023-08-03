@@ -20,6 +20,6 @@ There is also pure python SHV [implementation](https://gitlab.com/elektroline-pr
 with great [documentation](https://elektroline-predator.gitlab.io/pyshv/master/index.html) thanks to [Karel Kočí](https://gitlab.com/Cynerd). 
 This book contains some parts of Karel's original document.
 
-There are also other [implementations in different programming languages](implementations.md) available.
+There are also [implementations in different programming languages](implementations.md) available.
 
 Try [ShvSpy](https://github.com/silicon-heaven/shvspy) GUI client for SHV. 
