@@ -105,7 +105,7 @@ Key | Key name  | Required | Description
 ---:|---------- |----------|-------
 1   | `Code`    | yes      | Error code
 2   | `Message` | no       | Error message string
-3   | `data`    | no       | Arbitrary payload, can be used for example for exception localization aditional info.
+3   | `Data`    | no       | Arbitrary payload, can be used for example for exception localization aditional info.
 specific and it is not defined by SHV RPC.
 
 Error codes
