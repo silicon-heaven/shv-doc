@@ -26,7 +26,7 @@ Dec | Hex | Bin | Name
 139 | 8b | 10001011 | MetaMap
 140 | 8c | 10001100 | Decimal
 141 | 8d | 10001101 | DateTime
-142 | 8e | 10001110 | CString (Deprecated)
+142 | 8e | 10001110 | CString 
 143 | 8f | 10001111 | BlobPart (Experimental)
 253 | fd | 11111101 | FALSE
 254 | fe | 11111110 | TRUE
@@ -180,7 +180,7 @@ If embedded device has not buffer long enough to keep whole blob before sending,
 So every blob mesage can consist of zero or more `BlobPart` chunks plus exactly one `Blob` one, like `[BlobPart]*[Blob]`.
 
 ### CString
-`CString` is deprecated as not as usefull in embedded devolopment as expected. Consider to us `BlobPart` instead in case of need of sending string data in more chunks.
+`CString` is stream of `utf-8` valid bytes terminated by `\0`. `CString` MUST NOT contain `\0` byte inside, so escaping is not needed.
 ```
 +--------------+------+
 | escaped data | `\0` |
