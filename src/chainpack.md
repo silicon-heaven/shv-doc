@@ -26,7 +26,8 @@ Dec | Hex | Bin | Name
 139 | 8b | 10001011 | MetaMap
 140 | 8c | 10001100 | Decimal
 141 | 8d | 10001101 | DateTime
-142 | 8e | 10001110 | CString
+142 | 8e | 10001110 | CString (Deprecated)
+143 | 8f | 10001111 | BlobPart (Experimental)
 253 | fd | 11111101 | FALSE
 254 | fe | 11111110 | TRUE
 255 | ff | 11111111 | TERM
@@ -152,15 +153,42 @@ both `mantisa` and `exponent` can have value of `TERM` to encode special values
 
 ### Bool
 one byte, 0 - false, 1 - true
+
 ### String
 ```
-+-------------+---------+
-| UInt length | data    |
-+-------------+---------+
++-------------+------------+
+| UInt length | utf-8 data |
++-------------+------------+
+```
+example:
+```
+"fpowf":  10001010|00000101|01100110|01110000|01101111|01110111|01100110
+```
+
+### Blob, BlobPart
+```
++-------------+------+
+| UInt length | data |
++-------------+------+
 ```
 example:
 ```
 "fpowf\u0000sapofkpsaokfsa":  10001010|00010100|01100110|01110000|01101111|01110111|01100110|00000000|01110011|01100001|01110000|01101111|01100110|01101011|01110000|01110011|01100001|01101111|01101011|01100110|01110011|01100001
+```
+If embedded device has not buffer long enough to keep whole blob before sending, so it does not know also blob length, which must be sent first, then `BlobPart` message comes to play. 
+`BlobPart` format is exactly same as the `Blob` one, but it keeps parser informed, that rest of overal blob will come in more parts. 
+So every blob mesage can consist of zero or more `BlobPart` chunks plus exactly one `Blob` one, like `[BlobPart]*[Blob]`.
+
+### CString
+`CString` is deprecated as not as usefull in embedded devolopment as expected. Consider to us `BlobPart` instead in case of need of sending string data in more chunks.
+```
++--------------+------+
+| escaped data | `\0` |
++--------------+------+
+```
+example:
+```
+"fpowfu0000sapofkpsaokfsa":  10001110|01100110|01110000|01101111|01110111|01100110|00000000
 ```
 
 ### DateTime
