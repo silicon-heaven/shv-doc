@@ -27,7 +27,7 @@ Dec | Hex | Bin | Name
 140 | 8c | 10001100 | Decimal
 141 | 8d | 10001101 | DateTime
 142 | 8e | 10001110 | CString 
-143 | 8f | 10001111 | BlobPart (Experimental)
+143 | 8f | 10001111 | BlobChain (Experimental)
 253 | fd | 11111101 | FALSE
 254 | fe | 11111110 | TRUE
 255 | ff | 11111111 | TERM
@@ -165,7 +165,7 @@ example:
 "fpowf":  10001010|00000101|01100110|01110000|01101111|01110111|01100110
 ```
 
-### Blob, BlobPart
+### Blob
 ```
 +-------------+------+
 | UInt length | data |
@@ -175,12 +175,10 @@ example:
 ```
 "fpowf\u0000sapofkpsaokfsa":  10001010|00010100|01100110|01110000|01101111|01110111|01100110|00000000|01110011|01100001|01110000|01101111|01100110|01101011|01110000|01110011|01100001|01101111|01101011|01100110|01110011|01100001
 ```
-If embedded device has not buffer long enough to keep whole blob before sending, so it does not know also blob length, which must be sent first, then `BlobPart` message comes to play. 
-`BlobPart` format is exactly same as the `Blob` one, but it keeps parser informed, that rest of overal blob will come in more parts. 
-So every blob mesage can consist of zero or more `BlobPart` chunks plus exactly one `Blob` one, like `[BlobPart]*[Blob]`.
 
 ### CString
 `CString` is stream of `utf-8` valid bytes terminated by `\0`. `CString` MUST NOT contain `\0` byte inside, so escaping is not needed.
+
 ```
 +--------------+------+
 | escaped data | `\0` |
@@ -188,8 +186,20 @@ So every blob mesage can consist of zero or more `BlobPart` chunks plus exactly 
 ```
 example:
 ```
-"fpowfu0000sapofkpsaokfsa":  10001110|01100110|01110000|01101111|01110111|01100110|00000000
+"fpowf":  10001110|00000101|01100110|01110000|01101111|01110111|01100110|00000000
 ```
+
+### BlobChain
+`BlobChain` provides a way to pack binary data that are not of known size
+upfront. Data are sent in blocks with their size prefixed and termination is
+done by packing zero as data length.
+
+```
++-------------+------+-----+-------------+------+---+
+| UInt length | data | ... | UInt length | data | 0 |
++-------------+------+-----+-------------+------+---+
+```
+
 
 ### DateTime
 ```
