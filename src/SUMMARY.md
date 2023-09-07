@@ -8,3 +8,4 @@
 - [RpcMessage](./rpcmessage.md)
 - [RPC transport layer](./rpctransportlayer.md)
 - [Language bindings](./language-bindings.md)
+- [ SHV RPC defined methods](./shvrpc-defined-methods.md)
