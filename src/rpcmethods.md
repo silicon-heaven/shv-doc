@@ -222,24 +222,28 @@ is highly suggested if they are suppose to be connected to the broker for more
 than just few requests. They are used to differentiate between different clients
 connected to the broker.
 
+### shvVersion
+
+> Name: `"shvVersion"` | SHV path: `".app"` | Signature: `ret()` | Getter | Browse access
+
 ### appName
 
-> Name: `"appName"` | SHV path: `""` | Signature: `ret()` | Getter | Browse access
+> Name: `"appName"` | SHV path: `".app"` | Signature: `ret()` | Getter | Browse access
 
-This method should be present on SHV path `""`.
+This method should be present on SHV path `".app"`.
 
 ### appVersion
 
-> Name: `"appVersion"` | SHV path: `""` | Signature: `ret()` | Getter | Browse access
+> Name: `"appVersion"` | SHV path: `".app"` | Signature: `ret()` | Getter | Browse access
 
 ### echo
+
+> Name: `"echo"` | SHV path: `".app"` | Signature: `ret(param)` | Getter | Browse access
 
 
 ## SHV Broker API
 
 ### .broker/app
-
-#### ping
 
 #### subscribe
 
