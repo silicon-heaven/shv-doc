@@ -12,4 +12,4 @@
 
 ---
 
-# SHV standard: 0.1.0
+# SHV standard: 0.1
