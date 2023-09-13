@@ -72,10 +72,10 @@ set of options but minimal needed supported options are these:
 => <id:2, method:"login">i{1:{"login":{"password":"3d613ce0c3b59a36811e4acbad533ee771afa9f3","user":"iot","type":"SHA1"}}, "options":{"device":{"deviceId":"bfsview_test", "mountPoint":"test/bfsview"}, "idleWatchDogTimeOut":180}}}
 ```
 
-The broker will respond with *Null* (no response) or *Map* if it desires to
-provide some info about itself to the client. The content of the *Map* is not
-defined is broker implementation specific. From now on you can send any requests
-and receive any messages you have rights on as logged user from the broker.
+The broker will respond with *Null* (some older broker implementation can
+respond with some value for backward compatibility reasons). From now on you can
+send any requests and receive any messages you have rights on as logged user
+from the broker.
 
 ```
 <= <id:2>i{}
