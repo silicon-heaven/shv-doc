@@ -72,13 +72,13 @@ set of options but minimal needed supported options are these:
 => <id:2, method:"login">i{1:{"login":{"password":"3d613ce0c3b59a36811e4acbad533ee771afa9f3","user":"iot","type":"SHA1"}}, "options":{"device":{"deviceId":"bfsview_test", "mountPoint":"test/bfsview"}, "idleWatchDogTimeOut":180}}}
 ```
 
-The broker will respond with  message containing client's ID. This needs to be
-an *integer* identifying the client on the connected broker. From now on you can
-send any requests and receive any messages you have rights on as logged user
-from the broker.
+The broker will respond with *Null* (no response) or *Map* if it desires to
+provide some info about itself to the client. The content of the *Map* is not
+defined is broker implementation specific. From now on you can send any requests
+and receive any messages you have rights on as logged user from the broker.
 
 ```
-<= <id:2>i{2:{"clientId":68384}}
+<= <id:2>i{}
 ```
 
 In case of an login error you can attempt the login again without need to
@@ -276,7 +276,7 @@ read-write property and real value is read-only one.
 
 | Name   | SHV Path | Flags  | Access | Result |
 |--------|----------|--------|--------|--------|
-| `chng` | Any      | Signal | Read   | Any   |
+| `chng` | Any      | Signal | Read   | Any    |
 
 This is signal and thus it gets emitted on its own and can't be called. It is
 used when you have desire to get info about value change without polling. Note
@@ -301,21 +301,21 @@ path `".app"`. Clients do not have to implement these but their implementation
 is highly suggested if they are suppose to be connected to the broker for more
 than just a few requests.
 
-### shvVersionMajor
+### SHVVersionMajor
 
 | Name              | SHV Path | Flags  | Access | Result |
 |-------------------|----------|--------|--------|--------|
-| `shvVersionMajor` | `.app`   | Getter | Browse   | Int    |
+| `SHVVersionMajor` | `.app`   | Getter | Browse | Int    |
 
 This method provides information about implemented SHV standard. Major version
 number signal major changes in the standard and thus you are most likely
 interested just in this number.
 
-### shvVersionMinor
+### SHVVersionMinor
 
 | Name              | SHV Path | Flags  | Access | Result |
 |-------------------|----------|--------|--------|--------|
-| `shvVersionMinor` | `.app`   | Getter | Browse   | Int    |
+| `SHVVersionMinor` | `.app`   | Getter | Browse | Int    |
 
 This method provides information about implemented SHV standard. Minor version
 number signals new features added and thus if you wish to check for support of
@@ -325,7 +325,7 @@ these additions you can use this number.
 
 | Name      | SHV Path | Flags  | Access | Result |
 |-----------|----------|--------|--------|--------|
-| `appName` | `.app`   | Getter | Browse   | String |
+| `appName` | `.app`   | Getter | Browse | String |
 
 This method must provide the name of the application, or at least the SHV
 implementation used in the application.
@@ -356,6 +356,29 @@ well as to keep connection in case of SHV Broker.
 The broker needs to implement application API, as well as some additional
 methods and broker's side of the login sequence (unless it connects to other
 broker and in such case it performs client side).
+
+The broker can be pretty much ignored when you are sending requests and
+receiving responses to them. The notification delivery needs to be subscribed in
+the broker and thus for notification the knowledge about broker is a must.
+
+### Generic information
+
+These are methods providing generic info about layout and broker functionality.
+
+#### mountPoints
+
+| Name          | SHV Path  | Flags  | Access | Result        |
+|---------------|-----------|--------|--------|---------------|
+| `mountPoints` | `.broker` | Getter | Browse | [String, ...] |
+
+This method provides list of all mount points this broker currently serves. This
+provides an easy access to the paths of all devices. Broker should filter this
+list based on the access rights of the client requesting this.
+
+```
+=> <id:42, method:"mountPoints", path:".broker">i{}
+<= <id:42>i{2:["test/device", "test/foo", "test/site/device"]}
+```
 
 ### Notifications filtering
 
@@ -416,22 +439,22 @@ have been found.
 <= <id:42>i{2:false}
 ```
 
-#### rejectNotSubscribed
+#### rejectSubscription
 
-| Name                  | SHV Path  | Flags | Access | Parameter            | Result                     |
-|-----------------------|-----------|-------|--------|----------------------|----------------------------|
-| `rejectNotSubscribed` | `.broker` |       | Browse | {1:String, 2:String} | {1:String, 2:String\|Null} |
+| Name                 | SHV Path  | Flags | Access | Parameter            | Result                     |
+|----------------------|-----------|-------|--------|----------------------|----------------------------|
+| `rejectSubscription` | `.broker` |       | Browse | {1:String, 2:String} | {1:String, 2:String\|Null} |
 
 Unsubscribes a first subscription that matches the given method and SHV path.
 The intended use is when you receive notification that you are not interested
 in. You can send this request with method and SHV path of such notification to
 just unsubscribe. Note that it must unsubscribes the first matching subscription
-but there might be multiple subscriptions that would match the same combination.
+but there can be multiple subscriptions that would match the same combination.
 
-It provides subscription description that was unsubscribed. The situation when
-there is no subscription should not happen because combination of method and
-path should be from notification you received and thus error is a suitable
-result, because it is either a bug in broker or client.
+As a result it provides subscription description that was unsubscribed. The
+situation when there is no subscription should not happen because combination of
+method and path should be from notification you received and thus error is a
+suitable result, because it is either a bug in broker or client.
 
 ```
 => <id:42, method:"rejectNotSubscribed", path:".broker">i{1:{1:"chng", 2:"test/device/foo"}}
@@ -461,53 +484,22 @@ The information about connected clients and its parameters is beneficial not
 only for the client's them self but primarily to the administrators of the SHV
 network.
 
-#### clientID
+#### clientInfo
 
-| Name       | SHV Path  | Flags  | Access | Result |
-|------------|-----------|--------|--------|--------|
-| `clientID` | `.broker` | Getter | Browse | Int    |
+| Name         | SHV Path  | Flags  | Access | Parameter | Result                                                                                                                                |
+|--------------|-----------|--------|--------|-----------|---------------------------------------------------------------------------------------------------------------------------------------|
+| `clientInfo` | `.broker` | Getter | Browse | Null\|Int | {"clientID":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...} \| Null |
 
-Client in the SHV Broker is identified by its Integer ID. It is provided to him
-as the response to the `login` in the login sequence but it is also available
-through this method if client does not want to save it, for what ever reason.
-Note that result of this method is client specific.
+Information the broker has for the current client. This info about itself should
+be accessible to the client but using any other client ID should require access
+level *Service*.
 
-```
-=> <id:42, method:"clientID", path:".broker">i{}
-<= <id:42>i{2:5436}
-```
+The parameter can be either *Null* (no parameter), and in such case the user info
+is for the current client. or it can be *Int* and in such case info is for
+client with matching ID. The *Nul* is returned in case there is no client with
+this ID.
 
-#### mountPoints
-
-| Name          | SHV Path  | Flags  | Access | Result        |
-|---------------|-----------|--------|--------|---------------|
-| `mountPoints` | `.broker` | Getter | Browse | [String, ...] |
-
-This method provides list of all mount points this broker currently serves. This
-provides an easy access to the paths of all devices. Broker should filter this
-list based on the access rights of the client requesting this.
-
-```
-=> <id:42, method:"mountPoints", path:".broker">i{}
-<= <id:42>i{2:["test/device", "test/foo", "test/site/device"]}
-```
-
-#### clients
-
-| Name      | SHV Path  | Flags | Access  | Parameter | Result                                                                                                                               |
-|-----------|-----------|-------|---------|-----------|--------------------------------------------------------------------------------------------------------------------------------------|
-| `clients` | `.broker` |       | Service | Null\|Int | [{"clientID":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...}, ...] |
-
-This method allows you to list all clients connected to the broker and also to
-get info about them. This is administration task.
-
-This is mandatory way of listing clients. There is also an optional more
-convenient way that brokers can implement to allow easier use by administrators
-and that is nodes on SHV path `.broker/clients` (the format is not
-standardized), but any automatic tool should use this call instead.
-
-The provided value is *List* of maps where every *Map* must have at least these
-fields:
+The provided *Map* must have at least these fields:
 
 * `"clientID"` with *Int* containing ID assigned to this client.
 * `"userName"` with *String* user name used during the login sequence. This is
@@ -520,8 +512,38 @@ Additional fields are allowed to support more complex brokers but are not
 required nor standardized at the moment.
 
 ```
+=> <id:42, method:"clientID", path:".broker">i{}
+<= <id:42>i{2:{"clientID:68, "userName":"smith", "subscriptions":[{1:"chng"}]}}
+```
+```
+=> <id:42, method:"clientID", path:".broker">i{1:68}
+<= <id:42>i{2:{"clientID:68, "userName":"smith", "subscriptions":[{1:"chng"}]}}
+```
+```
+=> <id:42, method:"clientID", path:".broker">i{1:126}
+<= <id:42>i{2:null}
+```
+
+#### clients
+
+| Name      | SHV Path  | Flags  | Access  | Result                                                                                                                               |
+|-----------|-----------|--------|---------|--------------------------------------------------------------------------------------------------------------------------------------|
+| `clients` | `.broker` | Getter | Service | [{"clientID":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...}, ...] |
+
+This method allows you get info about all clients connected to the broker. This
+is an administration task.
+
+This is mandatory way of listing clients. There is also can be an optional more
+convenient way that brokers can implement to allow easier use by administrators
+(commonly in `.broker/clients`), but any automatic tools should use this call
+instead.
+
+The *List* of maps is provided. The content is the same as `clientInfo`
+provides.
+
+```
 => <id:42, method:"clients", path:".broker">i{}
-<= <id:42>i{2:[{"clientID:68, "userName":"smith", "subscriptions":[]}]}
+<= <id:42>i{2:[{"clientID:68, "userName":"smith", "subscriptions":[{1:"chng"}]]}, {"clientID":83, "userName":"iot", "mountPoint":"iot/device"}]}
 ```
 
 #### disconnectClient
@@ -542,3 +564,14 @@ reconnection request.
 => <id:42, method:"clients", path:".broker">i{1:68}
 <= <id:42>i{}
 ```
+
+#### SHV path `.broker/clientAccess`
+
+It is desirable to be able to access clients directly without mounting them on a
+specific path. This helps with their identification by administrators. This is
+done by automatically mounting them in `.broker/clientAccess/<clientID>`. This
+mount won't be reported by `mountPoints` method on `.broker` path.
+
+The access to this path should be allowed only to the broker administrators. The
+rule of thumb is that if user can access `disconnectClient` in `.broker`, it
+should be also able to access `.broker/clientAccess`.
