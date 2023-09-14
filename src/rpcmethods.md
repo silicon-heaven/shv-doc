@@ -36,7 +36,7 @@ There are two types of the logins you can use. It can be either *plain* login or
 *plain* login just sends password as it is in *string*. The *sha1* login hashes
 the provided users password, adds the result as suffix to the nonce from `hello`
 and hashes the result again. SHA1 hash is represented in HEX format. The
-complete password deduction is: `SHA1(nonde + SHA1(password))`. The SHA1 login
+complete password deduction is: `SHA1(nonce + SHA1(password))`. The SHA1 login
 is highly encouraged and plain login is highly discouraged, even the low end
 CPUs should be able to calculate SHA1 hash and thus perform the SHA1 login. The
 `"login"` *map* needs to contain these fields:
@@ -248,7 +248,7 @@ Every property node needs to have *get* method and every node with *get* method
 can be considered as property node.
 
 It supports an optional Integer argument which is maximal age in milliseconds.
-This is used with caches along the way where sometimes "get" might be served
+This is used with caches along the way where sometimes *get* might be served
 from it without need to actually address the target device.
 
 ```
@@ -308,24 +308,24 @@ associated with the SHV path.
 
 These are methods that are required for every device to be present on its SHV
 path `".app"`. Clients do not have to implement these but their implementation
-is highly suggested if they are suppose to be connected to the broker for more
+is highly suggested if they are supposed to be connected to the broker for more
 than just a few requests.
 
-### SHVVersionMajor
+### shvVersionMajor
 
 | Name              | SHV Path | Flags  | Access | Result |
 |-------------------|----------|--------|--------|--------|
-| `SHVVersionMajor` | `.app`   | Getter | Browse | Int    |
+| `shvVersionMajor` | `.app`   | Getter | Browse | Int    |
 
 This method provides information about implemented SHV standard. Major version
 number signal major changes in the standard and thus you are most likely
 interested just in this number.
 
-### SHVVersionMinor
+### shvVersionMinor
 
 | Name              | SHV Path | Flags  | Access | Result |
 |-------------------|----------|--------|--------|--------|
-| `SHVVersionMinor` | `.app`   | Getter | Browse | Int    |
+| `shvVersionMinor` | `.app`   | Getter | Browse | Int    |
 
 This method provides information about implemented SHV standard. Minor version
 number signals new features added and thus if you wish to check for support of
