@@ -96,19 +96,24 @@ associated with it. The
 
 ### dir
 
-| Name  | SHV Path | Flags | Access | Parameter    | Result                                                                          |
-|-------|----------|-------|--------|--------------|---------------------------------------------------------------------------------|
-| `dir` | Any      |       | Browse | Null\|String | [i{...}, ...] \| i{1:String, 2:Int<0,3>, 3:Int<0,15>, 4:String, 5:String\|Null} |
+| Name  | SHV Path | Signature    | Flags | Access |
+|-------|----------|--------------|-------|--------|
+| `dir` | Any      | `ret(param)` |       | Browse |
 
 This method needs to be implemented for every node (that is every valid SHV
 path). It provides a way to list all available methods and signals of the node.
+
+| Parameter | Result                                                                 |
+|-----------|------------------------------------------------------------------------|
+| Null      | [i{1:String, 2:Int<0,3>, 3:Int<0,15>, 4:String, 5:String\|Null}, ...]  |
+| String    | i{1:String, 2:Int<0,3>, 3:Int<0,15>, 4:String, 5:String\|Null} \| Null |
 
 This method can be called with or without parameter. The valid parameters are:
 
 * *Null* and in such case all methods are listed
 * *String* and in such case only method with matching name is listed
 
-The returned value is list of method descriptions, or just a single method
+The provided value is list of method descriptions, or just a single method
 description without list in case *String* was passed as an argument. Every
 method description is *Map* with the following fields:
 
@@ -186,12 +191,17 @@ latest one.
 
 ### ls
 
-| Name | SHV Path | Flags | Access | Parameter    | Result               |
-|------|----------|-------|--------|--------------|----------------------|
-| `ls` | Any      |       | Browse | Null\|String | [String,...] \| Bool |
+| Name | SHV Path | Signature    | Flags | Access |
+|------|----------|--------------|-------|--------|
+| `ls` | Any      | `ret(param)` |       | Browse |
 
 This method needs to be implemented for every valid SHV path. It provides a way
 to list all children nodes of the node.
+
+| Parameter | Result       |
+|-----------|--------------|
+| Null      | [String,...] |
+| String    | Bool         |
 
 This method can be called with or without parameter. The valid parameters are:
 
