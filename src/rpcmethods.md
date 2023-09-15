@@ -392,6 +392,21 @@ list based on the access rights of the client requesting this.
 <= <id:42>i{2:["test/device", "test/foo", "test/site/device"]}
 ```
 
+#### `.broker/currentClient:mountPoint`
+
+| Name         | SHV Path                | Flags  | Access | Parameter    |
+|--------------|-------------------------|--------|--------|--------------|
+| `mountPoint` | `.broker/currentClient` | Getter | Browse | String\|Null |
+
+Getter for the mount point of the current client. The result is client specific.
+Broker can assign any mount point to the device based on its rules and this is
+the way client can identify where it ended up in the broker's tree.
+
+```
+=> <id:42, method:"mountPoint", path:".broker/currentClient">i{}
+<= <id:42>i{2:"test/device"}
+```
+
 #### `.broker/app:ping`
 
 | Name   | SHV Path      | Flags | Access |
@@ -488,7 +503,7 @@ its current clients and that way remove any obsolete subscription down the line.
 <= <id:42>i{2:[]}
 ```
 
-### `.broker/app:subscriptions`
+#### `.broker/currentClient:subscriptions`
 
 | Name            | SHV Path      | Flags  | Access | Result                                        |
 |-----------------|---------------|--------|--------|-----------------------------------------------|
@@ -602,21 +617,6 @@ result is client specific.
 ```
 => <id:42, method:"clientId", path:".broker/currentClient">i{}
 <= <id:42>i{2:68}
-```
-
-#### `.broker/currentClient:mountPoint`
-
-| Name         | SHV Path                | Flags  | Access | Parameter    |
-|--------------|-------------------------|--------|--------|--------------|
-| `mountPoint` | `.broker/currentClient` | Getter | Browse | String\|Null |
-
-Getter for the mount point of the current client. The result is client specific.
-Broker can assign any mount point to the device based on its rules and this is
-the way client can identify where it ended up in the broker's tree.
-
-```
-=> <id:42, method:"mountPoint", path:".broker/currentClient">i{}
-<= <id:42>i{2:"test/device"}
 ```
 
 #### `.broker/clientAccess`
