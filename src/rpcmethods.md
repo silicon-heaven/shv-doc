@@ -1,6 +1,7 @@
 # Common SHV RPC methods
 
-These are well known methods of set of them used in various situations.
+These are well known methods used in various situations. They provide backbone
+of SHV RPC communication.
 
 ## Login sequence
 
@@ -33,7 +34,7 @@ The next message sent by the client needs to be `login` request. This message is
 
 There are two types of the logins you can use. It can be either *plain* login or
 *sha1*. The difference is only the way you send the password in the message. The
-*plain* login just sends password as it is in *string*. The *sha1* login hashes
+*plain* login just sends password as it is in *String*. The *sha1* login hashes
 the provided users password, adds the result as suffix to the nonce from `hello`
 and hashes the result again. SHA1 hash is represented in HEX format. The
 complete password deduction is: `SHA1(nonce + SHA1(password))`. The SHA1 login
@@ -41,9 +42,9 @@ is highly encouraged and plain login is highly discouraged, even the low end
 CPUs should be able to calculate SHA1 hash and thus perform the SHA1 login. The
 `"login"` *map* needs to contain these fields:
 
-* `"user"` with user name as *string*
+* `"user"` with user name as *String*
 * `"password"` with either plain text password or SHA1 password (as described in
-  the paragraph above) as *string*
+  the paragraph above) as *String*
 * `"type"` that identifies password format and thus it can have only one of
   these values:
   * `"PLAIN"` for *plain* text password (discouraged use)
@@ -55,12 +56,13 @@ set of options but minimal needed supported options are these:
 
 * `"device"` with *map* containing device specific options. At least these
   otions need to be supported:
-  * `"deviceId"` with *string* value that identifies the device. This should be
+  * `"deviceId"` with *String* value that identifies the device. This should be
     used by the broker to automatically assign mount point based on its internal
     rules.
-  * `"mountPoint"` with *string* value that specifies path where the device's
-    tree should be mounted in the broker. This should be considered by broker
-    only if it fails to assign mount point based on the device's ID.
+  * `"mountPoint"` with *String* value that specifies path where the device's
+    tree should be mounted in the broker. This should overwrite any mount point
+    assigned by broker based on `"deviceId"`, but it can be disregarded if user
+    doesn't have access rights for the SHV path specified.
 * `"idleWatchDogTimeOut"` specifies number of seconds without message receive
   before broker will consider the connection to be dead and disconnects it. The
   default timeout by the broker should be 180 seconds. By increasing this
@@ -94,7 +96,7 @@ disconnect or sending `hello` again. Be aware that broker should impose delay of
 SHV paths address different nodes in the SHV tree and every node has methods
 associated with it. The 
 
-### dir
+### `*:dir`
 
 | Name  | SHV Path | Signature    | Flags | Access |
 |-------|----------|--------------|-------|--------|
@@ -189,7 +191,7 @@ signature, flags, description],...]`. Clients that do want to fully support all
 existing devices should support both of the old representations as well as the
 latest one.
 
-### ls
+### `*:ls`
 
 | Name | SHV Path | Signature    | Flags | Access |
 |------|----------|--------------|-------|--------|
@@ -237,7 +239,7 @@ Property node is a convention where we associate value storage with some SHV
 path. The value can be received, optionally modified and its change can be
 signaled.
 
-### get
+### `*:get`
 
 | Name  | SHV Path | Flags  | Access | Parameter | Result |
 |-------|----------|--------|--------|-----------|--------|
@@ -248,7 +250,7 @@ Every property node needs to have *get* method and every node with *get* method
 can be considered as property node.
 
 It supports an optional Integer argument which is maximal age in milliseconds.
-This is used with caches along the way where sometimes *get* might be served
+This is used with caches along the way where sometimes `*:get` might be served
 from it without need to actually address the target device.
 
 ```
@@ -260,29 +262,29 @@ from it without need to actually address the target device.
 <= <id:42>i{2:"Cached"}
 ```
 
-### set
+### `*:set`
 
 | Name  | SHV Path | Flags  | Access | Parameter | Result |
 |-------|----------|--------|--------|-----------|--------|
 | `set` | Any      | Setter | Write  | Any       | Null   |
 
 This method is used for changing the value associated with SHV path. By
-providing this method alongside with `get` you are making the read-write
+providing this method alongside with `*:get` you are making the read-write
 property. Property is considered read-only if you omit this method.
 
-The `get` should be providing value specified in `set` parameter as soon as
-completion of `set` method is confirmed (response is sent). In other words: the
-set value can be received with `get` right after `set` completes. This rules out
-situation where `get` reports real (measured) value while `set` specifies a
-reference. You should always split this to two property nodes where reference is
-read-write property and real value is read-only one.
+The `*:get` should be providing value specified in `*:set` parameter as soon as
+completion of `*:set` method is confirmed (response is sent). In other words:
+the set value can be received with `*:get` right after `*:set` completes. This
+rules out situation where `*:get` reports real (measured) value while `*:set`
+specifies a reference. You should always split this to two property nodes where
+reference is read-write property and real value is read-only one.
 
 ```
 => <id:42, method:"set", path:"test/property">i{1:"Hello World"}
 <= <id:42>i{}
 ```
 
-### chng
+### `*:chng`
 
 | Name   | SHV Path | Flags  | Access | Result |
 |--------|----------|--------|--------|--------|
@@ -293,10 +295,10 @@ used when you have desire to get info about value change without polling. Note
 that signal might not be emitted just on value change (that means old value can
 be same as the new one) and it might not be emitted on some value changes (for
 example if change was under some notification dead band level). To get latest
-value you should always use `get` instead of waiting on `chng` but if you
-receive `chng` then you can safe yourself a `get` call.
+value you should always use `*:get` instead of waiting on `*:chng` but if you
+receive `*:chng` then you can safe yourself a `*:get` call.
 
-The `chng` needs to provide the same value as `get` would which is value
+The `*:chng` needs to provide the same value as `*:get` would, which is value
 associated with the SHV path.
 
 ```
@@ -311,7 +313,7 @@ path `".app"`. Clients do not have to implement these but their implementation
 is highly suggested if they are supposed to be connected to the broker for more
 than just a few requests.
 
-### shvVersionMajor
+### `.app:shvVersionMajor`
 
 | Name              | SHV Path | Flags  | Access | Result |
 |-------------------|----------|--------|--------|--------|
@@ -321,7 +323,7 @@ This method provides information about implemented SHV standard. Major version
 number signal major changes in the standard and thus you are most likely
 interested just in this number.
 
-### shvVersionMinor
+### `.app:shvVersionMinor`
 
 | Name              | SHV Path | Flags  | Access | Result |
 |-------------------|----------|--------|--------|--------|
@@ -331,7 +333,7 @@ This method provides information about implemented SHV standard. Minor version
 number signals new features added and thus if you wish to check for support of
 these additions you can use this number.
 
-### appName
+### `.app:appName`
 
 | Name      | SHV Path | Flags  | Access | Result |
 |-----------|----------|--------|--------|--------|
@@ -340,7 +342,7 @@ these additions you can use this number.
 This method must provide the name of the application, or at least the SHV
 implementation used in the application.
 
-### appVersion
+### `.app:appVersion`
 
 | Name         | SHV Path | Flags  | Access | Result |
 |--------------|----------|--------|--------|--------|
@@ -348,9 +350,9 @@ implementation used in the application.
 
 This method must provide the application version, or at least the SHV
 implementation used in the application (must be consistent with information in
-`appName`).
+`.app:appName`).
 
-### ping
+### `.app:ping`
 
 | Name   | SHV Path | Flags | Access |
 |--------|----------|-------|--------|
@@ -371,11 +373,11 @@ The broker can be pretty much ignored when you are sending requests and
 receiving responses to them. The notification delivery needs to be subscribed in
 the broker and thus for notification the knowledge about broker is a must.
 
-### Generic information
+### Generic
 
 These are methods providing generic info about layout and broker functionality.
 
-#### mountPoints
+#### `.broker:mountPoints`
 
 | Name          | SHV Path  | Flags  | Access | Result        |
 |---------------|-----------|--------|--------|---------------|
@@ -390,6 +392,16 @@ list based on the access rights of the client requesting this.
 <= <id:42>i{2:["test/device", "test/foo", "test/site/device"]}
 ```
 
+#### `.broker/app:ping`
+
+| Name   | SHV Path      | Flags | Access |
+|--------|---------------|-------|--------|
+| `ping` | `.broker/app` |       | Browse |
+
+This is alias for `.app:ping`. This one must be provided for historical purposes
+(compatibility with clients before SHV 0.1).  The `.app:ping` should be
+preferred for the new clients.
+
 ### Notifications filtering
 
 Devices send regularly notifications but by propagating these notification to
@@ -403,81 +415,84 @@ should respond to all clients, if it they have high enough access rights, the
 same way. But these methods manage client's specific table of subscriptions and
 thus it must work with only client specific info.
 
-#### subscribe
+#### `.broker/app:subscribe`
 
-| Name        | SHV Path  | Flags | Access | Parameter                              |
-|-------------|-----------|-------|--------|----------------------------------------|
-| `subscribe` | `.broker` |       | Browse | {1:String, 2:String\|Null} |
+| Name        | SHV Path      | Flags | Access | Parameter                              |
+|-------------|---------------|-------|--------|----------------------------------------|
+| `subscribe` | `.broker/app` |       | Browse | {"method":String, "path":String\|Null} |
 
 Adds rule that allows receive of change notifications from method and optional
 path. The subscription applies to all methods of given name in given path or
 sub-path. The default path is an empty and thus root of the broker, this
 subscribes on given method in all accessible nodes of the broker.
 
-The parameter is *imap* with:
+The parameter is *map* with:
 
-* `1` with method name (*String*)
-* `2` with optional SHV path (*String*)
+* `"method"` with method name (*String*)
+* `"path"` with optional SHV path (*String*) where default is `""` and thus
+  subscribe to all methods of given name in the tree.
 
 ```
-=> <id:42, method:"subscribe", path:".broker">i{1:{1:"chng"}}
+=> <id:42, method:"subscribe", path:".broker">i{1:{"method":"chng"}}
 <= <id:42>i{}
 ```
 ```
-=> <id:42, method:"subscribe", path:".broker">i{1:{1:"chng", 2:"test/device"}}
+=> <id:42, method:"subscribe", path:".broker">i{1:{"method":"chng", "path":"test/device"}}
 <= <id:42>i{}
 ```
 
-#### unsubscribe
+#### `.broker/app:unsubscribe`
 
-| Name          | SHV Path  | Flags | Access | Parameter                  | Result |
-|---------------|-----------|-------|--------|----------------------------|--------|
-| `unsubscribe` | `.broker` |       | Browse | {1:String, 2:String\|Null} | Bool   |
+| Name          | SHV Path      | Flags | Access | Parameter                              | Result |
+|---------------|---------------|-------|--------|----------------------------------------|--------|
+| `unsubscribe` | `.broker/app` |       | Browse | {"method":String, "path":String\|Null} | Bool   |
 
-Reverts an operation of `subscribe`. The parameter must match exactly parameters
-used to subscribe.
+Reverts an operation of `.broker/app:subscribe`. The parameter must match
+exactly parameters used to subscribe.
 
 It provides `true` in case subscription was removed and `false` if it couldn't
 have been found.
 
 ```
-=> <id:42, method:"unsubscribe", path:".broker">i{1:{1:"chng"}}
+=> <id:42, method:"unsubscribe", path:".broker">i{1:{"method":"chng"}}
 <= <id:42>i{2:true}
 ```
 ```
-=> <id:42, method:"unsubscribe", path:".broker">i{1:{1:"chng", 2:"invalid"}}
+=> <id:42, method:"unsubscribe", path:".broker">i{1:{"method":"chng", "path":"invalid"}}
 <= <id:42>i{2:false}
 ```
 
-#### rejectSubscription
+#### `.broker/app:rejectNotSubscribed`
 
-| Name                 | SHV Path  | Flags | Access | Parameter            | Result                     |
-|----------------------|-----------|-------|--------|----------------------|----------------------------|
-| `rejectSubscription` | `.broker` |       | Browse | {1:String, 2:String} | {1:String, 2:String\|Null} |
+| Name                  | SHV Path      | Flags | Access | Parameter                        | Result                                        |
+|-----------------------|---------------|-------|--------|----------------------------------|-----------------------------------------------|
+| `rejectNotSubscribed` | `.broker/app` |       | Browse | {"method":String, "path":String} | [{"method":String, "path":String\|Null}, ...] |
 
-Unsubscribes a first subscription that matches the given method and SHV path.
-The intended use is when you receive notification that you are not interested
-in. You can send this request with method and SHV path of such notification to
-just unsubscribe. Note that it must unsubscribes the first matching subscription
-but there can be multiple subscriptions that would match the same combination.
+Unsubscribes all subscriptions matching the given method and SHV path.  The
+intended use is when you receive notification that you are not interested in.
+You can send this request with method and SHV path of such notification to just
+unsubscribe. Be aware that you always subscribe on the node and all its
+subnodes, you can't pick and choose nodes in the subtree with this method.
 
-As a result it provides subscription description that was unsubscribed. The
-situation when there is no subscription should not happen because combination of
-method and path should be from notification you received and thus error is a
-suitable result, because it is either a bug in broker or client.
+As a result it provides subscription descriptions that were unsubscribed.
+
+This is primarily used for broker to broker communication. It removes need to
+track subscriptions in sub-brokers (brokers mounted in the broker) because this
+can be used when broker receives notification that is not subscribed by any of
+its current clients and that way remove any obsolete subscription down the line.
 
 ```
-=> <id:42, method:"rejectNotSubscribed", path:".broker">i{1:{1:"chng", 2:"test/device/foo"}}
-<= <id:42>i{2:{1:"chng"}}
-=> <id:42, method:"rejectNotSubscribed", path:".broker">i{1:{1:"chng", 2:"test/device/foo"}}
-<= <id:42>i{2:{1:"chng", 2:"test/device"}}
+=> <id:42, method:"rejectNotSubscribed", path:".broker">i{1:{"method":"chng", "path":"test/device/foo"}}
+<= <id:42>i{2:[{"method":"chng"}, {"method":"chng", "path":"test/device"}]}
+=> <id:42, method:"rejectNotSubscribed", path:".broker">i{1:{"method":"chng", "path":"test/device/foo"}}
+<= <id:42>i{2:[]}
 ```
 
-### subscriptions
+### `.broker/app:subscriptions`
 
-| Name            | SHV Path  | Flags  | Access | Result                            |
-|-----------------|-----------|--------|--------|-----------------------------------|
-| `subscriptions` | `.broker` | Getter | Browse | [{1:String, 2:String\|Null}, ...] |
+| Name            | SHV Path      | Flags  | Access | Result                                        |
+|-----------------|---------------|--------|--------|-----------------------------------------------|
+| `subscriptions` | `.broker/app` | Getter | Browse | [{"method":String, "path":String\|Null}, ...] |
 
 This method allows you to list all existing subscriptions for the current
 client.
@@ -494,7 +509,7 @@ The information about connected clients and its parameters is beneficial not
 only for the client's them self but primarily to the administrators of the SHV
 network.
 
-#### clientInfo
+#### `.broker:clientInfo`
 
 | Name         | SHV Path  | Flags  | Access | Parameter | Result                                                                                                                                |
 |--------------|-----------|--------|--------|-----------|---------------------------------------------------------------------------------------------------------------------------------------|
@@ -505,8 +520,8 @@ be accessible to the client but using any other client ID should require access
 level *Service*.
 
 The parameter can be either *Null* (no parameter), and in such case the user info
-is for the current client. or it can be *Int* and in such case info is for
-client with matching ID. The *Nul* is returned in case there is no client with
+is for the current client. Or it can be *Int* and in such case info is for
+client with matching ID. The *Null* is returned in case there is no client with
 this ID.
 
 The provided *Map* must have at least these fields:
@@ -534,11 +549,11 @@ required nor standardized at the moment.
 <= <id:42>i{2:null}
 ```
 
-#### clients
+#### `.broker:clients`
 
 | Name      | SHV Path  | Flags  | Access  | Result                                                                                                                               |
 |-----------|-----------|--------|---------|--------------------------------------------------------------------------------------------------------------------------------------|
-| `clients` | `.broker` | Getter | Service | [{"clientID":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...}, ...] |
+| `clients` | `.broker` | Getter | Service | [{"clientID":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{"method":String, "path":String\|Null}, ...], ...}, ...] |
 
 This method allows you get info about all clients connected to the broker. This
 is an administration task.
@@ -548,7 +563,7 @@ convenient way that brokers can implement to allow easier use by administrators
 (commonly in `.broker/clients`), but any automatic tools should use this call
 instead.
 
-The *List* of maps is provided. The content is the same as `clientInfo`
+The *List* of maps is provided. The content is the same as `.broker:clientInfo`
 provides.
 
 ```
@@ -556,7 +571,7 @@ provides.
 <= <id:42>i{2:[{"clientID:68, "userName":"smith", "subscriptions":[{1:"chng"}]]}, {"clientID":83, "userName":"iot", "mountPoint":"iot/device"}]}
 ```
 
-#### disconnectClient
+#### `.broker:disconnectClient`
 
 | Name               | SHV Path  | Flags | Access  | Parameter |
 |--------------------|-----------|-------|---------|-----------|
@@ -567,7 +582,7 @@ You need to provide client's ID as an argument. Based on the link layer client
 can be immediately informed or it could just stay in the limbo until its
 communication timeouts. If client is established by the broker (it is
 connection to serial console or to some other broker) it is up to the broker
-whae should happen, but it is suggested that this would be handled as
+what should happen, but it is suggested that this would be handled as
 reconnection request.
 
 ```
@@ -575,13 +590,43 @@ reconnection request.
 <= <id:42>i{}
 ```
 
-#### SHV path `.broker/clientAccess`
+#### `.broker/currentClient:clientId`
+
+| Name       | SHV Path                | Flags  | Access | Parameter |
+|------------|-------------------------|--------|--------|-----------|
+| `clientId` | `.broker/currentClient` | Getter | Browse | Int       |
+
+Access to the identifier used by the broker to identify the current client. The
+result is client specific.
+
+```
+=> <id:42, method:"clientId", path:".broker/currentClient">i{}
+<= <id:42>i{2:68}
+```
+
+#### `.broker/currentClient:mountPoint`
+
+| Name         | SHV Path                | Flags  | Access | Parameter    |
+|--------------|-------------------------|--------|--------|--------------|
+| `mountPoint` | `.broker/currentClient` | Getter | Browse | String\|Null |
+
+Getter for the mount point of the current client. The result is client specific.
+Broker can assign any mount point to the device based on its rules and this is
+the way client can identify where it ended up in the broker's tree.
+
+```
+=> <id:42, method:"mountPoint", path:".broker/currentClient">i{}
+<= <id:42>i{2:"test/device"}
+```
+
+#### `.broker/clientAccess`
 
 It is desirable to be able to access clients directly without mounting them on a
 specific path. This helps with their identification by administrators. This is
 done by automatically mounting them in `.broker/clientAccess/<clientID>`. This
-mount won't be reported by `mountPoints` method on `.broker` path.
+mount won't be reported by `.broker:mountPoints` method nor it should be the
+mount point reported by `.broker/currentClient:mountPoint`.
 
 The access to this path should be allowed only to the broker administrators. The
-rule of thumb is that if user can access `disconnectClient` in `.broker`, it
-should be also able to access `.broker/clientAccess`.
+rule of thumb is that if user can access `.broker:disconnectClient`, it should
+be also able to access `.broker/clientAccess`.
