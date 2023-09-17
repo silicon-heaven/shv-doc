@@ -8,3 +8,6 @@
 - [RpcMessage](./rpcmessage.md)
 - [RPC transport layer](./rpctransportlayer.md)
 - [Implementations](./implementations.md)
+- [SHV types](./shv-types.md)
+  - [SHV type info](./shv-types/shv-type-info.md)
+  - [SHV journal](./shv-types/shv-journal.md)
