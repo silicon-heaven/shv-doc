@@ -241,13 +241,17 @@ signaled.
 
 ### `*:get`
 
-| Name  | SHV Path | Flags  | Access | Parameter | Result |
-|-------|----------|--------|--------|-----------|--------|
-| `get` | Any      | Getter | Read   | Null\|Int | Any    |
+| Name  | SHV Path | Signature    | Flags  | Access |
+|-------|----------|--------------|--------|--------|
+| `get` | Any      | `ret(param)` | Getter | Read   |
 
 This method is used for getting the current value associated with SHV path.
 Every property node needs to have *get* method and every node with *get* method
 can be considered as property node.
+
+| Parameter   | Result |
+|-------------|--------|
+| Null \| Int | Any    |
 
 It supports an optional Integer argument which is maximal age in milliseconds.
 This is used with caches along the way where sometimes `*:get` might be served
@@ -264,9 +268,9 @@ from it without need to actually address the target device.
 
 ### `*:set`
 
-| Name  | SHV Path | Flags  | Access | Parameter | Result |
-|-------|----------|--------|--------|-----------|--------|
-| `set` | Any      | Setter | Write  | Any       | Null   |
+| Name  | SHV Path | Signature     | Flags  | Access |
+|-------|----------|---------------|--------|--------|
+| `set` | Any      | `void(param)` | Setter | Write  |
 
 This method is used for changing the value associated with SHV path. By
 providing this method alongside with `*:get` you are making the read-write
@@ -279,6 +283,10 @@ rules out situation where `*:get` reports real (measured) value while `*:set`
 specifies a reference. You should always split this to two property nodes where
 reference is read-write property and real value is read-only one.
 
+| Parameter | Result |
+|-----------|--------|
+| Any       | Null   |
+
 ```
 => <id:42, method:"set", path:"test/property">i{1:"Hello World"}
 <= <id:42>i{}
@@ -286,9 +294,9 @@ reference is read-write property and real value is read-only one.
 
 ### `*:chng`
 
-| Name   | SHV Path | Flags  | Access | Result |
-|--------|----------|--------|--------|--------|
-| `chng` | Any      | Signal | Read   | Any    |
+| Name   | SHV Path | Signature   | Flags  | Access |
+|--------|----------|-------------|--------|--------|
+| `chng` | Any      | `ret(void)` | Signal | Read   |
 
 This is signal and thus it gets emitted on its own and can't be called. It is
 used when you have desire to get info about value change without polling. Note
@@ -300,6 +308,10 @@ receive `*:chng` then you can safe yourself a `*:get` call.
 
 The `*:chng` needs to provide the same value as `*:get` would, which is value
 associated with the SHV path.
+
+| Value |
+|-------|
+| Any   |
 
 ```
 <= <method:"chng", path:"test/property">i{1:"Hello World"}
@@ -315,38 +327,50 @@ than just a few requests.
 
 ### `.app:shvVersionMajor`
 
-| Name              | SHV Path | Flags  | Access | Result |
-|-------------------|----------|--------|--------|--------|
-| `shvVersionMajor` | `.app`   | Getter | Browse | Int    |
+| Name              | SHV Path | Signature   | Flags  | Access |
+|-------------------|----------|-------------|--------|--------|
+| `shvVersionMajor` | `.app`   | `ret(void)` | Getter | Browse |
 
 This method provides information about implemented SHV standard. Major version
 number signal major changes in the standard and thus you are most likely
 interested just in this number.
 
+| Parameter | Result |
+|-----------|--------|
+| Null      | Int    |
+
 ### `.app:shvVersionMinor`
 
-| Name              | SHV Path | Flags  | Access | Result |
-|-------------------|----------|--------|--------|--------|
-| `shvVersionMinor` | `.app`   | Getter | Browse | Int    |
+| Name              | SHV Path | Signature   | Flags  | Access |
+|-------------------|----------|-------------|--------|--------|
+| `shvVersionMinor` | `.app`   | `ret(void)` | Getter | Browse |
 
 This method provides information about implemented SHV standard. Minor version
 number signals new features added and thus if you wish to check for support of
 these additions you can use this number.
 
+| Parameter | Result |
+|-----------|--------|
+| Null      | Int    |
+
 ### `.app:appName`
 
-| Name      | SHV Path | Flags  | Access | Result |
-|-----------|----------|--------|--------|--------|
-| `appName` | `.app`   | Getter | Browse | String |
+| Name      | SHV Path | Signature   | Flags  | Access |
+|-----------|----------|-------------|--------|--------|
+| `appName` | `.app`   | `ret(void)` | Getter | Browse |
 
 This method must provide the name of the application, or at least the SHV
 implementation used in the application.
 
+| Parameter | Result |
+|-----------|--------|
+| Null      | String |
+
 ### `.app:appVersion`
 
-| Name         | SHV Path | Flags  | Access | Result |
-|--------------|----------|--------|--------|--------|
-| `appVersion` | `.app`   | Getter | Browse | String |
+| Name         | SHV Path | Signature   | Flags  | Access |
+|--------------|----------|-------------|--------|--------|
+| `appVersion` | `.app`   | `ret(void)` | Getter | Browse |
 
 This method must provide the application version, or at least the SHV
 implementation used in the application (must be consistent with information in
@@ -354,13 +378,17 @@ implementation used in the application (must be consistent with information in
 
 ### `.app:ping`
 
-| Name   | SHV Path | Flags | Access |
-|--------|----------|-------|--------|
-| `ping` | `.app`   |       | Browse |
+| Name   | SHV Path | Signature    | Flags | Access |
+|--------|----------|--------------|-------|--------|
+| `ping` | `.app`   | `void(void)` |       | Browse |
 
 This method should reliably do nothing and should always be successful. It is
 used to check the connection (if message can be passed to and from client) as
 well as to keep connection in case of SHV Broker.
+
+| Parameter | Result |
+|-----------|--------|
+| Null      | Null   |
 
 
 ## Broker API
@@ -379,13 +407,17 @@ These are methods providing generic info about layout and broker functionality.
 
 #### `.broker:mountPoints`
 
-| Name          | SHV Path  | Flags  | Access | Result        |
-|---------------|-----------|--------|--------|---------------|
-| `mountPoints` | `.broker` | Getter | Browse | [String, ...] |
+| Name          | SHV Path  | Signature   | Flags  | Access |
+|---------------|-----------|-------------|--------|--------|
+| `mountPoints` | `.broker` | `ret(void)` | Getter | Browse |
 
 This method provides list of all mount points this broker currently serves. This
 provides an easy access to the paths of all devices. Broker should filter this
 list based on the access rights of the client requesting this.
+
+| Parameter | Result        |
+|-----------|---------------|
+| Null      | [String, ...] |
 
 ```
 => <id:42, method:"mountPoints", path:".broker">i{}
@@ -394,13 +426,17 @@ list based on the access rights of the client requesting this.
 
 #### `.broker/currentClient:mountPoint`
 
-| Name         | SHV Path                | Flags  | Access | Parameter    |
-|--------------|-------------------------|--------|--------|--------------|
-| `mountPoint` | `.broker/currentClient` | Getter | Browse | String\|Null |
+| Name         | SHV Path                | Signature   | Flags  | Access |
+|--------------|-------------------------|-------------|--------|--------|
+| `mountPoint` | `.broker/currentClient` | `ret(void)` | Getter | Browse |
 
 Getter for the mount point of the current client. The result is client specific.
 Broker can assign any mount point to the device based on its rules and this is
 the way client can identify where it ended up in the broker's tree.
+
+| Parameter | Result |
+|-----------|--------|
+| Null      | String |
 
 ```
 => <id:42, method:"mountPoint", path:".broker/currentClient">i{}
@@ -417,6 +453,10 @@ This is alias for `.app:ping`. This one must be provided for historical purposes
 (compatibility with clients before SHV 0.1).  The `.app:ping` should be
 preferred for the new clients.
 
+| Parameter | Result |
+|-----------|--------|
+| Null      | Null   |
+
 ### Notifications filtering
 
 Devices send regularly notifications but by propagating these notification to
@@ -432,14 +472,18 @@ thus it must work with only client specific info.
 
 #### `.broker/app:subscribe`
 
-| Name        | SHV Path      | Flags | Access | Parameter                              |
-|-------------|---------------|-------|--------|----------------------------------------|
-| `subscribe` | `.broker/app` |       | Browse | {"method":String, "path":String\|Null} |
+| Name        | SHV Path      | Signature     | Flags | Access |
+|-------------|---------------|---------------|-------|--------|
+| `subscribe` | `.broker/app` | `void(param)` |       | Browse |
 
 Adds rule that allows receive of change notifications from method and optional
 path. The subscription applies to all methods of given name in given path or
 sub-path. The default path is an empty and thus root of the broker, this
 subscribes on given method in all accessible nodes of the broker.
+
+| Parameter                              | Result |
+|----------------------------------------|--------|
+| {"method":String, "path":String\|Null} | Null   |
 
 The parameter is *map* with:
 
@@ -458,12 +502,16 @@ The parameter is *map* with:
 
 #### `.broker/app:unsubscribe`
 
-| Name          | SHV Path      | Flags | Access | Parameter                              | Result |
-|---------------|---------------|-------|--------|----------------------------------------|--------|
-| `unsubscribe` | `.broker/app` |       | Browse | {"method":String, "path":String\|Null} | Bool   |
+| Name          | SHV Path      | Signature    | Flags | Access |
+|---------------|---------------|--------------|-------|--------|
+| `unsubscribe` | `.broker/app` | `ret(param)` |       | Browse |
 
 Reverts an operation of `.broker/app:subscribe`. The parameter must match
 exactly parameters used to subscribe.
+
+| Parameter                              | Result |
+|----------------------------------------|--------|
+| {"method":String, "path":String\|Null} | Bool   |
 
 It provides `true` in case subscription was removed and `false` if it couldn't
 have been found.
@@ -479,15 +527,19 @@ have been found.
 
 #### `.broker/app:rejectNotSubscribed`
 
-| Name                  | SHV Path      | Flags | Access | Parameter                        | Result                                        |
-|-----------------------|---------------|-------|--------|----------------------------------|-----------------------------------------------|
-| `rejectNotSubscribed` | `.broker/app` |       | Browse | {"method":String, "path":String} | [{"method":String, "path":String\|Null}, ...] |
+| Name                  | SHV Path      | Signature    | Flags | Access |
+|-----------------------|---------------|--------------|-------|--------|
+| `rejectNotSubscribed` | `.broker/app` | `ret(param)` |       | Browse |
 
 Unsubscribes all subscriptions matching the given method and SHV path.  The
 intended use is when you receive notification that you are not interested in.
 You can send this request with method and SHV path of such notification to just
 unsubscribe. Be aware that you always subscribe on the node and all its
 subnodes, you can't pick and choose nodes in the subtree with this method.
+
+| Parameter                        | Result                                        |
+|----------------------------------|-----------------------------------------------|
+| {"method":String, "path":String} | [{"method":String, "path":String\|Null}, ...] |
 
 As a result it provides subscription descriptions that were unsubscribed.
 
@@ -505,12 +557,16 @@ its current clients and that way remove any obsolete subscription down the line.
 
 #### `.broker/currentClient:subscriptions`
 
-| Name            | SHV Path      | Flags  | Access | Result                                        |
-|-----------------|---------------|--------|--------|-----------------------------------------------|
-| `subscriptions` | `.broker/app` | Getter | Browse | [{"method":String, "path":String\|Null}, ...] |
+| Name            | SHV Path      | Signature   | Flags  | Access |
+|-----------------|---------------|-------------|--------|--------|
+| `subscriptions` | `.broker/app` | `ret(void)` | Getter | Browse |
 
 This method allows you to list all existing subscriptions for the current
 client.
+
+| Parameter | Result                                        |
+|-----------|-----------------------------------------------|
+| Null      | [{"method":String, "path":String\|Null}, ...] |
 
 ```
 => <id:42, method:"subscriptions", path:".broker">i{}
@@ -526,13 +582,17 @@ network.
 
 #### `.broker:clientInfo`
 
-| Name         | SHV Path  | Flags  | Access | Parameter | Result                                                                                                                                |
-|--------------|-----------|--------|--------|-----------|---------------------------------------------------------------------------------------------------------------------------------------|
-| `clientInfo` | `.broker` | Getter | Browse | Null\|Int | {"clientID":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...} \| Null |
+| Name         | SHV Path  | Signature    | Flags  | Access |
+|--------------|-----------|--------------|--------|--------|
+| `clientInfo` | `.broker` | `ret(param)` | Getter | Browse |
 
 Information the broker has for the current client. This info about itself should
 be accessible to the client but using any other client ID should require access
 level *Service*.
+
+| Parameter   | Result                                                                                                                                |
+|-------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| Null \| Int | {"clientID":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...} \| Null |
 
 The parameter can be either *Null* (no parameter), and in such case the user info
 is for the current client. Or it can be *Int* and in such case info is for
@@ -566,9 +626,9 @@ required nor standardized at the moment.
 
 #### `.broker:clients`
 
-| Name      | SHV Path  | Flags  | Access  | Result                                                                                                                               |
-|-----------|-----------|--------|---------|--------------------------------------------------------------------------------------------------------------------------------------|
-| `clients` | `.broker` | Getter | Service | [{"clientID":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{"method":String, "path":String\|Null}, ...], ...}, ...] |
+| Name      | SHV Path  | Signature   | Flags  | Access  |
+|-----------|-----------|-------------|--------|---------|
+| `clients` | `.broker` | `ret(void)` | Getter | Service |
 
 This method allows you get info about all clients connected to the broker. This
 is an administration task.
@@ -577,6 +637,10 @@ This is mandatory way of listing clients. There is also can be an optional more
 convenient way that brokers can implement to allow easier use by administrators
 (commonly in `.broker/clients`), but any automatic tools should use this call
 instead.
+
+| Parameter | Result                                                                                                                               |
+|-----------|--------------------------------------------------------------------------------------------------------------------------------------|
+| Null      | [{"clientID":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...}, ...] |
 
 The *List* of maps is provided. The content is the same as `.broker:clientInfo`
 provides.
@@ -588,9 +652,9 @@ provides.
 
 #### `.broker:disconnectClient`
 
-| Name               | SHV Path  | Flags | Access  | Parameter |
-|--------------------|-----------|-------|---------|-----------|
-| `disconnectClient` | `.broker` |       | Service | Int       |
+| Name               | SHV Path  | Signature     | Flags | Access  |
+|--------------------|-----------|---------------|-------|---------|
+| `disconnectClient` | `.broker` | `void(param)` |       | Service |
 
 Forces some specific client to be immediately disconnected from the SHV broker.
 You need to provide client's ID as an argument. Based on the link layer client
@@ -600,6 +664,10 @@ connection to serial console or to some other broker) it is up to the broker
 what should happen, but it is suggested that this would be handled as
 reconnection request.
 
+| Parameter | Result |
+|-----------|--------|
+| Int       | Null   |
+
 ```
 => <id:42, method:"clients", path:".broker">i{1:68}
 <= <id:42>i{}
@@ -607,12 +675,16 @@ reconnection request.
 
 #### `.broker/currentClient:clientId`
 
-| Name       | SHV Path                | Flags  | Access | Parameter |
-|------------|-------------------------|--------|--------|-----------|
-| `clientId` | `.broker/currentClient` | Getter | Browse | Int       |
+| Name       | SHV Path                | Signature   | Flags  | Access |
+|------------|-------------------------|-------------|--------|--------|
+| `clientId` | `.broker/currentClient` | `ret(void)` | Getter | Browse |
 
 Access to the identifier used by the broker to identify the current client. The
 result is client specific.
+
+| Parameter | Result |
+|-----------|--------|
+| Null       | Int   |
 
 ```
 => <id:42, method:"clientId", path:".broker/currentClient">i{}
