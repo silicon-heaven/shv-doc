@@ -162,7 +162,8 @@ method description is *Map* with the following fields:
       commonly assigned. It serves as a special management access level as well
       as broker to broker level.
 * `5` is an optional field with string describing the method.
-* `6` is an optional field with *Map* of additional info defined by device.
+* `6` is an optional field with *String* used by automatic UI tools.
+* `7` is an optional field with *Map* of additional info defined by device.
 
 Examples of dir requests:
 
@@ -193,7 +194,8 @@ string keys is:
 3 - "flags"
 4 - "accessGrant"
 5 - "description"
-6 - "tags"
+6 - "label"
+7 - "tags"
 ````
 Even older implementations provided list of lists (`[[name,
 signature, flags, description],...]`. Clients that do want to fully support all
