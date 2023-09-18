@@ -339,6 +339,11 @@ interested just in this number.
 |-----------|--------|
 | Null      | Int    |
 
+```
+=> <id:42, method:"shvVersionMajor", path:".app">i{}
+<= <id:42>i{2:0}
+```
+
 ### `.app:shvVersionMinor`
 
 | Name              | SHV Path | Signature   | Flags  | Access |
@@ -353,6 +358,11 @@ these additions you can use this number.
 |-----------|--------|
 | Null      | Int    |
 
+```
+=> <id:42, method:"shvVersionMinor", path:".app">i{}
+<= <id:42>i{2:1}
+```
+
 ### `.app:appName`
 
 | Name      | SHV Path | Signature   | Flags  | Access |
@@ -366,6 +376,11 @@ implementation used in the application.
 |-----------|--------|
 | Null      | String |
 
+```
+=> <id:42, method:"appName", path:".app">i{}
+<= <id:42>i{2:"SomeApp"}
+```
+
 ### `.app:appVersion`
 
 | Name         | SHV Path | Signature   | Flags  | Access |
@@ -375,6 +390,11 @@ implementation used in the application.
 This method must provide the application version, or at least the SHV
 implementation used in the application (must be consistent with information in
 `.app:appName`).
+
+```
+=> <id:42, method:"appVersion", path:".app">i{}
+<= <id:42>i{2:"1.4.2-s5vehx"}
+```
 
 ### `.app:ping`
 
@@ -389,6 +409,11 @@ well as to keep connection in case of SHV Broker.
 | Parameter | Result |
 |-----------|--------|
 | Null      | Null   |
+
+```
+=> <id:42, method:"ping", path:".app">i{}
+<= <id:42>i{}
+```
 
 
 ## Broker API
