@@ -149,7 +149,7 @@ method description is *Map* with the following fields:
       and methods.
     * `"rd"` (read) allows reading of values.
     * `"wr"` (write) allows setting values.
-    * `"cmd"` (command) allows performing a commanding operations.
+    * `"cmd"` (command) allows performing a commanding operation.
     * `"cfg"` (config) allows changing configuration values.
     * `"srv"` (service) allows access to the service info.
     * `"ssrv` (super service) allows access to the service info that can't be
@@ -162,6 +162,7 @@ method description is *Map* with the following fields:
       commonly assigned. It serves as a special management access level as well
       as broker to broker level.
 * `5` is an optional field with string describing the method.
+* `6` is an optional field with *Map* of additional info defined by device.
 
 Examples of dir requests:
 
@@ -185,8 +186,16 @@ Examples of dir requests:
 The previous version (before SHV RPC 0.1) supported both *Null* and *String*
 but they provided list with maps instead of imaps. The *string* argument also
 always provided list (with one or no maps). The mapping between integer and
-string keys is: `{1:"name", 2:"signature, 3:"flags", 4:"accessGrant",
-5:"description"}`. Even older implementations provided list of lists (`[[name,
+string keys is:
+```` 
+1 - "name"
+2 - "signature
+3 - "flags"
+4 - "accessGrant"
+5 - "description"
+6 - "tags"
+````
+Even older implementations provided list of lists (`[[name,
 signature, flags, description],...]`. Clients that do want to fully support all
 existing devices should support both of the old representations as well as the
 latest one.
