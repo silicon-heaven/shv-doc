@@ -105,10 +105,10 @@ associated with it. The
 This method needs to be implemented for every node (that is every valid SHV
 path). It provides a way to list all available methods and signals of the node.
 
-| Parameter | Result                                                                 |
-|-----------|------------------------------------------------------------------------|
-| Null      | [i{1:String, 2:Int<0,3>, 3:Int<0,15>, 4:String, 5:String\|Null}, ...]  |
-| String    | i{1:String, 2:Int<0,3>, 3:Int<0,15>, 4:String, 5:String\|Null} \| Null |
+| Parameter | Result                                                                                                         |
+|-----------|----------------------------------------------------------------------------------------------------------------|
+| Null      | [i{"name":String, "signature":Int<0,3>, "flags":Int<0,15>, "access":String, "description":String\|Null}, ...]  |
+| String    | i{"name":String, "signature":Int<0,3>, "flags":Int<0,15>, "access":String, "description":String\|Null} \| Null |
 
 This method can be called with or without parameter. The valid parameters are:
 
@@ -119,8 +119,8 @@ The provided value is list of method descriptions, or just a single method
 description without list in case *String* was passed as an argument. Every
 method description is *Map* with the following fields:
 
-* `1` with string containing method's name
-* `2` with integer of these possible values:
+* `"name"` with string containing method's name
+* `"signature"` with integer of these possible values:
   * `0` for signature `void(void)` that is no value is returned and no parameter is
     expected.
   * `1` for signature `void(param)` that is no value is returned and some
@@ -129,7 +129,7 @@ method description is *Map* with the following fields:
     expected.
   * `3` for signature `ret(param)` that is value is returned and parameter is
     expected.
-* `3` that is integer assembled from the following values:
+* `"flags"` that is integer assembled from the following values:
   * `1` (`1 << 0`) specifies that method is a signal and thus can't be
     explicitly called but rather it gets automatically emitted on some event. It
     is highly suggested to use this only for methods called `chng` (see the
@@ -140,7 +140,7 @@ method description is *Map* with the following fields:
     signature `void(param)`.
   * `8` (`1 << 3`) specifies that returned value is going to be large. This
     method must have signature either `ret(void)` or `ret(param)`.
-* `4` that is used to inform about minimal access level needed to
+* `"access"` that is used to inform about minimal access level needed to
   invoke the method. If client has lower access level then request to this
   method is going to result in an error. Note that actual user's access level is
   defined by SHV broker and deduced by potentially complex rule set. The allowed
@@ -161,19 +161,17 @@ method description is *Map* with the following fields:
       used for the method access limitation because this level should not be
       commonly assigned. It serves as a special management access level as well
       as broker to broker level.
-* `5` is an optional field with string describing the method.
-* `6` is an optional field with *String* used by automatic UI tools.
-* `7` is an optional field with *Map* of additional info defined by device.
+* `"description"` is an optional field with string describing the method.
 
 Examples of dir requests:
 
 ```
 => <id:42, method:"dir", path:"">i{}
-<= <id:42>i{2:[i{1:"dir", 2:3, 4:"bws"},i{1:"ls", 2:3, 4:"bws"}]}
+<= <id:42>i{2:[i{"name":"dir", "signature":3, "access":"bws"},i{"name":"ls", "signature":3, "access":"bws"}]}
 ```
 ```
 => <id:43, method:"dir", path:"test/path">i{1:null}
-<= <id:43>i{2:[i{1:"dir", 2:3, 4:"bws"},i{1:"ls", 2:3, 4:"bws"},i{1:"get", 2:3, 4:2}]}
+<= <id:43>i{2:[i{"name":"dir", "signature":3, "access":"bws"},i{"name":"ls", "signature":3, "access":"bws"},i{"name":"get", "signature":3, "flags":2}]}
 ```
 ```
 => <id:44, method:"dir", path:"test/path">i{1:"nonexistent"}
@@ -181,26 +179,14 @@ Examples of dir requests:
 ```
 ```
 => <id:44, method:"dir", path:"test/path">i{1:"dir"}
-<= <id:43>i{2:{1:"dir", 2:3, 4:"bws"}}
+<= <id:43>i{2:{"name":"dir", "signature":3, "access":"bws"}}
 ```
 
-The previous version (before SHV RPC 0.1) supported both *Null* and *String*
-but they provided list with maps instead of imaps. The *string* argument also
-always provided list (with one or no maps). The mapping between integer and
-string keys is:
-```` 
-1 - "name"
-2 - "signature
-3 - "flags"
-4 - "accessGrant"
-5 - "description"
-6 - "label"
-7 - "tags"
-````
-Even older implementations provided list of lists (`[[name,
-signature, flags, description],...]`. Clients that do want to fully support all
-existing devices should support both of the old representations as well as the
-latest one.
+The previous version (before SHV RPC 0.1) supported both *Null* and *String*.
+The *string* argument also always provided list (with one or no maps). Even
+older implementations provided list of lists (`[[name, signature, flags,
+description],...]`. Clients that do want to fully support all existing devices
+should support both of the old representations as well as the latest one.
 
 ### `*:ls`
 
