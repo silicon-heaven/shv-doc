@@ -535,11 +535,11 @@ its current clients and that way remove any obsolete subscription down the line.
 <= <id:42>i{2:[]}
 ```
 
-#### `.broker/app:currentClientSubscriptions`
+#### `.broker/app:currentSubscriptions`
 
 | Name                         | SHV Path      | Signature   | Flags  | Access |
 |------------------------------|---------------|-------------|--------|--------|
-| `currentClientSubscriptions` | `.broker/app` | `ret(void)` | Getter | Read   |
+| `currentSubscriptions` | `.broker/app` | `ret(void)` | Getter | Read   |
 
 This method allows you to list all existing subscriptions for the current
 client.
@@ -549,7 +549,7 @@ client.
 | Null      | [{"method":String, "path":String\|Null}, ...] |
 
 ```
-=> <id:42, method:"currentClientSubscriptions", path:".broker/app">i{}
+=> <id:42, method:"currentSubscriptions", path:".broker/app">i{}
 <= <id:42>i{2:[{"method":"chng"},{"method":"chng", "path":"test/device"}]}
 ```
 
