@@ -664,9 +664,9 @@ required nor standardized at the moment.
 This method allows you get info about all clients connected to the broker. This
 is an administration task.
 
-This is mandatory way of listing clients. There is also can be an optional more
-convenient way that brokers can implement to allow easier use by administrators
-(commonly in `.broker/clients`), but any automatic tools should use this call
+This is mandatory way of listing clients. There also can be an optional, more
+convenient way, that brokers can implement to allow easier use by administrators
+(commonly in `.broker/clientInfo`), but any automatic tools should use this call
 instead.
 
 | Parameter | Result                                                                                                                               |
@@ -762,14 +762,14 @@ to the privileged users.
 <= <id:42>i{2:{"clientId:68, "userName":"smith", "subscriptions":[{1:"chng"}]}}
 ```
 
-#### `.broker/clientAccess`
+#### `.broker/clients`
 
 It is desirable to be able to access clients directly without mounting them on a
 specific path. This helps with their identification by administrators. This is
-done by automatically mounting them in `.broker/clientAccess/<clientId>`. This
-mount won't be reported by `.broker:mountPoints` method nor it should be the
-mount point reported by `.broker/currentClient:mountPoint`.
+done by automatically mounting them in `.broker/clients/<clientId>`. This mount
+won't be reported by `.broker:mountPoints` method nor it should be the mount
+point reported by `.broker/currentClient:mountPoint`.
 
 The access to this path should be allowed only to the broker administrators. The
 rule of thumb is that if user can access `.broker:disconnectClient`, it should
-be also able to access `.broker/clientAccess`.
+be also able to access `.broker/clients`.
