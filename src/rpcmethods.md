@@ -568,15 +568,13 @@ network.
 
 Information the broker has on the client.
 
-| Parameter     | Result                                                                                                                                |
-|---------------|---------------------------------------------------------------------------------------------------------------------------------------|
-| Int \| String | {"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...} \| Null |
+| Parameter | Result                                                                                                                                |
+|-----------|---------------------------------------------------------------------------------------------------------------------------------------|
+| Int       | {"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...} \| Null |
 
-The parameter can be either  *Int* and in such case info for client with
-matching ID is provided. Or it can be *String* with SHV path for which client
-mounted on the given path (this includes also all subnodes of the mount point)
-is provided. The *Null* is returned in case there is no client with this ID or
-path is not mounted.
+The parameter is client's ID (*Int*). The provided value is *Map* with info
+about the client. The *Null* is returned in case there is no client with this
+ID.
 
 The provided *Map* must have at least these fields:
 
@@ -591,11 +589,44 @@ Additional fields are allowed to support more complex brokers but are not
 required nor standardized at the moment.
 
 ```
-=> <id:42, method:"clientId", path:".broker">i{1:68}
+=> <id:42, method:"clientInfo", path:".broker">i{1:68}
 <= <id:42>i{2:{"clientId:68, "userName":"smith", "subscriptions":[{1:"chng"}]}}
 ```
 ```
-=> <id:42, method:"clientId", path:".broker">i{1:126}
+=> <id:42, method:"clientInfo", path:".broker">i{1:126}
+<= <id:42>i{2:null}
+```
+
+#### `.broker:mountedClientInfo`
+
+| Name                | SHV Path  | Signature    | Flags  | Access  |
+|---------------------|-----------|--------------|--------|---------|
+| `mountedClientInfo` | `.broker` | `ret(param)` | Getter | Service |
+
+Information the broker has on the client that is mounted on the given SHV path.
+
+| Parameter | Result                                                                                                                                |
+|-----------|---------------------------------------------------------------------------------------------------------------------------------------|
+| String    | {"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...} \| Null |
+
+The parameter is SHV path (*String*). The provided value is *Map* with info
+about the client that is mounted on the given path (or the parent of it). The
+*Null* is returned in case there is no client with such mount point.
+
+The parameter can be either  *Int* and in such case info for client with
+matching ID is provided. Or it can be *String* with SHV path for which client
+mounted on the given path (this includes also all subnodes of the mount point)
+is provided. The *Null* is returned in case there is no client with this ID or
+path is not mounted.
+
+The provided *Map* must contain the same fields as `.broker:clientInfo` does.
+
+```
+=> <id:42, method:"mountedClientInfo", path:".broker">i{1:"iot/device"}
+<= <id:42>i{2:{"clientId:68, "userName":"smith", "subscriptions":[{1:"chng"}]}}
+```
+```
+=> <id:42, method:"mountedClientInfo", path:".broker">i{1:"invalid"}
 <= <id:42>i{2:null}
 ```
 
