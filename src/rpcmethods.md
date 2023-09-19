@@ -618,22 +618,18 @@ network.
 
 #### `.broker:clientInfo`
 
-| Name         | SHV Path  | Signature    | Flags  | Access |
-|--------------|-----------|--------------|--------|--------|
-| `clientInfo` | `.broker` | `ret(param)` | Getter | Browse |
+| Name         | SHV Path  | Signature    | Flags  | Access  |
+|--------------|-----------|--------------|--------|---------|
+| `clientInfo` | `.broker` | `ret(param)` | Getter | Service |
 
-Information the broker has for the current client. This info about itself should
-be accessible to the client but using any other client ID should require access
-level *Service*.
+Information the broker has for the client.
 
-| Parameter   | Result                                                                                                                                |
-|-------------|---------------------------------------------------------------------------------------------------------------------------------------|
-| Null \| Int | {"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...} \| Null |
+| Parameter | Result                                                                                                                                |
+|-----------|---------------------------------------------------------------------------------------------------------------------------------------|
+| Int       | {"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...} \| Null |
 
-The parameter can be either *Null* (no parameter), and in such case the user info
-is for the current client. Or it can be *Int* and in such case info is for
-client with matching ID. The *Null* is returned in case there is no client with
-this ID.
+The parameter must be *Int*. The provided info is for client with matching ID.
+The *Null* is returned in case there is no client with this ID.
 
 The provided *Map* must have at least these fields:
 
@@ -647,10 +643,6 @@ The provided *Map* must have at least these fields:
 Additional fields are allowed to support more complex brokers but are not
 required nor standardized at the moment.
 
-```
-=> <id:42, method:"clientId", path:".broker">i{}
-<= <id:42>i{2:{"clientId:68, "userName":"smith", "subscriptions":[{1:"chng"}]}}
-```
 ```
 => <id:42, method:"clientId", path:".broker">i{1:68}
 <= <id:42>i{2:{"clientId:68, "userName":"smith", "subscriptions":[{1:"chng"}]}}
@@ -720,11 +712,51 @@ result is client specific.
 
 | Parameter | Result |
 |-----------|--------|
-| Null       | Int   |
+| Null      | Int    |
 
 ```
 => <id:42, method:"clientId", path:".broker/currentClient">i{}
 <= <id:42>i{2:68}
+```
+
+#### `.broker/currentClient:mountPoint`
+
+| Name       | SHV Path                | Signature   | Flags  | Access |
+|------------|-------------------------|-------------|--------|--------|
+| `mountPoint` | `.broker/currentClient` | `ret(void)` | Getter | Browse |
+
+Access to the mount point of the current client. The result is client specific.
+
+| Parameter | Result         |
+|-----------|----------------|
+| Null      | String \| Null |
+
+```
+=> <id:42, method:"mountPoint", path:".broker/currentClient">i{}
+<= <id:42>i{2:"iot/device"}
+```
+
+#### `.broker/currentClient:info`
+
+| Name       | SHV Path                | Signature   | Flags  | Access |
+|------------|-------------------------|-------------|--------|--------|
+| `info` | `.broker/currentClient` | `ret(void)` | Getter | Browse |
+
+Access to the information broker has for the current client. The result is
+client specific.
+
+| Parameter | Result                                                                                                                        |
+|-----------|-------------------------------------------------------------------------------------------------------------------------------|
+| Null      | {"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...} |
+
+The result is same as if `.broker:clientInfo` is called with
+`.broker/currentClient:clientId`. The difference is that this method must be
+accessible to the current client while `.broker:clientInfo` is accessible only
+to the privileged users.
+
+```
+=> <id:42, method:"info", path:".broker/currentClient">i{}
+<= <id:42>i{2:{"clientId:68, "userName":"smith", "subscriptions":[{1:"chng"}]}}
 ```
 
 #### `.broker/clientAccess`
