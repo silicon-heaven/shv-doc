@@ -450,11 +450,11 @@ should respond to all clients, if it they have high enough access rights, the
 same way. But these methods manage client's specific table of subscriptions and
 thus it must work with only client specific info.
 
-#### `.broker/app:subscribe`
+#### `.broker/currentClient:subscribe`
 
-| Name        | SHV Path      | Signature     | Flags | Access |
-|-------------|---------------|---------------|-------|--------|
-| `subscribe` | `.broker/app` | `void(param)` |       | Read   |
+| Name        | SHV Path                | Signature     | Flags | Access |
+|-------------|-------------------------|---------------|-------|--------|
+| `subscribe` | `.broker/currentClient` | `void(param)` |       | Read   |
 
 Adds rule that allows receive of change notifications from method and optional
 path. The subscription applies to all methods of given name in given path or
@@ -472,21 +472,21 @@ The parameter is *map* with:
   subscribe to all methods of given name in the tree.
 
 ```
-=> <id:42, method:"subscribe", path:".broker/app">i{1:{"method":"chng"}}
+=> <id:42, method:"subscribe", path:".broker/currentClient">i{1:{"method":"chng"}}
 <= <id:42>i{}
 ```
 ```
-=> <id:42, method:"subscribe", path:".broker/app">i{1:{"method":"chng", "path":"test/device"}}
+=> <id:42, method:"subscribe", path:".broker/currentClient">i{1:{"method":"chng", "path":"test/device"}}
 <= <id:42>i{}
 ```
 
-#### `.broker/app:unsubscribe`
+#### `.broker/currentClient:unsubscribe`
 
 | Name          | SHV Path      | Signature    | Flags | Access |
 |---------------|---------------|--------------|-------|--------|
-| `unsubscribe` | `.broker/app` | `ret(param)` |       | Read   |
+| `unsubscribe` | `.broker/currentClient` | `ret(param)` |       | Read   |
 
-Reverts an operation of `.broker/app:subscribe`. The parameter must match
+Reverts an operation of `.broker/currentClient:subscribe`. The parameter must match
 exactly parameters used to subscribe.
 
 | Parameter                              | Result |
@@ -497,19 +497,19 @@ It provides `true` in case subscription was removed and `false` if it couldn't
 have been found.
 
 ```
-=> <id:42, method:"unsubscribe", path:".broker/app">i{1:{"method":"chng"}}
+=> <id:42, method:"unsubscribe", path:".broker/currentClient">i{1:{"method":"chng"}}
 <= <id:42>i{2:true}
 ```
 ```
-=> <id:42, method:"unsubscribe", path:".broker/app">i{1:{"method":"chng", "path":"invalid"}}
+=> <id:42, method:"unsubscribe", path:".broker/currentClient">i{1:{"method":"chng", "path":"invalid"}}
 <= <id:42>i{2:false}
 ```
 
-#### `.broker/app:rejectNotSubscribed`
+#### `.broker/currentClient:rejectNotSubscribed`
 
-| Name                  | SHV Path      | Signature    | Flags | Access |
-|-----------------------|---------------|--------------|-------|--------|
-| `rejectNotSubscribed` | `.broker/app` | `ret(param)` |       | Read   |
+| Name                  | SHV Path                | Signature    | Flags | Access |
+|-----------------------|-------------------------|--------------|-------|--------|
+| `rejectNotSubscribed` | `.broker/currentClient` | `ret(param)` |       | Read   |
 
 Unsubscribes all subscriptions matching the given method and SHV path.  The
 intended use is when you receive notification that you are not interested in.
@@ -529,17 +529,17 @@ can be used when broker receives notification that is not subscribed by any of
 its current clients and that way remove any obsolete subscription down the line.
 
 ```
-=> <id:42, method:"rejectNotSubscribed", path:".broker/app">i{1:{"method":"chng", "path":"test/device/foo"}}
+=> <id:42, method:"rejectNotSubscribed", path:".broker/currentClient">i{1:{"method":"chng", "path":"test/device/foo"}}
 <= <id:42>i{2:[{"method":"chng"}, {"method":"chng", "path":"test/device"}]}
-=> <id:42, method:"rejectNotSubscribed", path:".broker/app">i{1:{"method":"chng", "path":"test/device/foo"}}
+=> <id:42, method:"rejectNotSubscribed", path:".broker/currentClient">i{1:{"method":"chng", "path":"test/device/foo"}}
 <= <id:42>i{2:[]}
 ```
 
-#### `.broker/app:currentSubscriptions`
+#### `.broker/currentClient:subscriptions`
 
-| Name                         | SHV Path      | Signature   | Flags  | Access |
-|------------------------------|---------------|-------------|--------|--------|
-| `currentSubscriptions` | `.broker/app` | `ret(void)` | Getter | Read   |
+| Name            | SHV Path                | Signature   | Flags  | Access |
+|-----------------|-------------------------|-------------|--------|--------|
+| `subscriptions` | `.broker/currentClient` | `ret(void)` | Getter | Read   |
 
 This method allows you to list all existing subscriptions for the current
 client.
@@ -549,7 +549,7 @@ client.
 | Null      | [{"method":String, "path":String\|Null}, ...] |
 
 ```
-=> <id:42, method:"currentSubscriptions", path:".broker/app">i{}
+=> <id:42, method:"subscriptions", path:".broker/currentClient">i{}
 <= <id:42>i{2:[{"method":"chng"},{"method":"chng", "path":"test/device"}]}
 ```
 
@@ -630,11 +630,11 @@ The provided *Map* must contain the same fields as `.broker:clientInfo` does.
 <= <id:42>i{2:null}
 ```
 
-#### `.broker:currentClientInfo`
+#### `.broker/currentClient:info`
 
-| Name               | SHV Path  | Signature   | Flags  | Access |
-|--------------------|-----------|-------------|--------|--------|
-| `currentClientInt` | `.broker` | `ret(void)` | Getter | Browse |
+| Name   | SHV Path                | Signature   | Flags  | Access |
+|--------|-------------------------|-------------|--------|--------|
+| `info` | `.broker/currentClient` | `ret(void)` | Getter | Browse |
 
 Access to the information broker has for the current client. The result is
 client specific.
@@ -649,7 +649,7 @@ current client while `.broker:clientInfo` is accessible only to the privileged
 users.
 
 ```
-=> <id:42, method:"currentClientInfo", path:".broker">i{}
+=> <id:42, method:"info", path:".broker/currentClient">i{}
 <= <id:42>i{2:{"clientId:68, "userName":"smith", "subscriptions":[{1:"chng"}]}}
 ```
 
