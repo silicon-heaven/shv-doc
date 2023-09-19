@@ -423,20 +423,6 @@ The broker can be pretty much ignored when you are sending requests and
 receiving responses to them. The notification delivery needs to be subscribed in
 the broker and thus for notification the knowledge about broker is a must.
 
-#### `.broker/app:ping`
-
-| Name   | SHV Path      | Flags | Access |
-|--------|---------------|-------|--------|
-| `ping` | `.broker/app` |       | Browse |
-
-This is alias for `.app:ping`. This one must be provided for historical purposes
-(compatibility with clients before SHV 0.1).  The `.app:ping` should be
-preferred for the new clients.
-
-| Parameter | Result |
-|-----------|--------|
-| Null      | Null   |
-
 ### Notifications filtering
 
 Devices send regularly notifications but by propagating these notification to
