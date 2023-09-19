@@ -622,14 +622,17 @@ network.
 |--------------|-----------|--------------|--------|---------|
 | `clientInfo` | `.broker` | `ret(param)` | Getter | Service |
 
-Information the broker has for the client.
+Information the broker has on the client.
 
-| Parameter | Result                                                                                                                                |
-|-----------|---------------------------------------------------------------------------------------------------------------------------------------|
-| Int       | {"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...} \| Null |
+| Parameter     | Result                                                                                                                                |
+|---------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| Int \| String | {"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...} \| Null |
 
-The parameter must be *Int*. The provided info is for client with matching ID.
-The *Null* is returned in case there is no client with this ID.
+The parameter can be either  *Int* and in such case info for client with
+matching ID is provided. Or it can be *String* with SHV path for which client
+mounted on the given path (this includes also all subnodes of the mount point)
+is provided. The *Null* is returned in case there is no client with this ID or
+path is not mounted.
 
 The provided *Map* must have at least these fields:
 
