@@ -626,14 +626,15 @@ Information the broker has for the current client. This info about itself should
 be accessible to the client but using any other client ID should require access
 level *Service*.
 
-| Parameter   | Result                                                                                                                                |
-|-------------|---------------------------------------------------------------------------------------------------------------------------------------|
-| Null \| Int | {"clientID":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...} \| Null |
+| Parameter     | Result                                                                                                                                |
+|---------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| Int \| String | {"clientID":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...} \| Null |
 
-The parameter can be either *Null* (no parameter), and in such case the user info
-is for the current client. Or it can be *Int* and in such case info is for
-client with matching ID. The *Null* is returned in case there is no client with
-this ID.
+The parameter can be either  *Int* and in such case info for client with
+matching ID is provided. Or it can be *String* with SHV path for which client
+mounted on the given path (this includes also all subnodes of the mount point)
+is provided. The *Null* is returned in case there is no client with this ID or
+path is not mounted.
 
 The provided *Map* must have at least these fields:
 
