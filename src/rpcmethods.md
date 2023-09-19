@@ -162,8 +162,8 @@ method description is *Map* with the following fields:
       commonly assigned. It serves as a special management access level as well
       as broker to broker level.
 * `5` is an optional field with string describing the method.
-* `6` is an optional field with *String* used by automatic UI tools.
-* `7` is an optional field with *Map* of additional info defined by device.
+* `6` is an optional field with *String* used by automatic UI tools mostly used as label on button invoking method.
+* `7` is an optional field with *Map* of additional custom UI info defined by device.
 
 Examples of dir requests:
 
