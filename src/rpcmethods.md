@@ -628,7 +628,7 @@ level *Service*.
 
 | Parameter   | Result                                                                                                                                |
 |-------------|---------------------------------------------------------------------------------------------------------------------------------------|
-| Null \| Int | {"clientID":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...} \| Null |
+| Null \| Int | {"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...} \| Null |
 
 The parameter can be either *Null* (no parameter), and in such case the user info
 is for the current client. Or it can be *Int* and in such case info is for
@@ -637,7 +637,7 @@ this ID.
 
 The provided *Map* must have at least these fields:
 
-* `"clientID"` with *Int* containing ID assigned to this client.
+* `"clientId"` with *Int* containing ID assigned to this client.
 * `"userName"` with *String* user name used during the login sequence. This is
   optional because login might not be always required.
 * `"mountPoint"` with *String* SHV path where device is mounted. This can be
@@ -648,15 +648,15 @@ Additional fields are allowed to support more complex brokers but are not
 required nor standardized at the moment.
 
 ```
-=> <id:42, method:"clientID", path:".broker">i{}
-<= <id:42>i{2:{"clientID:68, "userName":"smith", "subscriptions":[{1:"chng"}]}}
+=> <id:42, method:"clientId", path:".broker">i{}
+<= <id:42>i{2:{"clientId:68, "userName":"smith", "subscriptions":[{1:"chng"}]}}
 ```
 ```
-=> <id:42, method:"clientID", path:".broker">i{1:68}
-<= <id:42>i{2:{"clientID:68, "userName":"smith", "subscriptions":[{1:"chng"}]}}
+=> <id:42, method:"clientId", path:".broker">i{1:68}
+<= <id:42>i{2:{"clientId:68, "userName":"smith", "subscriptions":[{1:"chng"}]}}
 ```
 ```
-=> <id:42, method:"clientID", path:".broker">i{1:126}
+=> <id:42, method:"clientId", path:".broker">i{1:126}
 <= <id:42>i{2:null}
 ```
 
@@ -676,14 +676,14 @@ instead.
 
 | Parameter | Result                                                                                                                               |
 |-----------|--------------------------------------------------------------------------------------------------------------------------------------|
-| Null      | [{"clientID":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...}, ...] |
+| Null      | [{"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...}, ...] |
 
 The *List* of maps is provided. The content is the same as `.broker:clientInfo`
 provides.
 
 ```
 => <id:42, method:"clients", path:".broker">i{}
-<= <id:42>i{2:[{"clientID:68, "userName":"smith", "subscriptions":[{1:"chng"}]]}, {"clientID":83, "userName":"iot", "mountPoint":"iot/device"}]}
+<= <id:42>i{2:[{"clientId:68, "userName":"smith", "subscriptions":[{1:"chng"}]]}, {"clientId":83, "userName":"iot", "mountPoint":"iot/device"}]}
 ```
 
 #### `.broker:disconnectClient`
@@ -731,7 +731,7 @@ result is client specific.
 
 It is desirable to be able to access clients directly without mounting them on a
 specific path. This helps with their identification by administrators. This is
-done by automatically mounting them in `.broker/clientAccess/<clientID>`. This
+done by automatically mounting them in `.broker/clientAccess/<clientId>`. This
 mount won't be reported by `.broker:mountPoints` method nor it should be the
 mount point reported by `.broker/currentClient:mountPoint`.
 
