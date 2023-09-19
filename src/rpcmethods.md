@@ -661,24 +661,24 @@ required nor standardized at the moment.
 |-----------|-----------|-------------|--------|---------|
 | `clients` | `.broker` | `ret(void)` | Getter | Service |
 
-This method allows you get info about all clients connected to the broker. This
+This method allows you get list of all clients connected to the broker. This
 is an administration task.
 
 This is mandatory way of listing clients. There also can be an optional, more
 convenient way, that brokers can implement to allow easier use by administrators
 (commonly in `.broker/clientInfo`), but any automatic tools should use this call
-instead.
+instead. It is also more efficient than using `.broker/clients:ls`.
 
-| Parameter | Result                                                                                                                               |
-|-----------|--------------------------------------------------------------------------------------------------------------------------------------|
-| Null      | [{"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...}, ...] |
+| Parameter | Result     |
+|-----------|------------|
+| Null      | [Int, ...] |
 
-The *List* of maps is provided. The content is the same as `.broker:clientInfo`
-provides.
+The *List* of *Int*s is provided where integers are client IDs of all currently
+connected clients.
 
 ```
 => <id:42, method:"clients", path:".broker">i{}
-<= <id:42>i{2:[{"clientId:68, "userName":"smith", "subscriptions":[{1:"chng"}]]}, {"clientId":83, "userName":"iot", "mountPoint":"iot/device"}]}
+<= <id:42>i{2:[68, 83]}
 ```
 
 #### `.broker:disconnectClient`
@@ -700,7 +700,7 @@ reconnection request.
 | Int       | Null   |
 
 ```
-=> <id:42, method:"clients", path:".broker">i{1:68}
+=> <id:42, method:"disconnectClient", path:".broker">i{1:68}
 <= <id:42>i{}
 ```
 
