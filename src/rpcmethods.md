@@ -437,48 +437,6 @@ The broker can be pretty much ignored when you are sending requests and
 receiving responses to them. The notification delivery needs to be subscribed in
 the broker and thus for notification the knowledge about broker is a must.
 
-### Generic
-
-These are methods providing generic info about layout and broker functionality.
-
-#### `.broker:mountPoints`
-
-| Name          | SHV Path  | Signature   | Flags  | Access |
-|---------------|-----------|-------------|--------|--------|
-| `mountPoints` | `.broker` | `ret(void)` | Getter | Browse |
-
-This method provides list of all mount points this broker currently serves. This
-provides an easy access to the paths of all devices. Broker should filter this
-list based on the access rights of the client requesting this.
-
-| Parameter | Result        |
-|-----------|---------------|
-| Null      | [String, ...] |
-
-```
-=> <id:42, method:"mountPoints", path:".broker">i{}
-<= <id:42>i{2:["test/device", "test/foo", "test/site/device"]}
-```
-
-#### `.broker/currentClient:mountPoint`
-
-| Name         | SHV Path                | Signature   | Flags  | Access |
-|--------------|-------------------------|-------------|--------|--------|
-| `mountPoint` | `.broker/currentClient` | `ret(void)` | Getter | Browse |
-
-Getter for the mount point of the current client. The result is client specific.
-Broker can assign any mount point to the device based on its rules and this is
-the way client can identify where it ended up in the broker's tree.
-
-| Parameter | Result |
-|-----------|--------|
-| Null      | String |
-
-```
-=> <id:42, method:"mountPoint", path:".broker/currentClient">i{}
-<= <id:42>i{2:"test/device"}
-```
-
 #### `.broker/app:ping`
 
 | Name   | SHV Path      | Flags | Access |
@@ -528,11 +486,11 @@ The parameter is *map* with:
   subscribe to all methods of given name in the tree.
 
 ```
-=> <id:42, method:"subscribe", path:".broker">i{1:{"method":"chng"}}
+=> <id:42, method:"subscribe", path:".broker/app">i{1:{"method":"chng"}}
 <= <id:42>i{}
 ```
 ```
-=> <id:42, method:"subscribe", path:".broker">i{1:{"method":"chng", "path":"test/device"}}
+=> <id:42, method:"subscribe", path:".broker/app">i{1:{"method":"chng", "path":"test/device"}}
 <= <id:42>i{}
 ```
 
@@ -553,11 +511,11 @@ It provides `true` in case subscription was removed and `false` if it couldn't
 have been found.
 
 ```
-=> <id:42, method:"unsubscribe", path:".broker">i{1:{"method":"chng"}}
+=> <id:42, method:"unsubscribe", path:".broker/app">i{1:{"method":"chng"}}
 <= <id:42>i{2:true}
 ```
 ```
-=> <id:42, method:"unsubscribe", path:".broker">i{1:{"method":"chng", "path":"invalid"}}
+=> <id:42, method:"unsubscribe", path:".broker/app">i{1:{"method":"chng", "path":"invalid"}}
 <= <id:42>i{2:false}
 ```
 
@@ -585,13 +543,13 @@ can be used when broker receives notification that is not subscribed by any of
 its current clients and that way remove any obsolete subscription down the line.
 
 ```
-=> <id:42, method:"rejectNotSubscribed", path:".broker">i{1:{"method":"chng", "path":"test/device/foo"}}
+=> <id:42, method:"rejectNotSubscribed", path:".broker/app">i{1:{"method":"chng", "path":"test/device/foo"}}
 <= <id:42>i{2:[{"method":"chng"}, {"method":"chng", "path":"test/device"}]}
-=> <id:42, method:"rejectNotSubscribed", path:".broker">i{1:{"method":"chng", "path":"test/device/foo"}}
+=> <id:42, method:"rejectNotSubscribed", path:".broker/app">i{1:{"method":"chng", "path":"test/device/foo"}}
 <= <id:42>i{2:[]}
 ```
 
-#### `.broker/currentClient:subscriptions`
+#### `.broker/app:subscriptions`
 
 | Name            | SHV Path      | Signature   | Flags  | Access |
 |-----------------|---------------|-------------|--------|--------|
@@ -605,7 +563,7 @@ client.
 | Null      | [{"method":String, "path":String\|Null}, ...] |
 
 ```
-=> <id:42, method:"subscriptions", path:".broker">i{}
+=> <id:42, method:"subscriptions", path:".broker/app">i{}
 <= <id:42>i{2:[{"method":"chng"},{"method":"chng", "path":"test/device"}]}
 ```
 
@@ -653,6 +611,29 @@ required nor standardized at the moment.
 ```
 => <id:42, method:"clientId", path:".broker">i{1:126}
 <= <id:42>i{2:null}
+```
+
+#### `.broker:currentClientInfo`
+
+| Name               | SHV Path  | Signature   | Flags  | Access |
+|--------------------|-----------|-------------|--------|--------|
+| `currentClientInt` | `.broker` | `ret(void)` | Getter | Browse |
+
+Access to the information broker has for the current client. The result is
+client specific.
+
+| Parameter | Result                                                                                                                        |
+|-----------|-------------------------------------------------------------------------------------------------------------------------------|
+| Null      | {"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...} |
+
+The result is same as for `.broker:clientInfo` called with client ID for the
+current client. The difference is that this method must be accessible to the
+current client while `.broker:clientInfo` is accessible only to the privileged
+users.
+
+```
+=> <id:42, method:"currentClientInfo", path:".broker">i{}
+<= <id:42>i{2:{"clientId:68, "userName":"smith", "subscriptions":[{1:"chng"}]}}
 ```
 
 #### `.broker:clients`
@@ -704,71 +685,13 @@ reconnection request.
 <= <id:42>i{}
 ```
 
-#### `.broker/currentClient:clientId`
-
-| Name       | SHV Path                | Signature   | Flags  | Access |
-|------------|-------------------------|-------------|--------|--------|
-| `clientId` | `.broker/currentClient` | `ret(void)` | Getter | Browse |
-
-Access to the identifier used by the broker to identify the current client. The
-result is client specific.
-
-| Parameter | Result |
-|-----------|--------|
-| Null      | Int    |
-
-```
-=> <id:42, method:"clientId", path:".broker/currentClient">i{}
-<= <id:42>i{2:68}
-```
-
-#### `.broker/currentClient:mountPoint`
-
-| Name       | SHV Path                | Signature   | Flags  | Access |
-|------------|-------------------------|-------------|--------|--------|
-| `mountPoint` | `.broker/currentClient` | `ret(void)` | Getter | Browse |
-
-Access to the mount point of the current client. The result is client specific.
-
-| Parameter | Result         |
-|-----------|----------------|
-| Null      | String \| Null |
-
-```
-=> <id:42, method:"mountPoint", path:".broker/currentClient">i{}
-<= <id:42>i{2:"iot/device"}
-```
-
-#### `.broker/currentClient:info`
-
-| Name       | SHV Path                | Signature   | Flags  | Access |
-|------------|-------------------------|-------------|--------|--------|
-| `info` | `.broker/currentClient` | `ret(void)` | Getter | Browse |
-
-Access to the information broker has for the current client. The result is
-client specific.
-
-| Parameter | Result                                                                                                                        |
-|-----------|-------------------------------------------------------------------------------------------------------------------------------|
-| Null      | {"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...} |
-
-The result is same as if `.broker:clientInfo` is called with
-`.broker/currentClient:clientId`. The difference is that this method must be
-accessible to the current client while `.broker:clientInfo` is accessible only
-to the privileged users.
-
-```
-=> <id:42, method:"info", path:".broker/currentClient">i{}
-<= <id:42>i{2:{"clientId:68, "userName":"smith", "subscriptions":[{1:"chng"}]}}
-```
-
 #### `.broker/client`
 
 It is desirable to be able to access clients directly without mounting them on a
 specific path. This helps with their identification by administrators. This is
 done by automatically mounting them in `.broker/client/<clientId>`. This mount
 won't be reported by `.broker:mountPoints` method nor it should be the mount
-point reported by `.broker/currentClient:mountPoint`.
+point reported in `.broker:cientInfo`.
 
 The access to this path should be allowed only to the broker administrators. The
 rule of thumb is that if user can access `.broker:disconnectClient`, it should
