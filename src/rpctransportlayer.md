@@ -53,25 +53,6 @@ The primary transport layer used with this is TCP/IP but this also applies to
 Unix sockets or pair of pipes.
 
 
-## UDP / Datagram
-
-The datagram communication where delivery and order is not ensured. Datagrams
-have known size and ensure data consistency.
-
-```
-+--------------+
-| message data |
-+--------------+
-```
-
-The transport error is detected if there is no complete message received for
-more than 5 seconds.
-
-Transport errors are handled by immediate disconnect, but it is possible that
-this disconnect is only one sided because most of the datagram transport layers
-do not establish connection.
-
-
 ## RS232 / Serial
 
 This is communication over data stream with possible on the line errors (such as
@@ -105,6 +86,30 @@ not match.
 Transport errors are handled by special empty message (`STX ETC CRC`). This
 message when received should cause reset of receiver side state machine and thus
 termination of any undelivered message.
+
+
+## UDP / Datagram (DRAFT)
+
+The datagram communication where delivery and order is not ensured. Datagrams
+have known size and ensure data consistency.
+
+```
++--------------+
+| message data |
++--------------+
+```
+
+The transport error is detected if there is no complete message received for
+more than 5 seconds.
+
+Transport errors are handled by immediate disconnect, but it is possible that
+this disconnect is only one sided because most of the datagram transport layers
+do not establish connection.
+
+TODO: There are size limitations on the single message on OSes we might hit.
+There is also an issue with reexecution of methods due to lost response (can't
+identify if request or response got lost).
+
 
 ## CAN-FD (DRAFT)
 `data` is split to N frames. There are 4 types of frame
