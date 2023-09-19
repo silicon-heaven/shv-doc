@@ -454,7 +454,7 @@ thus it must work with only client specific info.
 
 | Name        | SHV Path      | Signature     | Flags | Access |
 |-------------|---------------|---------------|-------|--------|
-| `subscribe` | `.broker/app` | `void(param)` |       | Browse |
+| `subscribe` | `.broker/app` | `void(param)` |       | Read   |
 
 Adds rule that allows receive of change notifications from method and optional
 path. The subscription applies to all methods of given name in given path or
@@ -484,7 +484,7 @@ The parameter is *map* with:
 
 | Name          | SHV Path      | Signature    | Flags | Access |
 |---------------|---------------|--------------|-------|--------|
-| `unsubscribe` | `.broker/app` | `ret(param)` |       | Browse |
+| `unsubscribe` | `.broker/app` | `ret(param)` |       | Read   |
 
 Reverts an operation of `.broker/app:subscribe`. The parameter must match
 exactly parameters used to subscribe.
@@ -509,7 +509,7 @@ have been found.
 
 | Name                  | SHV Path      | Signature    | Flags | Access |
 |-----------------------|---------------|--------------|-------|--------|
-| `rejectNotSubscribed` | `.broker/app` | `ret(param)` |       | Browse |
+| `rejectNotSubscribed` | `.broker/app` | `ret(param)` |       | Read   |
 
 Unsubscribes all subscriptions matching the given method and SHV path.  The
 intended use is when you receive notification that you are not interested in.
@@ -539,7 +539,7 @@ its current clients and that way remove any obsolete subscription down the line.
 
 | Name            | SHV Path      | Signature   | Flags  | Access |
 |-----------------|---------------|-------------|--------|--------|
-| `subscriptions` | `.broker/app` | `ret(void)` | Getter | Browse |
+| `subscriptions` | `.broker/app` | `ret(void)` | Getter | Read   |
 
 This method allows you to list all existing subscriptions for the current
 client.
