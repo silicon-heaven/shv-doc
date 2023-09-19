@@ -667,7 +667,7 @@ is an administration task.
 This is mandatory way of listing clients. There also can be an optional, more
 convenient way, that brokers can implement to allow easier use by administrators
 (commonly in `.broker/clientInfo`), but any automatic tools should use this call
-instead. It is also more efficient than using `.broker/clients:ls`.
+instead. It is also more efficient than using `.broker/client:ls`.
 
 | Parameter | Result     |
 |-----------|------------|
@@ -762,14 +762,14 @@ to the privileged users.
 <= <id:42>i{2:{"clientId:68, "userName":"smith", "subscriptions":[{1:"chng"}]}}
 ```
 
-#### `.broker/clients`
+#### `.broker/client`
 
 It is desirable to be able to access clients directly without mounting them on a
 specific path. This helps with their identification by administrators. This is
-done by automatically mounting them in `.broker/clients/<clientId>`. This mount
+done by automatically mounting them in `.broker/client/<clientId>`. This mount
 won't be reported by `.broker:mountPoints` method nor it should be the mount
 point reported by `.broker/currentClient:mountPoint`.
 
 The access to this path should be allowed only to the broker administrators. The
 rule of thumb is that if user can access `.broker:disconnectClient`, it should
-be also able to access `.broker/clients`.
+be also able to access `.broker/client`.
