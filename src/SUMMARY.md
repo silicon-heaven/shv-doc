@@ -15,4 +15,4 @@
 
 ---
 
-# SHV standard: 0.1
+# SHV standard: 3.0
