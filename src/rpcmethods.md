@@ -436,11 +436,11 @@ should respond to all clients, if it has access rights high enough, the
 same way. But these methods manage client's specific table of subscriptions, and
 thus it must work with only client specific info.
 
-#### `.broker/currentClient:subscribe`
+#### `.app/broker/currentClient:subscribe`
 
 | Name        | SHV Path                | Signature     | Flags | Access |
 |-------------|-------------------------|---------------|-------|--------|
-| `subscribe` | `.broker/currentClient` | `void(param)` |       | Read   |
+| `subscribe` | `.app/broker/currentClient` | `void(param)` |       | Read   |
 
 Adds rule that allows receiving of signals (notifications) from shv
 path. The subscription applies to all methods of given name in given path and
@@ -458,21 +458,21 @@ The parameter is *map* with:
   subscribe to all methods of given name in the tree.
 
 ```
-=> <id:42, method:"subscribe", path:".broker/currentClient">i{1:{"method":"chng"}}
+=> <id:42, method:"subscribe", path:".app/broker/currentClient">i{1:{"method":"chng"}}
 <= <id:42>i{}
 ```
 ```
-=> <id:42, method:"subscribe", path:".broker/currentClient">i{1:{"method":"chng", "path":"test/device"}}
+=> <id:42, method:"subscribe", path:".app/broker/currentClient">i{1:{"method":"chng", "path":"test/device"}}
 <= <id:42>i{}
 ```
 
-#### `.broker/currentClient:unsubscribe`
+#### `.app/broker/currentClient:unsubscribe`
 
 | Name          | SHV Path      | Signature    | Flags | Access |
 |---------------|---------------|--------------|-------|--------|
-| `unsubscribe` | `.broker/currentClient` | `ret(param)` |       | Read   |
+| `unsubscribe` | `.app/broker/currentClient` | `ret(param)` |       | Read   |
 
-Reverts an operation of `.broker/currentClient:subscribe`. The parameter must match
+Reverts an operation of `.app/broker/currentClient:subscribe`. The parameter must match
 exactly parameters used to subscribe.
 
 | Parameter                              | Result |
@@ -483,19 +483,19 @@ It provides `true` in case subscription was removed and `false` if it couldn't
 have been found.
 
 ```
-=> <id:42, method:"unsubscribe", path:".broker/currentClient">i{1:{"method":"chng"}}
+=> <id:42, method:"unsubscribe", path:".app/broker/currentClient">i{1:{"method":"chng"}}
 <= <id:42>i{2:true}
 ```
 ```
-=> <id:42, method:"unsubscribe", path:".broker/currentClient">i{1:{"method":"chng", "path":"invalid"}}
+=> <id:42, method:"unsubscribe", path:".app/broker/currentClient">i{1:{"method":"chng", "path":"invalid"}}
 <= <id:42>i{2:false}
 ```
 
-#### `.broker/currentClient:rejectNotSubscribed`
+#### `.app/broker/currentClient:rejectNotSubscribed`
 
 | Name                  | SHV Path                | Signature    | Flags | Access |
 |-----------------------|-------------------------|--------------|-------|--------|
-| `rejectNotSubscribed` | `.broker/currentClient` | `ret(param)` |       | Read   |
+| `rejectNotSubscribed` | `.app/broker/currentClient` | `ret(param)` |       | Read   |
 
 Unsubscribes all subscriptions matching the given method and SHV path.  The
 intended use is when you receive notification that you are not interested in.
@@ -515,17 +515,17 @@ can be used when broker receives notification that is not subscribed by any of
 its current clients and that way remove any obsolete subscription down the line.
 
 ```
-=> <id:42, method:"rejectNotSubscribed", path:".broker/currentClient">i{1:{"method":"chng", "path":"test/device/foo"}}
+=> <id:42, method:"rejectNotSubscribed", path:".app/broker/currentClient">i{1:{"method":"chng", "path":"test/device/foo"}}
 <= <id:42>i{2:[{"method":"chng"}, {"method":"chng", "path":"test/device"}]}
-=> <id:42, method:"rejectNotSubscribed", path:".broker/currentClient">i{1:{"method":"chng", "path":"test/device/foo"}}
+=> <id:42, method:"rejectNotSubscribed", path:".app/broker/currentClient">i{1:{"method":"chng", "path":"test/device/foo"}}
 <= <id:42>i{2:[]}
 ```
 
-#### `.broker/currentClient:subscriptions`
+#### `.app/broker/currentClient:subscriptions`
 
 | Name            | SHV Path                | Signature   | Flags  | Access |
 |-----------------|-------------------------|-------------|--------|--------|
-| `subscriptions` | `.broker/currentClient` | `ret(void)` | Getter | Read   |
+| `subscriptions` | `.app/broker/currentClient` | `ret(void)` | Getter | Read   |
 
 This method allows you to list all existing subscriptions for the current
 client.
@@ -535,7 +535,7 @@ client.
 | Null      | [{"method":String, "path":String\|Null}, ...] |
 
 ```
-=> <id:42, method:"subscriptions", path:".broker/currentClient">i{}
+=> <id:42, method:"subscriptions", path:".app/broker/currentClient">i{}
 <= <id:42>i{2:[{"method":"chng"},{"method":"chng", "path":"test/device"}]}
 ```
 
@@ -546,11 +546,11 @@ The information about connected clients and its parameters is beneficial not
 only for the client's them self but primarily to the administrators of the SHV
 network.
 
-#### `.broker:clientInfo`
+#### `.app/broker:clientInfo`
 
 | Name         | SHV Path  | Signature    | Flags  | Access  |
 |--------------|-----------|--------------|--------|---------|
-| `clientInfo` | `.broker` | `ret(param)` | Getter | Service |
+| `clientInfo` | `.app/broker` | `ret(param)` | Getter | Service |
 
 Information the broker has on the client.
 
@@ -575,19 +575,19 @@ Additional fields are allowed to support more complex brokers but are not
 required nor standardized at the moment.
 
 ```
-=> <id:42, method:"clientInfo", path:".broker">i{1:68}
+=> <id:42, method:"clientInfo", path:".app/broker">i{1:68}
 <= <id:42>i{2:{"clientId:68, "userName":"smith", "subscriptions":[{1:"chng"}]}}
 ```
 ```
-=> <id:42, method:"clientInfo", path:".broker">i{1:126}
+=> <id:42, method:"clientInfo", path:".app/broker">i{1:126}
 <= <id:42>i{2:null}
 ```
 
-#### `.broker:mountedClientInfo`
+#### `.app/broker:mountedClientInfo`
 
 | Name                | SHV Path  | Signature    | Flags  | Access  |
 |---------------------|-----------|--------------|--------|---------|
-| `mountedClientInfo` | `.broker` | `ret(param)` | Getter | Service |
+| `mountedClientInfo` | `.app/broker` | `ret(param)` | Getter | Service |
 
 Information the broker has on the client that is mounted on the given SHV path.
 
@@ -605,22 +605,22 @@ mounted on the given path (this includes also all subnodes of the mount point)
 is provided. The *Null* is returned in case there is no client with this ID or
 path is not mounted.
 
-The provided *Map* must contain the same fields as `.broker:clientInfo` does.
+The provided *Map* must contain the same fields as `.app/broker:clientInfo` does.
 
 ```
-=> <id:42, method:"mountedClientInfo", path:".broker">i{1:"iot/device"}
+=> <id:42, method:"mountedClientInfo", path:".app/broker">i{1:"iot/device"}
 <= <id:42>i{2:{"clientId:68, "userName":"smith", "subscriptions":[{1:"chng"}]}}
 ```
 ```
-=> <id:42, method:"mountedClientInfo", path:".broker">i{1:"invalid"}
+=> <id:42, method:"mountedClientInfo", path:".app/broker">i{1:"invalid"}
 <= <id:42>i{2:null}
 ```
 
-#### `.broker/currentClient:info`
+#### `.app/broker/currentClient:info`
 
 | Name   | SHV Path                | Signature   | Flags  | Access |
 |--------|-------------------------|-------------|--------|--------|
-| `info` | `.broker/currentClient` | `ret(void)` | Getter | Browse |
+| `info` | `.app/broker/currentClient` | `ret(void)` | Getter | Browse |
 
 Access to the information broker has for the current client. The result is
 client specific.
@@ -629,29 +629,29 @@ client specific.
 |-----------|-------------------------------------------------------------------------------------------------------------------------------|
 | Null      | {"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...} |
 
-The result is same as for `.broker:clientInfo` called with client ID for the
+The result is same as for `.app/broker:clientInfo` called with client ID for the
 current client. The difference is that this method must be accessible to the
-current client while `.broker:clientInfo` is accessible only to the privileged
+current client while `.app/broker:clientInfo` is accessible only to the privileged
 users.
 
 ```
-=> <id:42, method:"info", path:".broker/currentClient">i{}
+=> <id:42, method:"info", path:".app/broker/currentClient">i{}
 <= <id:42>i{2:{"clientId:68, "userName":"smith", "subscriptions":[{1:"chng"}]}}
 ```
 
-#### `.broker:clients`
+#### `.app/broker:clients`
 
 | Name      | SHV Path  | Signature   | Flags  | Access  |
 |-----------|-----------|-------------|--------|---------|
-| `clients` | `.broker` | `ret(void)` | Getter | Service |
+| `clients` | `.app/broker` | `ret(void)` | Getter | Service |
 
 This method allows you get list of all clients connected to the broker. This
 is an administration task.
 
 This is a mandatory way of listing clients. There also can be an optional, more
 convenient way, that brokers can implement to allow easier use by administrators
-(commonly in `.broker/clientInfo`), but any automatic tools should use this call
-instead. It is also more efficient than using `.broker/client:ls`.
+(commonly in `.app/broker/clientInfo`), but any automatic tools should use this call
+instead. It is also more efficient than using `.app/broker/client:ls`.
 
 | Parameter | Result     |
 |-----------|------------|
@@ -661,15 +661,15 @@ The *List* of *Int*s is provided where integers are client IDs of all currently
 connected clients.
 
 ```
-=> <id:42, method:"clients", path:".broker">i{}
+=> <id:42, method:"clients", path:".app/broker">i{}
 <= <id:42>i{2:[68, 83]}
 ```
 
-#### `.broker:disconnectClient`
+#### `.app/broker:disconnectClient`
 
 | Name               | SHV Path  | Signature     | Flags | Access  |
 |--------------------|-----------|---------------|-------|---------|
-| `disconnectClient` | `.broker` | `void(param)` |       | Service |
+| `disconnectClient` | `.app/broker` | `void(param)` |       | Service |
 
 Forces some specific client to be immediately disconnected from the SHV broker.
 You need to provide client's ID as an argument. Based on the link layer client
@@ -684,18 +684,18 @@ reconnection request.
 | Int       | Null   |
 
 ```
-=> <id:42, method:"disconnectClient", path:".broker">i{1:68}
+=> <id:42, method:"disconnectClient", path:".app/broker">i{1:68}
 <= <id:42>i{}
 ```
 
-#### `.broker/client`
+#### `.app/broker/client`
 
 It is desirable to be able to access clients directly without mounting them on a
 specific path. This helps with their identification by administrators. This is
-done by automatically mounting them in `.broker/client/<clientId>`. This mount
-won't be reported by `.broker:mountPoints` method, nor it should be the mount
-point reported in `.broker:cientInfo`.
+done by automatically mounting them in `.app/broker/client/<clientId>`. This mount
+won't be reported by `.app/broker:mountPoints` method, nor it should be the mount
+point reported in `.app/broker:cientInfo`.
 
 The access to this path should be allowed only to the broker administrators. The
-rule of thumb is that if user can access `.broker:disconnectClient`, it should
-be also able to access `.broker/client`.
+rule of thumb is that if user can access `.app/broker:disconnectClient`, it should
+be also able to access `.app/broker/client`.
