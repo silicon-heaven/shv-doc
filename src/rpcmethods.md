@@ -12,7 +12,7 @@ Sometimes the authentication can be optional (such as when connecting over local
 socket or if client certificate is used) but login sequence is required anyway
 to introduce the client to the broker.
 
-The first method to be sent sent by the client after connection to the broker is
+The first method to be sent by the client after connection to the broker is
 established needs to be `hello` request. It is called with `null` SHV path
 (which means it can be left out in the message's meta) and no parameters.
 
@@ -21,7 +21,7 @@ established needs to be `hello` request. It is called with `null` SHV path
 ```
 
 Broker should respond with message containing nonce that can be used to perform
-login. The nonce needs to be a ASCII string with length from 10 to 32
+login. The nonce needs to be an ASCII string with length from 10 to 32
 characters.
 
 ```
@@ -35,27 +35,27 @@ The next message sent by the client needs to be `login` request. This message is
 There are two types of the logins you can use. It can be either *plain* login or
 *sha1*. The difference is only the way you send the password in the message. The
 *plain* login just sends password as it is in *String*. The *sha1* login hashes
-the provided users password, adds the result as suffix to the nonce from `hello`
+the provided user's password, adds the result as suffix to the nonce from `hello`
 and hashes the result again. SHA1 hash is represented in HEX format. The
 complete password deduction is: `SHA1(nonce + SHA1(password))`. The SHA1 login
 is highly encouraged and plain login is highly discouraged, even the low end
 CPUs should be able to calculate SHA1 hash and thus perform the SHA1 login. The
 `"login"` *map* needs to contain these fields:
 
-* `"user"` with user name as *String*
+* `"user"` with username as *String*
 * `"password"` with either plain text password or SHA1 password (as described in
   the paragraph above) as *String*
-* `"type"` that identifies password format and thus it can have only one of
+* `"type"` that identifies password format, and thus it can have only one of
   these values:
   * `"PLAIN"` for *plain* text password (discouraged use)
   * `"SHA1"` for SHA1 login
 
 The `"options"` needs to be a map of options for the broker. Broker will ignore
 any unknown options. A different broker implementations can support a different
-set of options but minimal needed supported options are these:
+set of options, but minimal needed supported options are these:
 
 * `"device"` with *map* containing device specific options. At least these
-  otions need to be supported:
+  options need to be supported:
   * `"deviceId"` with *String* value that identifies the device. This should be
     used by the broker to automatically assign mount point based on its internal
     rules.
@@ -66,7 +66,7 @@ set of options but minimal needed supported options are these:
 * `"idleWatchDogTimeOut"` specifies number of seconds without message receive
   before broker will consider the connection to be dead and disconnects it. The
   default timeout by the broker should be 180 seconds. By increasing this
-  timeout you can reduce the periodic dummy messages sent but it is suggested to
+  timeout you can reduce the periodic dummy messages sent, but it is suggested to
   keep it in reasonable range because open but dead connection can consume
   unnecessary resources on the broker.
 
@@ -83,7 +83,7 @@ from the broker.
 <= <id:2>i{}
 ```
 
-In case of an login error you can attempt the login again without need to
+In case of a login error you can attempt the login again without need to
 disconnect or sending `hello` again. Be aware that broker should impose delay of
 60 seconds on subsequent login attempts for security reasons.
 
@@ -163,7 +163,7 @@ method description is *Map* with the following fields:
       as broker to broker level.
 * `"description"` is an optional field with string describing the method.
 
-Examples of dir requests:
+Examples of `dir` requests:
 
 ```
 => <id:42, method:"dir", path:"">i{}
@@ -184,7 +184,7 @@ Examples of dir requests:
 
 The previous version (before SHV RPC 0.1) supported both *Null* and *String*.
 The *string* argument also always provided list (with one or no maps). Even
-older implementations provided list of lists (`[[name, signature, flags,
+older implementations provided list of lists `[[name, signature, flags,
 description],...]`. Clients that do want to fully support all existing devices
 should support both of the old representations as well as the latest one.
 
@@ -243,7 +243,7 @@ signaled.
 | `get` | Any      | `ret(param)` | Getter | Read   |
 
 This method is used for getting the current value associated with SHV path.
-Every property node needs to have *get* method and every node with *get* method
+Every property node needs to have `get` method and every node with `get` method
 can be considered as property node.
 
 | Parameter   | Result |
@@ -295,7 +295,7 @@ reference is read-write property and real value is read-only one.
 |--------|----------|-------------|--------|--------|
 | `chng` | Any      | `ret(void)` | Signal | Read   |
 
-This is signal and thus it gets emitted on its own and can't be called. It is
+This is signal, and thus it gets emitted on its own and can't be called. It is
 used when you have desire to get info about value change without polling. Note
 that signal might not be emitted just on value change (that means old value can
 be same as the new one) and it might not be emitted on some value changes (for
@@ -318,7 +318,7 @@ associated with the SHV path.
 ## Application API
 
 These are methods that are required for every device to be present on its SHV
-path `".app"`. Clients do not have to implement these but their implementation
+path `".app"`. Clients do not have to implement these, but their implementation
 is highly suggested if they are supposed to be connected to the broker for more
 than just a few requests.
 
@@ -425,15 +425,15 @@ the broker and thus for notification the knowledge about broker is a must.
 
 ### Notifications filtering
 
-Devices send regularly notifications but by propagating these notification to
+Devices send regularly notifications but by propagating these notifications to
 all clients is not always desirable. For that reason notifications are filtered.
 The default is to not send notifications and clients need to explicitly request
 them with subscriptions (note that it is allowed that subscriptions would be
 seeded by the broker based on the login).
 
 The speciality of these methods is that they are client specific. In general RPC
-should respond to all clients, if it they have high enough access rights, the
-same way. But these methods manage client's specific table of subscriptions and
+should respond to all clients, if it has access rights high enough, the
+same way. But these methods manage client's specific table of subscriptions, and
 thus it must work with only client specific info.
 
 #### `.broker/currentClient:subscribe`
@@ -442,9 +442,9 @@ thus it must work with only client specific info.
 |-------------|-------------------------|---------------|-------|--------|
 | `subscribe` | `.broker/currentClient` | `void(param)` |       | Read   |
 
-Adds rule that allows receive of change notifications from method and optional
-path. The subscription applies to all methods of given name in given path or
-sub-path. The default path is an empty and thus root of the broker, this
+Adds rule that allows receiving of signals (notifications) from shv
+path. The subscription applies to all methods of given name in given path and
+sub-paths. The default path is an empty and thus root of the broker, this
 subscribes on given method in all accessible nodes of the broker.
 
 | Parameter                              | Result |
@@ -648,7 +648,7 @@ users.
 This method allows you get list of all clients connected to the broker. This
 is an administration task.
 
-This is mandatory way of listing clients. There also can be an optional, more
+This is a mandatory way of listing clients. There also can be an optional, more
 convenient way, that brokers can implement to allow easier use by administrators
 (commonly in `.broker/clientInfo`), but any automatic tools should use this call
 instead. It is also more efficient than using `.broker/client:ls`.
@@ -693,7 +693,7 @@ reconnection request.
 It is desirable to be able to access clients directly without mounting them on a
 specific path. This helps with their identification by administrators. This is
 done by automatically mounting them in `.broker/client/<clientId>`. This mount
-won't be reported by `.broker:mountPoints` method nor it should be the mount
+won't be reported by `.broker:mountPoints` method, nor it should be the mount
 point reported in `.broker:cientInfo`.
 
 The access to this path should be allowed only to the broker administrators. The
