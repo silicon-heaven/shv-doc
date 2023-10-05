@@ -229,6 +229,31 @@ The previous versions (before SHV RPC 0.1) supported *Null* argument but not
 discouraged to be used by new clients. The *Null* variant is fully backward
 compatible.
 
+### `*:lschng`
+
+| Name     | SHV Path | Signature   | Flags  | Access |
+|----------|----------|-------------|--------|--------|
+| `lschng` | Any      | `ret(void)` | Signal | Browse |
+
+The signal that has to be sent if there is change in the result of the `*:ls`
+method. This includes case when new nodes are added as well as when nodes are
+removed.
+
+| Value          |
+|----------------|
+| {String:Bool} |
+
+The value sent with notification needs to be *Map* where keys are name of the
+nodes that were added or removed and value is *Bool* signaling the node
+existence. `true` thus signals added node and `false` removed one. It is allowed
+and desirable to specify multiple node changes in one signal but you should not
+delay notification sending just to combine it with some future changes, it must
+be sent as soon as possible.
+
+```
+<= <method:"lschng", path:"test">i{1:{"device":true}}
+```
+
 
 ## Property nodes
 
