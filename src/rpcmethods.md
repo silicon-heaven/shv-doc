@@ -105,31 +105,28 @@ associated with it. The
 This method needs to be implemented for every node (that is every valid SHV
 path). It provides a way to list all available methods and signals of the node.
 
-| Parameter | Result                                                                                                         |
-|-----------|----------------------------------------------------------------------------------------------------------------|
-| Null      | [i{"name":String, "signature":Int<0,3>, "flags":Int<0,15>, "access":String, "description":String\|Null}, ...]  |
-| String    | i{"name":String, "signature":Int<0,3>, "flags":Int<0,15>, "access":String, "description":String\|Null} \| Null |
+| Parameter   | Result                            |
+|-------------|-----------------------------------|
+| Null \| `0` | [String, ...]                     |
+| `1`         | [[String, Int<0,15>], ...]        |
+| Int<2,63>   | [{"name":String, String:Any, ...] |
+| String      | Bool                              |
 
 This method can be called with or without parameter. The valid parameters are:
 
-* *Null* and in such case all methods are listed
-* *String* and in such case only method with matching name is listed
+* *Null* or `0` and in such case all methods are listed by their name
+* `1` for list of methods where list contains method name and flags for it
+* *Int* from two to sixty three for detailed listing
+* *String* with possible method name for which `true` is returned if node has
+  such method and `false` if there is no such method.
 
-The provided value is list of method descriptions, or just a single method
-description without list in case *String* was passed as an argument. Every
-method description is *Map* with the following fields:
+The numerical parameter can be understood as details level. The two initial
+levels are special minimal ones. Others contain *Map* with string names and
+based on the level some of the can be left out. The *Map* can contain the
+following fields:
 
-* `"name"` with string containing method's name
-* `"signature"` with integer of these possible values:
-  * `0` for signature `void(void)` that is no value is returned and no parameter is
-    expected.
-  * `1` for signature `void(param)` that is no value is returned and some
-    parameter is expected.
-  * `2` for signature `ret(void)` that is value is returned and no parameter is
-    expected.
-  * `3` for signature `ret(param)` that is value is returned and parameter is
-    expected.
-* `"flags"` that is integer assembled from the following values:
+* `"name"` (in all detail levels) with string containing method's name.
+* `"flags"` (from level `1`) is integer assembled from the following values:
   * `1` (`1 << 0`) specifies that method is a signal and thus can't be
     explicitly called but rather it gets automatically emitted on some event. It
     is highly suggested to use this only for methods called `chng` (see the
@@ -140,11 +137,17 @@ method description is *Map* with the following fields:
     signature `void(param)`.
   * `8` (`1 << 3`) specifies that returned value is going to be large. This
     method must have signature either `ret(void)` or `ret(param)`.
-* `"access"` that is used to inform about minimal access level needed to
-  invoke the method. If client has lower access level then request to this
-  method is going to result in an error. Note that actual user's access level is
-  defined by SHV broker and deduced by potentially complex rule set. The allowed
-  values are:
+* `"param"` (from level `4`) with *String* name of the parameter type. It can be
+  missing or have value `null` instead of *String* if method takes no or `null`
+  parameter.
+* `"result"` (from level `4`) with *String* name of the provided value type. It
+  can be missing or have value `null` instead of *String* if method provides no
+  or `null` value.
+* `"access"` (from level `10`) that is used to inform about minimal access level
+  needed to invoke the method. If client has lower access level then request to
+  this method is going to result in an error. Note that actual user's access
+  level is defined by SHV broker and deduced by potentially complex rule set.
+  The allowed values are:
     * `"bws"` (browse) is the lowest access level allowing to discover SHV nodes
       and methods.
     * `"rd"` (read) allows reading of values.
@@ -161,25 +164,41 @@ method description is *Map* with the following fields:
       used for the method access limitation because this level should not be
       commonly assigned. It serves as a special management access level as well
       as broker to broker level.
-* `"description"` is an optional field with string describing the method.
+* `"description"` (from level `20`) is field with string describing the method.
 
 Examples of `dir` requests:
 
 ```
 => <id:42, method:"dir", path:"">i{}
-<= <id:42>i{2:[i{"name":"dir", "signature":3, "access":"bws"},i{"name":"ls", "signature":3, "access":"bws"}]}
+<= <id:42>i{2:["dir", "ls", "lschng"]}
 ```
 ```
 => <id:43, method:"dir", path:"test/path">i{1:null}
-<= <id:43>i{2:[i{"name":"dir", "signature":3, "access":"bws"},i{"name":"ls", "signature":3, "access":"bws"},i{"name":"get", "signature":3, "flags":2}]}
+<= <id:43>i{2:["dir", "ls", "lschng", "get"]}
+```
+```
+=> <id:43, method:"dir", path:"test/path">i{1:0}
+<= <id:43>i{2:["dir", "ls", "lschng", "get"]}
+```
+```
+=> <id:43, method:"dir", path:"test/path">i{1:1}
+<= <id:43>i{2:[["dir", 0], ["ls", 0], ["lschng", 1] ["get", 2]]}
+```
+```
+=> <id:43, method:"dir", path:"">i{1:2}
+<= <id:43>i{2:[{"name":"dir", "flags":0},{"name":"ls", "flags":0},{"name":"lschng", "flags":1}]}
+```
+```
+=> <id:43, method:"dir", path:"">i{1:2}
+<= <id:43>i{2:[{"name":"dir", "flags":0, "param":"idir", "result":"odir"},{"name":"ls", "flags":0, "param":"ils", "result":"ols"},{"name":"lschng", "flags":1, "param":"Bool"}]}
 ```
 ```
 => <id:44, method:"dir", path:"test/path">i{1:"nonexistent"}
-<= <id:44>i{2:null}
+<= <id:44>i{2:false}
 ```
 ```
 => <id:44, method:"dir", path:"test/path">i{1:"dir"}
-<= <id:43>i{2:{"name":"dir", "signature":3, "access":"bws"}}
+<= <id:43>i{2:true}
 ```
 
 The previous version (before SHV RPC 0.1) supported both *Null* and *String*.
