@@ -94,7 +94,7 @@ disconnect or sending `hello` again. Be aware that broker should impose delay of
 ## Discovering SHV paths and methods
 
 SHV paths address different nodes in the SHV tree and every node has methods
-associated with it. The 
+associated with it.
 
 ### `*:dir`
 
@@ -105,49 +105,50 @@ associated with it. The
 This method needs to be implemented for every node (that is every valid SHV
 path). It provides a way to list all available methods and signals of the node.
 
-| Parameter   | Result                            |
-|-------------|-----------------------------------|
-| Null \| `0` | [String, ...]                     |
-| `1`         | [[String, Int<0,15>], ...]        |
-| Int<2,63>   | [{"name":String, String:Any, ...] |
-| String      | Bool                              |
+| Parameter       | Result                                                                                          |
+|-----------------|-------------------------------------------------------------------------------------------------|
+| Null \| `false` | [i{1:String, 2:Int<0,15>, 2:String, 4:String, 5:String}, ...]                                   |
+| `true`          | [{"name":String, "flags":Int<0,15>, "param":String, "result":String, "access":String ...}, ...] |
+| String          | i{1:String, 2:Int<0,15>, 3:String, 4:String, 5:String}                                                                                            |
 
 This method can be called with or without parameter. The valid parameters are:
 
-* *Null* or `0` and in such case all methods are listed by their name
-* `1` for list of methods where list contains method name and flags for it
-* *Int* from two to sixty three for detailed listing
-* *String* with possible method name for which `true` is returned if node has
-  such method and `false` if there is no such method.
+* *Null* or `false` and in such case all methods are listed with their info in
+  *IMap*.
+* `true` is same as `false` or *Null* with exception that result is expected to
+  be *Map* instead of *IMap*. That allows custom extension that is beneficial in
+  some cases. The implementations that do not support this extension are allowed
+  to return *IMap* just like for *Null* or `false`.
+* *String* with possible method name for which info should be provided. *Null*
+  is provided if there is no such method.
 
-The numerical parameter can be understood as details level. The two initial
-levels are special minimal ones. Others contain *Map* with string names and
-based on the level some of the can be left out. The *Map* can contain the
-following fields:
+The method info in both *IMap* and *Map* must contain these fields:
 
-* `"name"` (in all detail levels) with string containing method's name.
-* `"flags"` (from level `1`) is integer assembled from the following values:
+* `"name"` for *Map* and `1` for *IMap* with string containing method's name.
+* `"flags"` for *Map* and `2` for *IMap* needs to have integer value assembled
+  from the following ones:
   * `1` (`1 << 0`) specifies that method is a signal and thus can't be
-    explicitly called but rather it gets automatically emitted on some event. It
-    is highly suggested to use this only for methods called `chng` (see the
-    description about property nodes).
-  * `2` (`1 << 1`) specifies that method is a getter. This method must have
-    signature `ret(void)` and invoking it should have no side effect.
-  * `4` (`1 << 2`) specifies that method is a setter. This method must have
-    signature `void(param)`.
-  * `8` (`1 << 3`) specifies that returned value is going to be large. This
-    method must have signature either `ret(void)` or `ret(param)`.
-* `"param"` (from level `4`) with *String* name of the parameter type. It can be
-  missing or have value `null` instead of *String* if method takes no or `null`
-  parameter.
-* `"result"` (from level `4`) with *String* name of the provided value type. It
-  can be missing or have value `null` instead of *String* if method provides no
-  or `null` value.
-* `"access"` (from level `10`) that is used to inform about minimal access level
-  needed to invoke the method. If client has lower access level then request to
-  this method is going to result in an error. Note that actual user's access
-  level is defined by SHV broker and deduced by potentially complex rule set.
-  The allowed values are:
+    explicitly called but rather it gets automatically emitted on some event.
+    Requests sent to this method will result in error about missing method.
+  * `2` (`1 << 1`) specifies that method is a getter. This method must be
+    callable without side effects without any parameter.
+  * `4` (`1 << 2`) specifies that method is a setter. This method must be
+    callable that accepts parameter and provides no value. They are commonly
+    paired with getter.
+  * `8` (`1 << 3`) specifies that provided value in response is going to be
+    large. This exists to signal that by calling this method you can block the
+    connection for considerable amount of time.
+* `"param"` for *Map* and `3` for *IMap* with *String* name of the parameter
+  type as value. It can be missing or have value `null` instead of *String* if
+  method takes no parameter (or `null`).
+* `"result"` for *Map* and `4` for *IMap* with *String* name of the provided
+  value type as value. It can be missing or have value `null` instead of
+  *String* if method provides no  value (or `null`).
+* `"access"` for *Map* and  `5` for *IMap* that is used to inform about minimal
+  access level needed to invoke the method. If client has lower access level
+  than request to this method is going to result in an error. Note that actual
+  user's access level is defined by SHV broker and deduced by potentially
+  complex rule set. The allowed values are:
     * `"bws"` (browse) is the lowest access level allowing to discover SHV nodes
       and methods.
     * `"rd"` (read) allows reading of values.
@@ -164,48 +165,36 @@ following fields:
       used for the method access limitation because this level should not be
       commonly assigned. It serves as a special management access level as well
       as broker to broker level.
-* `"description"` (from level `20`) is field with string describing the method.
 
 Examples of `dir` requests:
 
 ```
 => <id:42, method:"dir", path:"">i{}
-<= <id:42>i{2:["dir", "ls", "lschng"]}
+<= <id:42>i{2:[i{1:"dir", 2:0, 3:"idir", 4:"odir", 5:"bws"},i{1:"ls", 2:0, 3:"idir", 4:"odir", 5:"bws"},{1:"lschng", 2:1, 4:"olschng", 5:"bws"}]}
 ```
 ```
-=> <id:43, method:"dir", path:"test/path">i{1:null}
-<= <id:43>i{2:["dir", "ls", "lschng", "get"]}
+=> <id:43, method:"dir", path:"test/path">i{1:false}
+<= <id:43>i{2:[i{1:"dir", 2:0, 3:"idir", 4:"odir", 5:"bws"},i{1:"ls", 2:0, 3:"idir", 4:"odir", 5:"bws"},{1:"get", 2:2, 3:"iget" 4:"String", 5:"rd"}]}
 ```
 ```
-=> <id:43, method:"dir", path:"test/path">i{1:0}
-<= <id:43>i{2:["dir", "ls", "lschng", "get"]}
-```
-```
-=> <id:43, method:"dir", path:"test/path">i{1:1}
-<= <id:43>i{2:[["dir", 0], ["ls", 0], ["lschng", 1] ["get", 2]]}
-```
-```
-=> <id:43, method:"dir", path:"">i{1:2}
-<= <id:43>i{2:[{"name":"dir", "flags":0},{"name":"ls", "flags":0},{"name":"lschng", "flags":1}]}
-```
-```
-=> <id:43, method:"dir", path:"">i{1:2}
-<= <id:43>i{2:[{"name":"dir", "flags":0, "param":"idir", "result":"odir"},{"name":"ls", "flags":0, "param":"ils", "result":"ols"},{"name":"lschng", "flags":1, "param":"Bool"}]}
+=> <id:44, method:"dir", path:"test/path">i{1:"get"}
+<= <id:44>i{2:i{1:"get", 2:2, 3:"iget" 4:"String", 5:"rd"}}
 ```
 ```
 => <id:44, method:"dir", path:"test/path">i{1:"nonexistent"}
-<= <id:44>i{2:false}
+<= <id:44>i{2:null}
 ```
 ```
-=> <id:44, method:"dir", path:"test/path">i{1:"dir"}
-<= <id:43>i{2:true}
+=> <id:43, method:"dir", path:"test/path">i{1:true}
+<= <id:43>i{2:[{"name":"dir", "flags":0, "param":"idir", "result":"odir", "access":"bws"},i{"name":"ls", "flags":0, "param":"idir", "result":"odir", "access":"bws"},{"name":"get", "flags":2, "param":"iget" "result":"String", "access":"rd"}]}
 ```
 
-The previous version (before SHV RPC 0.1) supported both *Null* and *String*.
-The *string* argument also always provided list (with one or no maps). Even
-older implementations provided list of lists `[[name, signature, flags,
-description],...]`. Clients that do want to fully support all existing devices
-should support both of the old representations as well as the latest one.
+The previous version (before SHV RPC 3.0) supported both *Null* and *String* but
+provided *Map* instead of *IMap*. The *String* argument also always provided
+list (with one or no maps). Even older implementations provided list of lists
+`[[name, signature, flags, description],...]`. Clients that do want to fully
+support all existing devices should support both of the old representations as
+well as the latest one.
 
 ### `*:ls`
 
