@@ -471,8 +471,8 @@ thus it must work with only client specific info.
 
 #### `.app/broker/currentClient:subscribe`
 
-| Name        | SHV Path                | Signature     | Flags | Access |
-|-------------|-------------------------|---------------|-------|--------|
+| Name        | SHV Path                    | Signature     | Flags | Access |
+|-------------|-----------------------------|---------------|-------|--------|
 | `subscribe` | `.app/broker/currentClient` | `void(param)` |       | Read   |
 
 Adds rule that allows receiving of signals (notifications) from shv
@@ -480,15 +480,24 @@ path. The subscription applies to all methods of given name in given path and
 sub-paths. The default path is an empty and thus root of the broker, this
 subscribes on given method in all accessible nodes of the broker.
 
-| Parameter                              | Result |
-|----------------------------------------|--------|
-| {"method":String, "path":String\|Null} | Null   |
+| Parameter | Result |
+|-----------|--------|
+| {...}     | Null   |
 
 The parameter is *map* with:
 
-* `"method"` with method name (*String*)
+* `"method"` with optional method name (*String*) where default is `""` and
+  matches all methods.
 * `"path"` with optional SHV path (*String*) where default is `""` and thus
   subscribe to all methods of given name in the tree.
+* `"methods"` that replaces `"method"` and instead of being exact name of the
+  method can be wildcard pattern (rules from POSIX.2, 3.13 with exceptions that
+  `/` are not allowed). `"method"` even if present is ignored once this field is
+  present.
+* `"pattern"` that replaces `"path"` and instead of being static path it can be
+  a glob wildcard pattern (rules from POSIX.2, 3.13 with added support for `**`
+  that matches multiple nodes). `"path"` even if present is ignored once this
+  field is present.
 
 ```
 => <id:42, method:"subscribe", path:".app/broker/currentClient">i{1:{"method":"chng"}}
@@ -505,12 +514,12 @@ The parameter is *map* with:
 |---------------|---------------|--------------|-------|--------|
 | `unsubscribe` | `.app/broker/currentClient` | `ret(param)` |       | Read   |
 
-Reverts an operation of `.app/broker/currentClient:subscribe`. The parameter must match
-exactly parameters used to subscribe.
+Reverts an operation of `.app/broker/currentClient:subscribe`. The parameter
+must match exactly parameters used to subscribe.
 
-| Parameter                              | Result |
-|----------------------------------------|--------|
-| {"method":String, "path":String\|Null} | Bool   |
+| Parameter | Result |
+|-----------|--------|
+| {...}     | Bool   |
 
 It provides `true` in case subscription was removed and `false` if it couldn't
 have been found.
@@ -530,17 +539,18 @@ have been found.
 |-----------------------|-------------------------|--------------|-------|--------|
 | `rejectNotSubscribed` | `.app/broker/currentClient` | `ret(param)` |       | Read   |
 
-Unsubscribes all subscriptions matching the given method and SHV path.  The
+Unsubscribes all subscriptions matching the given method and SHV path. The
 intended use is when you receive notification that you are not interested in.
 You can send this request with method and SHV path of such notification to just
 unsubscribe. Be aware that you always subscribe on the node and all its
 subnodes, you can't pick and choose nodes in the subtree with this method.
 
-| Parameter                        | Result                                        |
-|----------------------------------|-----------------------------------------------|
-| {"method":String, "path":String} | [{"method":String, "path":String\|Null}, ...] |
+| Parameter                        | Result       |
+|----------------------------------|--------------|
+| {"method":String, "path":String} | [{...}, ...] |
 
-As a result it provides subscription descriptions that were unsubscribed.
+As a result it provides subscription descriptions (see
+`.app/broker/currentClient:subscribe`) that were unsubscribed.
 
 This is primarily used for broker to broker communication. It removes need to
 track subscriptions in sub-brokers (brokers mounted in the broker) because this
