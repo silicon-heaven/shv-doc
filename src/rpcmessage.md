@@ -18,7 +18,7 @@ Attribute number | Attribute name | Description
 10               | Method              | Name of called RPC method 
 11               | CallerIds           | Internal attribute filled by broker to distinguish request from different clients with the same request ID.  
 13               | RevCallerIds        | Internal attribute filled by broker to enable support for multi-part messages and tunneling.
-14               | AccessGrant         | Access granted by broker to called `shvPath` and `method` to current user. 
+14               | Access              | Access granted by broker to called `shvPath` and `method` to current user. 
 16               | UserId              | ID of user calling RPC method filled in by broker.
 
 Second part of RPC message is `IMap` with following possible keys.
@@ -42,9 +42,8 @@ request.
 
 The `ShvPath` is used to select exact node of method in the SHV tree. 
 
-`AccessGrant` is part of access control. It is assigned to request by broker according to user rights.
-Multiple grants can be specified and separated
-by comma. 
+`Access` is part of access control. It is assigned to request by broker according to user rights.
+Multiple grants can be specified and separated by comma. 
 
 ## RpcRequest
 
@@ -60,7 +59,7 @@ Attribute | Required | Note
 `Method`       | yes |
 `RevCallerIds` | no  | If tunneling or multi-part message is needed
 `CallerIds`    |     | Attribute managed by broker
-`AccessGrant`  |     | Attribute managed by broker
+`Access`       |     | Attribute managed by broker
 `UserId`       |     | Attribute managed by broker
 
 Keys
@@ -147,6 +146,7 @@ Attribute | Required | Note
 `MetaTypeId`   | yes | Always set to `1`
 `ShvPath`      | yes | Property path
 `Method`       | yes | Signal name, the property changes have obviously method `chng`
+`Access`       |     | Minimal access level needed for this method. The `"rd"` is used if not specified.
 
 Keys
 
