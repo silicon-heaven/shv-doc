@@ -93,29 +93,6 @@ The primary transport layer is RS232 with hardware flow control, but usage with
 other streams, such as TCP/IP or Unix domain named socket, is also possible.
 
 
-## Datagram (DRAFT)
-
-The datagram communication where delivery and order is not ensured. Datagrams
-have known size and ensure data consistency.
-
-```
-+--------------+
-| message data |
-+--------------+
-```
-
-The transport error is detected if there is no complete message received for
-more than 5 seconds.
-
-Transport errors are handled by immediate disconnect, but it is possible that
-this disconnect is only one sided because most of the datagram transport layers
-do not establish connection.
-
-TODO: There are size limitations on the single message on OSes we might hit.
-There is also an issue with reexecution of methods due to lost response (can't
-identify if request or response got lost).
-
-
 ## CAN-FD (DRAFT)
 `data` is split to N frames. There are 4 types of frame
 
