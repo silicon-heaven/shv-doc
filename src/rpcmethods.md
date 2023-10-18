@@ -108,7 +108,7 @@ path). It provides a way to list all available methods and signals of the node.
 | Parameter       | Result                                                                                          |
 |-----------------|-------------------------------------------------------------------------------------------------|
 | Null \| `false` | [i{1:String, 2:Int<0,15>, 2:String, 4:String, 5:String}, ...]                                   |
-| `true`          | [{"name":String, "flags":Int<0,15>, "param":String, "result":String, "access":String ...}, ...] |
+| `true`          | [{"name":String, "flags":Int<0,31>, "param":String, "result":String, "access":String ...}, ...] |
 | String          | i{1:String, 2:Int<0,15>, 3:String, 4:String, 5:String}                                                                                            |
 
 This method can be called with or without parameter. The valid parameters are:
@@ -138,6 +138,12 @@ The method info in both *IMap* and *Map* must contain these fields:
   * `8` (`1 << 3`) specifies that provided value in response is going to be
     large. This exists to signal that by calling this method you can block the
     connection for considerable amount of time.
+  * `16` (`1 << 4`) specifies that method is not idempotent. Such method can't
+    be simply called but instead needs to be called first without parameter to
+    get unique submit ID that needs to be used in argument for real call. This
+    unique submit ID prevents from same request being handled multiple times
+    because first execution will invalidate the submit ID and thus prevents
+    re-execution.
 * `"param"` for *Map* and `3` for *IMap* with *String* name of the parameter
   type as value. It can be missing or have value `null` instead of *String* if
   method takes no parameter (or `null`).
@@ -407,7 +413,7 @@ implementation used in the application.
 | Null      | String |
 
 ```
-=> <id:42, method:"appName", path:".app">i{}
+=> <id:42, method:"name", path:".app">i{}
 <= <id:42>i{2:"SomeApp"}
 ```
 
@@ -422,7 +428,7 @@ implementation used in the application (must be consistent with information in
 `.app:appName`).
 
 ```
-=> <id:42, method:"appVersion", path:".app">i{}
+=> <id:42, method:"version", path:".app">i{}
 <= <id:42>i{2:"1.4.2-s5vehx"}
 ```
 
@@ -455,6 +461,9 @@ broker and in such case it performs client side).
 The broker can be pretty much ignored when you are sending requests and
 receiving responses to them. The notification delivery needs to be subscribed in
 the broker and thus for notification the knowledge about broker is a must.
+
+The call to `.app:ls("broker")` can be used to identify application as being a
+broker.
 
 ### Notifications filtering
 
@@ -744,7 +753,70 @@ rule of thumb is that if user can access `.app/broker:disconnectClient`, it shou
 be also able to access `.app/broker/client`.
 
 
-## History log API
+## Device API
+
+Device is a special application that represents a single physical device. It is
+benefical to see the difference between random application and application that
+runs in dedicated device and controls such device. This allows generic
+identification of such devices in the SHV tree.
+
+The call to `.app:ls("device")` can be used to identify application as being a
+device.
+
+### `.app/device:name`
+
+| Name   | SHV Path      | Signature   | Flags  | Access |
+|--------|---------------|-------------|--------|--------|
+| `name` | `.app/device` | `ret(void)` | Getter | Browse |
+
+This method must provide the device name. This is a specific generic name of the
+device.
+
+| Parameter | Result |
+|-----------|--------|
+| Null      | String |
+
+```
+=> <id:42, method:"name", path:".app/device">i{}
+<= <id:42>i{2:"OurDevice"}
+```
+
+### `.app/device:version`
+
+| Name      | SHV Path      | Signature   | Flags  | Access |
+|-----------|---------------|-------------|--------|--------|
+| `version` | `.app/device` | `ret(void)` | Getter | Browse |
+
+This method must provide version (revision) of the device.
+
+| Parameter | Result |
+|-----------|--------|
+| Null      | String |
+
+```
+=> <id:42, method:"name", path:".app/device">i{}
+<= <id:42>i{2:"g2"}
+```
+
+### `.app/device:serialNumber`
+
+| Name           | SHV Path      | Signature   | Flags  | Access |
+|----------------|---------------|-------------|--------|--------|
+| `serialNumber` | `.app/device` | `ret(void)` | Getter | Browse |
+
+This method can provide serial number of the device if that is something the
+device has. It is allowed to provide *Null* in case there is no serial number
+assigned to this device.
+
+| Parameter | Result         |
+|-----------|----------------|
+| Null      | String \| Null |
+
+```
+=> <id:42, method:"serialNumber", path:".app/device">i{}
+<= <id:42>i{2:"12590"}
+
+## SHV Journal API
 
 ### `.app/shvjournal`
 

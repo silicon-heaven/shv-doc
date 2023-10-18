@@ -18,7 +18,7 @@ that signals the encoding of the following data:
 
 RPC Message is actual [transmitted message](rpcmessage.md).
 
-Transport layers needs to ensure the following guaranties:
+Transport layers guarantee the following functionality:
 * Messages need to be transferred completely without error or transport error
   needs to be detected.
 * Any message can be lost without transport error reporting error.
@@ -26,7 +26,7 @@ Transport layers needs to ensure the following guaranties:
   that.
 
 
-## TCP / Stream
+## Stream
 
 The communication on bidirectional stream where delivery is ensured and checked.
 The transport layer establishes and maintains point-to-point connection on its
@@ -44,7 +44,7 @@ unsigned integer.
 ```
 
 The transport error is detected if there is no byte received from other side for
-more than 5 seconds.
+more than 5 seconds during the message transfer.
 
 Transport errors are handled by an immediate disconnect. It is expected that
 connecting side is able to reestablish connection.
@@ -53,62 +53,44 @@ The primary transport layer used with this is TCP/IP but this also applies to
 Unix sockets or pair of pipes.
 
 
-## RS232 / Serial
+## Serial
 
 This is communication over data stream with possible on the line errors (such as
-data corruption). It is also expected that application can't perform reconnect
-of this data stream.
+data corruption).
 
-The message data is encapsulated in start and stop byte and verified with CRC32.
-The dedicated bytes for this are escaped in the message data.
+The message data is encapsulated in start and stop byte and on link layers
+without error checking it is also verified with CRC32. The dedicated bytes for
+this are escaped in the message data.
 
 ```
-+-----+------+-----+-------+
-| STX | data | ETX | CRC32 |
-+-----+------+-----+-------+
++-----+------+-----------+---------+
+| STX | data | ETX / ATX | *CRC32* |
++-----+------+-----------+---------+
 ```
 * `STX` start of message `0xA2`
 * `ETX` end of the message `0xA3`
-* `ESTX` escaped STX code `0xA4`
-* `EETX` escaped ETX code `0xA5`
+* `ATX` abort the message `0xA4`
 * `ESC` escape `0xAA`
-  * `STX` in data will be coded as `ESC` `ESTX`
-  * `ETX` in data will be coded as `ESC` `EETX`
-  * `ESC` in data will be coded as `ESC` `ESC`
+  * `STX` in data will be coded as `ESC` `0x02`
+  * `ETX` in data will be coded as `ESC` `0x03`
+  * `ATX` in data will be coded as `ESC` `0x04`
+  * `ESC` in data will be coded as `ESC` `0x0A`
 * data - escaped message data
 * CRC32 - escaped BigEndian CRC32 of `data` ([POSIX
-  CRC32](https://en.wikipedia.org/wiki/Cyclic_redundancy_check))
+  CRC32](https://en.wikipedia.org/wiki/Cyclic_redundancy_check)) only on
+  channels that do not provide data corruption prevention on its own and only
+  after `ETX` (not after `ATX`).
 
 The transport error is detected if there is no byte received from other side for
-more than 5 seconds or when `STX` is received before `EXT` or if `CRC32` does
-not match.
+more that 5 seconds during the message transfer or when `STX` or `ATX` is
+received before `EXT` or if `CRC32` do not match received data (on channels with
+possible corruption such as RS232 and not TCP/IP).
 
-Transport errors are handled by special empty message (`STX ETC CRC`). This
-message when received should cause reset of receiver side state machine and thus
-termination of any undelivered message.
+Transport errors do not have to be handled explicitly because any subsequent
+message can still be consistent. The invalid message should be just dropped.
 
-
-## UDP / Datagram (DRAFT)
-
-The datagram communication where delivery and order is not ensured. Datagrams
-have known size and ensure data consistency.
-
-```
-+--------------+
-| message data |
-+--------------+
-```
-
-The transport error is detected if there is no complete message received for
-more than 5 seconds.
-
-Transport errors are handled by immediate disconnect, but it is possible that
-this disconnect is only one sided because most of the datagram transport layers
-do not establish connection.
-
-TODO: There are size limitations on the single message on OSes we might hit.
-There is also an issue with reexecution of methods due to lost response (can't
-identify if request or response got lost).
+The primary transport layer is RS232 with hardware flow control, but usage with
+other streams, such as TCP/IP or Unix domain named socket, is also possible.
 
 
 ## CAN-FD (DRAFT)
