@@ -413,7 +413,7 @@ implementation used in the application.
 | Null      | String |
 
 ```
-=> <id:42, method:"appName", path:".app">i{}
+=> <id:42, method:"name", path:".app">i{}
 <= <id:42>i{2:"SomeApp"}
 ```
 
@@ -428,7 +428,7 @@ implementation used in the application (must be consistent with information in
 `.app:appName`).
 
 ```
-=> <id:42, method:"appVersion", path:".app">i{}
+=> <id:42, method:"version", path:".app">i{}
 <= <id:42>i{2:"1.4.2-s5vehx"}
 ```
 
@@ -461,6 +461,9 @@ broker and in such case it performs client side).
 The broker can be pretty much ignored when you are sending requests and
 receiving responses to them. The notification delivery needs to be subscribed in
 the broker and thus for notification the knowledge about broker is a must.
+
+The call to `.app:ls("broker")` can be used to identify application as being a
+broker.
 
 ### Notifications filtering
 
@@ -752,3 +755,64 @@ be also able to access `.app/broker/client`.
 
 ## Device API
 
+Device is a special application that represents a single physical device. It is
+benefical to see the difference between random application and application that
+runs in dedicated device and controls such device. This allows generic
+identification of such devices in the SHV tree.
+
+The call to `.app:ls("device")` can be used to identify application as being a
+device.
+
+### `.app/device:name`
+
+| Name   | SHV Path      | Signature   | Flags  | Access |
+|--------|---------------|-------------|--------|--------|
+| `name` | `.app/device` | `ret(void)` | Getter | Browse |
+
+This method must provide the device name. This is a specific generic name of the
+device.
+
+| Parameter | Result |
+|-----------|--------|
+| Null      | String |
+
+```
+=> <id:42, method:"name", path:".app/device">i{}
+<= <id:42>i{2:"OurDevice"}
+```
+
+### `.app/device:version`
+
+| Name      | SHV Path      | Signature   | Flags  | Access |
+|-----------|---------------|-------------|--------|--------|
+| `version` | `.app/device` | `ret(void)` | Getter | Browse |
+
+This method must provide version (revision) of the device.
+
+| Parameter | Result |
+|-----------|--------|
+| Null      | String |
+
+```
+=> <id:42, method:"name", path:".app/device">i{}
+<= <id:42>i{2:"g2"}
+```
+
+### `.app/device:serialNumber`
+
+| Name           | SHV Path      | Signature   | Flags  | Access |
+|----------------|---------------|-------------|--------|--------|
+| `serialNumber` | `.app/device` | `ret(void)` | Getter | Browse |
+
+This method can provide serial number of the device if that is something the
+device has. It is allowed to provide *Null* in case there is no serial number
+assigned to this device.
+
+| Parameter | Result         |
+|-----------|----------------|
+| Null      | String \| Null |
+
+```
+=> <id:42, method:"serialNumber", path:".app/device">i{}
+<= <id:42>i{2:"12590"}
+```
