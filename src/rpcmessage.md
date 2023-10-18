@@ -2,7 +2,7 @@
 
 `RpcMessage` is `IMap` with meta-data attached from [RpcValue](rpcvalue.md) point of view.
 
-There are three kinds of RPC message defined:
+There are three kinds of RPC messages defined:
 * [RpcRequest](#rpcrequest)
 * [RpcResponse](#rpcresponse)
 * [RpcSignal](#rpcsignal)
@@ -48,6 +48,10 @@ Multiple grants can be specified and separated by comma.
 ## RpcRequest
 
 Message used to invoke remote method.
+
+Methods invoked using this request needs to be idempotent, because RPC
+transport layers do not ensure deliverability. You might also want to try to
+send request again when you receive no response because of this.
 
 Attributes
 

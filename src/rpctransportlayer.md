@@ -18,7 +18,7 @@ that signals the encoding of the following data:
 
 RPC Message is actual [transmitted message](rpcmessage.md).
 
-Transport layers needs to ensure the following guaranties:
+Transport layers guarantee the following functionality:
 * Messages need to be transferred completely without error or transport error
   needs to be detected.
 * Any message can be lost without transport error reporting error.

@@ -108,7 +108,7 @@ path). It provides a way to list all available methods and signals of the node.
 | Parameter       | Result                                                                                          |
 |-----------------|-------------------------------------------------------------------------------------------------|
 | Null \| `false` | [i{1:String, 2:Int<0,15>, 2:String, 4:String, 5:String}, ...]                                   |
-| `true`          | [{"name":String, "flags":Int<0,15>, "param":String, "result":String, "access":String ...}, ...] |
+| `true`          | [{"name":String, "flags":Int<0,31>, "param":String, "result":String, "access":String ...}, ...] |
 | String          | i{1:String, 2:Int<0,15>, 3:String, 4:String, 5:String}                                                                                            |
 
 This method can be called with or without parameter. The valid parameters are:
@@ -138,6 +138,12 @@ The method info in both *IMap* and *Map* must contain these fields:
   * `8` (`1 << 3`) specifies that provided value in response is going to be
     large. This exists to signal that by calling this method you can block the
     connection for considerable amount of time.
+  * `16` (`1 << 4`) specifies that method is not idempotent. Such method can't
+    be simply called but instead needs to be called first without parameter to
+    get unique submit ID that needs to be used in argument for real call. This
+    unique submit ID prevents from same request being handled multiple times
+    because first execution will invalidate the submit ID and thus prevents
+    re-execution.
 * `"param"` for *Map* and `3` for *IMap* with *String* name of the parameter
   type as value. It can be missing or have value `null` instead of *String* if
   method takes no parameter (or `null`).
