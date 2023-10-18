@@ -744,9 +744,9 @@ rule of thumb is that if user can access `.app/broker:disconnectClient`, it shou
 be also able to access `.app/broker/client`.
 
 
-## Device API
+## History log API
 
-### `.app/device/history`
+### `.app/shvjournal`
 
 Node where device history data is stored in log files. Every log file is named by timestamp of its beginning (i.e. `2023-09-11T09-00-00-000.log2`) to enable binary search in files to find correct log file.
 
