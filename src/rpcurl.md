@@ -88,7 +88,7 @@ This uses TLS TCP/IP with [Stream transport layer](rpctransportlayer.md#stream).
 ## TCP/IP serial protocol with SSL
 
 ```
-scheme = "ssl"
+scheme = "ssls"
 authority = host [":" port]
 ```
 
