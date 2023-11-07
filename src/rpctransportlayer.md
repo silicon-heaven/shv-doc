@@ -76,10 +76,11 @@ this are escaped in the message data.
   * `ATX` in data will be coded as `ESC` `0x04`
   * `ESC` in data will be coded as `ESC` `0x0A`
 * data - escaped message data
-* CRC32 - escaped BigEndian CRC32 of `data` ([POSIX
-  CRC32](https://en.wikipedia.org/wiki/Cyclic_redundancy_check)) only on
-  channels that do not provide data corruption prevention on its own and only
-  after `ETX` (not after `ATX`).
+* CRC32 - escaped BigEndian CRC32 of `data` (same as used in IEEE 802.3 and
+  [known as plain
+  CRC-32](https://reveng.sourceforge.io/crc-catalogue/all.htm#crc.cat.crc-32-iso-hdlc))
+  only on channels that do not provide data corruption prevention on its own and
+  only after `ETX` (not after `ATX`).
 
 The transport error is detected if there is no byte received from other side for
 more that 5 seconds during the message transfer or when `STX` or `ATX` is
