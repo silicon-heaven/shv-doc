@@ -20,6 +20,7 @@
 - [SHV types](./shv-types.md)
   - [SHV type info](./shv-types/shv-type-info.md)
   - [SHV journal](./shv-types/shv-journal.md)
+- [History Provider](./history-provider.md)
 
 ---
 
