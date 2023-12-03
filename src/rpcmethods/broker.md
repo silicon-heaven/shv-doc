@@ -148,7 +148,7 @@ network.
 
 | Name         | SHV Path  | Signature    | Flags  | Access  |
 |--------------|-----------|--------------|--------|---------|
-| `clientInfo` | `.app/broker` | `ret(param)` | Getter | Service |
+| `clientInfo` | `.app/broker` | `ret(param)` |  | Service |
 
 Information the broker has on the client.
 
@@ -185,7 +185,7 @@ required nor standardized at the moment.
 
 | Name                | SHV Path  | Signature    | Flags  | Access  |
 |---------------------|-----------|--------------|--------|---------|
-| `mountedClientInfo` | `.app/broker` | `ret(param)` | Getter | Service |
+| `mountedClientInfo` | `.app/broker` | `ret(param)` |  | Service |
 
 Information the broker has on the client that is mounted on the given SHV path.
 
