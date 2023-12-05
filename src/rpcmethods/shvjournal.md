@@ -1,6 +1,6 @@
-# SHV Journal [DRAFT]
+# History [DRAFT]
 
-## `.app/shvjournal`
+## `.app/history`
 
 Node where device history data is stored in log files. Every log file is named by timestamp of its beginning (i.e. `2023-09-11T09-00-00-000.log2`) to enable binary search in files to find correct log file.
 
@@ -38,3 +38,49 @@ cat 2023-09-11T09-00-00-000.log2
 2023-09-11T09:24:28.100Z		system/ethernet/IP	""		chng	1
 2023-09-11T09:24:28.100Z		system/ethernet/subnetMask	""		chng	1
 ```
+
+### `.app/history:getSnapshot`
+
+| Name        | SHV Path                    | Signature     | Flags | Access |
+|-------------|-----------------------------|---------------|-------|--------|
+| `getSnapshot` | `.app/history`            | `void()`      |       | Read   |
+
+Returns device snapshot at current time.
+
+```
+
+<
+  "dateTime":d"2023-12-05T13:54:45Z"
+>{
+  ".app/alarms/infoCount": 0,
+  ".app/alarms/warningCount": 6,
+  ".app/alarms/errorCount": 2,
+  "system/plcDisconnected": false,
+  "system/status": 1u,
+  "system/name": "G3 Project",
+  "system/version": "V1.00 - test 6a65d904 - Dec  4 2023 15:58:52",
+  "system/deviceID": "000294D7000F",
+  "system/info/tempCPU": 46,
+  "system/info/tempPLC": 46,
+  "system/info/memoryUserSize": 161,
+  "system/info/memoryUserFree": 150,
+  "system/info/memoryDRAMFree": 60,
+  "system/ethernet/MAC": "00:60:65:5E:20:A6",
+  "system/ethernet/IP": "10.0.0.34",
+  "system/ethernet/subnetMask": "255.255.252.0",
+  "system/ethernet/gatewayIP": "10.0.0.254",
+  "system/ethernet/hostName": "SystemG3_plc",
+  "system/datetime/NTPclientActive": true,
+  "system/datetime/dateTime": d"2023-12-05T13:54:45Z",
+  "system/PLCmodules/errorPLCModule": false,
+  "system/PLCmodules/errorPLCModuleAddress": "",
+  "system/superiorSystem/status": 1u,
+  "system/superiorSystem/slaveMode": false,
+  "devices/zone/Zone_V3/status": 258u,
+  "devices/zone/Zone_V3/reasonAB": 1u,
+  ...
+}
+```
+
+
+
