@@ -13,7 +13,7 @@
   - [Device API](./rpcmethods/device.md)
   - [Broker API](./rpcmethods/broker.md)
   - [Property nodes](./rpcmethods/property.md)
-  - [SHV Journal](./rpcmethods/shvjournal.md)
+  - [History](./rpcmethods/history.md)
 - [RPC transport layer](./rpctransportlayer.md)
 - [RPC URL](./rpcurl.md)
 - [Implementations](./implementations.md)
