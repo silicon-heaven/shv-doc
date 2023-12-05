@@ -83,4 +83,23 @@ Returns device snapshot at current time.
 ```
 
 
+### `.app/history:yyyy-mm-ddTHH-MM-SS-zzz.log2`
 
+Every log file must provide functions to read it.
+
+| Name   | SHV Path                                    | Return type | Param type | Flags  | Access |
+|--------|---------------------------------------------|-------------|------------|--------|        |
+| `size` | `.app/history:yyyy-mm-ddTHH-MM-SS-zzz.log2` | UInt        | void       |        | Read   |
+
+Returns size of file in bytes.
+
+| Name   | SHV Path                                    | Return type | Param type | Flags  | Access |
+|--------|---------------------------------------------|-------------|------------|--------|        |
+| `read` | `.app/history:yyyy-mm-ddTHH-MM-SS-zzz.log2`      | Blob | Map |       | Read   |
+
+Returns `size` of file bytes starting on `offset` position.
+
+| Param | Default value | Description |
+|-------|--------|---------------|
+| `offset` | 0 | Ofset where file is start to read   |
+| `size` | MAX_INT | Maximum number of bytes returned by function `read()`   |
