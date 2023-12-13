@@ -2,7 +2,7 @@
 
 Text representation of [RpcValue](rpcvalue.md)
 
-Super-set of JSON with following extensions:
+Super-set of [JSON](https://www.json.org/json-en.html) with following extensions or exceptions:
 * **String** - C-escaped Utf8 encoded string, can contain any char except of `"`, `\`, `TAB`, `CR`, `LF`, `0`. Supported escape sequences are `\0`, `\b`, `f`, `\n`, `\r`, `\t`. Octal, hexadecimal and Unicode `\xHH` and `\uHHHH` sequences are not supported yet.
 * **Blob**
   * **Escaped** - `b"..."` values `0x00 - 0x1f` and `0x7f - 0xff` are stored as escape sequence `\hh`, `\` as `\\`, `"` as `\"`, `TAB` as `\t`, `CR` as `\r`, `LF` as `\n`, other values as ASCII `b"ab\31"` is the same as `b"ab1"`
