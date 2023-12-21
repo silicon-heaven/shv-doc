@@ -266,7 +266,7 @@ connected clients.
 
 | Name      | SHV Path  | Signature   | Flags  | Access  |
 |-----------|-----------|-------------|--------|---------|
-| `clients` | `.app/broker` | `ret(void)` |  | SuperService |
+| `mounts` | `.app/broker` | `ret(void)` |  | SuperService |
 
 This method allows you get list of all mount paths of devices connected to the broker. This
 is an administration task.
