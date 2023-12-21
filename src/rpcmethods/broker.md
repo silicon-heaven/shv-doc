@@ -148,7 +148,7 @@ network.
 
 | Name         | SHV Path  | Signature    | Flags  | Access  |
 |--------------|-----------|--------------|--------|---------|
-| `clientInfo` | `.app/broker` | `ret(param)` |  | Service |
+| `clientInfo` | `.app/broker` | `ret(param)` |  | SuperService |
 
 Information the broker has on the client.
 
@@ -185,7 +185,7 @@ required nor standardized at the moment.
 
 | Name                | SHV Path  | Signature    | Flags  | Access  |
 |---------------------|-----------|--------------|--------|---------|
-| `mountedClientInfo` | `.app/broker` | `ret(param)` |  | Service |
+| `mountedClientInfo` | `.app/broker` | `ret(param)` |  | SuperService |
 
 Information the broker has on the client that is mounted on the given SHV path.
 
@@ -241,7 +241,7 @@ users.
 
 | Name      | SHV Path  | Signature   | Flags  | Access  |
 |-----------|-----------|-------------|--------|---------|
-| `clients` | `.app/broker` | `ret(void)` | Getter | Service |
+| `clients` | `.app/broker` | `ret(void)` |  | SuperService |
 
 This method allows you get list of all clients connected to the broker. This
 is an administration task.
@@ -262,12 +262,31 @@ connected clients.
 => <id:42, method:"clients", path:".app/broker">i{}
 <= <id:42>i{2:[68, 83]}
 ```
+### `.app/broker:mounts`
+
+| Name      | SHV Path  | Signature   | Flags  | Access  |
+|-----------|-----------|-------------|--------|---------|
+| `clients` | `.app/broker` | `ret(void)` |  | SuperService |
+
+This method allows you get list of all mount paths of devices connected to the broker. This
+is an administration task.
+
+| Parameter | Result     |
+|-----------|------------|
+| Null      | [String, ...] |
+
+The *List* of *Strings*s is provided where strings are mount paths of all currently mounted devices.
+
+```
+=> <id:42, method:"mounts", path:".app/broker">i{}
+<= <id:42>i{2:["shv/device/temp1", "shv/device/temp2", ... ]}
+```
 
 ### `.app/broker:disconnectClient`
 
 | Name               | SHV Path  | Signature     | Flags | Access  |
 |--------------------|-----------|---------------|-------|---------|
-| `disconnectClient` | `.app/broker` | `void(param)` |       | Service |
+| `disconnectClient` | `.app/broker` | `void(param)` |       | SuperService |
 
 Forces some specific client to be immediately disconnected from the SHV broker.
 You need to provide client's ID as an argument. Based on the link layer client
