@@ -49,17 +49,17 @@ The parameter is *map* with:
   method can be wildcard pattern (rules from POSIX.2, 3.13 with exceptions that
   `/` are not allowed). `"method"` even if present is ignored once this field is
   present.
-* `"pattern"` that replaces `"path"` and instead of being static path it can be
+* `"paths"` that replaces `"path"` and instead of being static path it can be
   a glob wildcard pattern (rules from POSIX.2, 3.13 with added support for `**`
   that matches multiple nodes). `"path"` even if present is ignored once this
   field is present.
 
 ```
-=> <id:42, method:"subscribe", path:".app/broker/currentClient">i{1:{"method":"chng"}}
+=> <id:42, method:"subscribe", path:".app/broker/currentClient">i{1:{"methods":"chng", "paths":"**"}}
 <= <id:42>i{}
 ```
 ```
-=> <id:42, method:"subscribe", path:".app/broker/currentClient">i{1:{"method":"chng", "path":"test/device"}}
+=> <id:42, method:"subscribe", path:".app/broker/currentClient">i{1:{"methods":"chng", "paths":"test/device"}}
 <= <id:42>i{}
 ```
 
