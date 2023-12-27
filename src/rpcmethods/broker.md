@@ -11,6 +11,17 @@ the broker and thus for notification the knowledge about broker is a must.
 The call to `.app:ls("broker")` can be used to identify application as being a
 broker.
 
+* [.app/broker:clientInfo](#appbrokerclientinfo)
+* [.app/broker:mountedClientInfo](#appbrokermountedclientinfo)
+* [.app/broker:clients](#appbrokerclients)
+* [.app/broker:mounts](#appbrokermounts)
+* [.app/broker:disconnectClient](#appbrokerdisconnectclient)
+* [.app/broker/currentClient:subscribe](#appbrokercurrentclientsubscribe)
+* [.app/broker/currentClient:unsubscribe](#appbrokercurrentclientunsubscribe)
+* [.app/broker/currentClient:rejectNotSubscribed](#appbrokercurrentclientrejectnotsubscribed)
+* [.app/broker/currentClient:subscriptions](#appbrokercurrentclientsubscriptions)
+* [.app/broker/currentClient:info](#appbrokercurrentclientinfo)
+
 ## Notifications filtering
 
 Devices send regularly notifications but by propagating these notifications to
