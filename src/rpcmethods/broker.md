@@ -171,7 +171,8 @@ The parameter is client's ID (*Int*). The provided value is *Map* with info
 about the client. The *Null* is returned in case there is no client with this
 ID.
 
-The provided *Map* must have at least these fields:
+#### ClientInfo
+The *Map* containing at least these fields:
 
 * `"clientId"` with *Int* containing ID assigned to this client.
 * `"userName"` with *String* user name used during the login sequence. This is
