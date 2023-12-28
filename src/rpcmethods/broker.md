@@ -205,7 +205,7 @@ Information the broker has on the client that is mounted on the given SHV path.
 |-----------|---------------------------------------------------------------------------------------------------------------------------------------|
 | String    | {"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...} \| Null |
 
-The parameter is SHV path (*String*). The provided value is *Map* with info
+The parameter is SHV path (*String*). The provided value is [ClientInfo](#clientinfo) with info
 about the client that is mounted on the given path (or the parent of it). The
 *Null* is returned in case there is no client with such mount point.
 
@@ -239,7 +239,7 @@ client specific.
 |-----------|-------------------------------------------------------------------------------------------------------------------------------|
 | Null      | {"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...} |
 
-The result is same as for `.app/broker:clientInfo` called with client ID for the
+The resulting [ClientInfo](#clientinfo) is same as for `.app/broker:clientInfo` called with client ID for the
 current client. The difference is that this method must be accessible to the
 current client while `.app/broker:clientInfo` is accessible only to the privileged
 users.
