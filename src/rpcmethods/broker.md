@@ -35,11 +35,14 @@ should respond to all clients, if it has access rights high enough, the
 same way. But these methods manage client's specific table of subscriptions, and
 thus it must work with only client specific info.
 
+Note that all the methods under `.app/broker/currentClient` have access set to `Browse`. 
+Client has always granted acces to these methods, so access is irrelevant in this case.
+
 ### `.app/broker/currentClient:subscribe`
 
 | Name        | SHV Path                    | Signature     | Flags | Access |
 |-------------|-----------------------------|---------------|-------|--------|
-| `subscribe` | `.app/broker/currentClient` | `void(param)` |       | Read   |
+| `subscribe` | `.app/broker/currentClient` | `void(param)` |       | Browse   |
 
 Adds rule that allows receiving of signals (notifications) from shv
 path. The subscription applies to all methods of given name in given path and
@@ -78,7 +81,7 @@ The parameter is *map* with:
 
 | Name          | SHV Path      | Signature    | Flags | Access |
 |---------------|---------------|--------------|-------|--------|
-| `unsubscribe` | `.app/broker/currentClient` | `ret(param)` |       | Read   |
+| `unsubscribe` | `.app/broker/currentClient` | `ret(param)` |       | Browse   |
 
 Reverts an operation of `.app/broker/currentClient:subscribe`. The parameter
 must match exactly parameters used to subscribe.
@@ -103,7 +106,7 @@ have been found.
 
 | Name                  | SHV Path                | Signature    | Flags | Access |
 |-----------------------|-------------------------|--------------|-------|--------|
-| `rejectNotSubscribed` | `.app/broker/currentClient` | `ret(param)` |       | Read   |
+| `rejectNotSubscribed` | `.app/broker/currentClient` | `ret(param)` |       | Browse   |
 
 Unsubscribes all subscriptions matching the given method and SHV path. The
 intended use is when you receive notification that you are not interested in.
@@ -134,7 +137,7 @@ its current clients and that way remove any obsolete subscription down the line.
 
 | Name            | SHV Path                | Signature   | Flags  | Access |
 |-----------------|-------------------------|-------------|--------|--------|
-| `subscriptions` | `.app/broker/currentClient` | `ret(void)` | Getter | Read   |
+| `subscriptions` | `.app/broker/currentClient` | `ret(void)` | Getter | Browse   |
 
 This method allows you to list all existing subscriptions for the current
 client.
