@@ -1,7 +1,7 @@
 # RPC transport layer
 
 RPC messages can be transmitted over different layers. What they have in common
-is that they transfer messages in the following format:
+is that they transfer messages `data` in the following format:
 
 ```
 +--------+-------------+
@@ -38,9 +38,9 @@ data it should expect to receive. Message length is encoded as Chainpack
 unsigned integer.
 
 ```
-+--------+--------------+
-| length | message data |
-+--------+--------------+
++--------+------+
+| length | data |
++--------+------+
 ```
 
 The transport error is detected if there is no byte received from other side for
