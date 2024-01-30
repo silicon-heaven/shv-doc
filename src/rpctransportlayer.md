@@ -9,9 +9,9 @@ is that they transfer messages `data` in the following format:
 +--------+-------------+
 ```
 
-[Format is a single
-byte](https://github.com/silicon-heaven/libshv/blob/353424a9b9b1943761a6a6ec50c1eb516a00877e/libshvchainpack/src/chainpack/rpc.h#L13)
+[Format is a single byte](https://github.com/silicon-heaven/libshv/blob/353424a9b9b1943761a6a6ec50c1eb516a00877e/libshvchainpack/src/chainpack/rpc.h#L13)
 that signals the encoding of the following data:
+* `00` - ResetSession, RPC Message is not included in this case
 * `01` - Chainpack
 * `02` - Cpon (deprecated)
 * `03` - Json (deprecated)
@@ -22,9 +22,19 @@ Transport layers guarantee the following functionality:
 * Messages need to be transferred completely without error or transport error
   needs to be detected.
 * Any message can be lost without transport error reporting error.
-* Communication needs to be point-to-point or transport layer needs to emulate
+* Communication needs to be point-to-point, or transport layer needs to emulate
   that.
 
+`ResetSession` message is used to reset current session.
+Basically it works in the same manner as socket reconnection, but it can be used also on layers
+without connection tracking like serial port.
+When `ResetSession` is received, then receiver should clear all the peer state.
+`ResetSession` message can be used by client to log-out or by broker to kick-out client.
+
+`ResetSession` message contains only Format part, the message is excluded. 
+It is `01 00` on stream layer or `STX 00 ETX` or `STX 00 ETX D2 02 EF 8D` (if CRC is on) on serial layer.
+The message must be sent before `hello` on layers without connection tracking (TTY, CAN). It might
+be optionally sent also on other layers like socket.
 
 ## Stream
 
@@ -49,7 +59,7 @@ more than 5 seconds during the message transfer.
 Transport errors are handled by an immediate disconnect. It is expected that
 connecting side is able to reestablish connection.
 
-The primary transport layer used with this is TCP/IP but this also applies to
+The primary transport layer used with this is TCP/IP, but this also applies to
 Unix sockets or pair of pipes.
 
 
@@ -188,9 +198,9 @@ with both `NotLast` and `First` unset and data length set to `0x0`.
 
 Connection between devices is automatically established with first message being
 exchanged. There can be only one connection channel between two devices. To
-disengage it the special empty message can be sent (that is regular CAN message
-with `NotLast` not set and `First` set in CAN ID and data containing only one
-byte with destination device address.
+disengage it the `ResetSession` message can be sent (that is regular CAN message
+with `NotLast` not set and `First` set in CAN ID and data containing only 
+byte with destination device address and one `00` byte.
 
 ### Broadcast
 
