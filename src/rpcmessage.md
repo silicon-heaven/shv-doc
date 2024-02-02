@@ -125,6 +125,7 @@ Value | Name  | Description
 7  | `MethodCallCancelled` | 
 8  | `MethodCallException` | 
 9  | `Unknown`             | 
+10 | `LoginRequired`       | Method call without previous successful login.
 32 | `UserCode`            | 
 
 **Examples**
