@@ -20,6 +20,7 @@ Attribute number | Attribute name | Description
 13               | RevCallerIds        | Internal attribute filled by broker to enable support for multi-part messages and tunneling.
 14               | Access              | Access granted by broker to called `shvPath` and `method` to current user. 
 16               | UserId              | ID of user calling RPC method filled in by broker.
+17               | AccessLevel         | Reserved, integer value, it will be used in next API version for chained brokers access capping  
 
 Second part of RPC message is `IMap` with following possible keys.
 
