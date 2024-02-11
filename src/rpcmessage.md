@@ -9,18 +9,19 @@ There are three kinds of RPC messages defined:
 
 RPC message can have meta-data attribute defined.
 
-Attribute number | Attribute name | Description
-----------------:|-----------------|------------
-1                | MetaTypeId          | Always equal to `1` in case of RPC message 
-2                | MetaTypeNameSpaceId | Always equal to `0` in case of RPC message, may be omitted.
-8                | RequestId           | Every RPC request must have unique number per client. Matching RPC response will have the same number. 
-9                | ShvPath             | Path on which method will be called. 
-10               | Method              | Name of called RPC method 
-11               | CallerIds           | Internal attribute filled by broker to distinguish request from different clients with the same request ID.  
-13               | RevCallerIds        | Internal attribute filled by broker to enable support for multi-part messages and tunneling.
-14               | Access              | Access granted by broker to called `shvPath` and `method` to current user. 
-16               | UserId              | ID of user calling RPC method filled in by broker.
-17               | AccessLevel         | Reserved, integer value, it will be used in next API version for chained brokers access capping  
+Attribute number | Attribute name      | Description
+----------------:|---------------------|------------
+1                | metaTypeId          | Always equal to `1` in case of RPC message 
+2                | metaTypeNameSpaceId | Always equal to `0` in case of RPC message, may be omitted.
+8                | requestId           | Every RPC request must have unique number per client. Matching RPC response will have the same number. 
+9                | shvPath             | Path on which method will be called. 
+10               | method              | Name of called RPC method 
+11               | callerIds           | Internal attribute filled by broker to distinguish request from different clients with the same request ID.  
+13               | revCallerIds        | Internal attribute filled by broker to enable support for multi-part messages and tunneling.
+14               | access              | Access granted by broker to called `shvPath` and `method` to current user. 
+16               | userId              | ID of user calling RPC method filled in by broker.
+17               | accessLevel         | Reserved, integer value, it will be used in next API version for chained brokers access capping  
+19               | part                | Reserved, it will be used in next API version for multi-part messages   https://github.com/silicon-heaven/libshv/wiki/multipart-messages
 
 Second part of RPC message is `IMap` with following possible keys.
 
