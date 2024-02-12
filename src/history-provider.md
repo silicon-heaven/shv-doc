@@ -33,7 +33,13 @@ JSON schem for a meta.json file containing a `HP3` node:
       "properties": {
         "type": {
           "type": "string",
-          "pattern": "^device|HP3$"
+          "pattern": "^device|HP3$",
+          "default": "default"
+        },
+        "syncPath": {
+          "type": "string",
+          "pattern": "^.app/history|.app/shvjournal$",
+          "default": ".app/history"
         }
       },
       "additionalProperties": false
@@ -42,6 +48,8 @@ JSON schem for a meta.json file containing a `HP3` node:
 }
 ```
 An `HP3` node can be either `device` (which is the default) or `HP3`.
+A `device` node also specificies a `syncPath`, i.e. where on the device should _HP3_ look for files. By default, it is
+`.app/history`. Older,  `.app/shvjournal` is also supported.
 
 _HP3_ stops at the first `HP`/`HP3` node it encounters and downloads logs from that node. The `HP3` type signifies that
 the node is a _HP3_ and its logs includes all logs from its subtree. This creates a cascade so that logs gradually flow
