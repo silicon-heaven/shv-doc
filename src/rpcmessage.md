@@ -9,19 +9,19 @@ There are three kinds of RPC messages defined:
 
 RPC message can have meta-data attribute defined.
 
-Attribute number | Attribute name      | Description
-----------------:|---------------------|------------
-1                | MetaTypeId          | Always equal to `1` in case of RPC message 
-2                | MetaTypeNameSpaceId | Always equal to `0` in case of RPC message, may be omitted.
-8                | RequestId           | Every RPC request must have unique number per client. Matching RPC response will have the same number. 
-9                | ShvPath             | Path on which method will be called. 
-10               | Method              | Name of called RPC method 
-11               | CallerIds           | Internal attribute filled by broker in request message to distinguish requests with the same request ID, but issued by different clients.  
-13               | RespCallerIds       | Internal attribute filled by broker in response message to enable support for multi-part messages and tunneling. <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
-14               | Access              | Access granted by broker to called `shvPath` and `method` to current user. 
-16               | UserId              | ID of user calling RPC method filled in by broker.
-17               | AccessLevel         | Reserved, integer value, it will be used in next API version for chained brokers access capping  
-18               | Part                | Reserved, it will be used in next API version for multi-part messages   <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
+Attribute number | Attribute name     | Expected type  | Description
+----------------:|--------------------|----------------|------------
+1                | MetaTypeId         | Int            | Always equal to `1` in case of RPC message 
+2                | MetaTypeNameSpaceId| Int            | Always equal to `0` in case of RPC message, may be omitted.
+8                | RequestId          | Int            | Every RPC request must have unique number per client. Matching RPC response will have the same number. 
+9                | ShvPath            | String         | Path on which method will be called. 
+10               | Method             | String         | Name of called RPC method 
+11               | CallerIds          | List of Int    | Internal attribute filled by broker in request message to distinguish requests with the same request ID, but issued by different clients.  
+13               | RespCallerIds      | List of Int    | Internal attribute filled by broker in response message to enable support for multi-part messages and tunneling. <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
+14               | Access             | String         | Access granted by broker to called `shvPath` and `method` to current user. 
+16               | UserId             | String         | ID of user calling RPC method filled in by broker.
+17               | AccessLevel        | Int            | Reserved, integer value, it will be used in next API version for chained brokers access capping  
+18               | Part               | Bool           | Reserved, it will be used in next API version for multi-part messages   <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
 
 Second part of RPC message is `IMap` with following possible keys.
 
@@ -64,9 +64,10 @@ Attribute | Required | Note
 `ShvPath`      | yes |
 `Method`       | yes |
 `RevCallerIds` | no  | If tunneling or multi-part message is needed
-`CallerIds`    |     | Attribute managed by broker
-`Access`       |     | Attribute managed by broker
-`UserId`       |     | Attribute managed by broker
+`CallerIds`    | no  | Modified or added by brokers
+`Access`       |     | Set by broker
+`AccessLevel`  | no  | Set or modified (by reducing access level) by broker
+`UserId`       | no  | Modified by brokers if present
 
 Keys
 
@@ -153,7 +154,8 @@ Attribute | Required | Note
 `MetaTypeId`   | yes | Always set to `1`
 `ShvPath`      | yes | Property path
 `Method`       | yes | Signal name, the property changes have obviously method `chng`
-`Access`       |     | Minimal access level needed for this method. The `"rd"` is used if not specified.
+`Access`       | no  | Minimal access level needed for this method. The `"rd"` is used if not specified.
+`AccessLevel`  | no  | Minimal access level needed for this method (complements `Access`).
 
 Keys
 
