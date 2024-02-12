@@ -17,11 +17,11 @@ Attribute number | Attribute name      | Description
 9                | ShvPath             | Path on which method will be called. 
 10               | Method              | Name of called RPC method 
 11               | CallerIds           | Internal attribute filled by broker in request message to distinguish requests with the same request ID, but issued by different clients.  
-13               | RespCallerIds       | Internal attribute filled by broker in response message to enable support for multi-part messages and tunneling. https://github.com/silicon-heaven/libshv/wiki/multipart-messages
+13               | RespCallerIds       | Internal attribute filled by broker in response message to enable support for multi-part messages and tunneling. <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
 14               | Access              | Access granted by broker to called `shvPath` and `method` to current user. 
 16               | UserId              | ID of user calling RPC method filled in by broker.
 17               | AccessLevel         | Reserved, integer value, it will be used in next API version for chained brokers access capping  
-18               | Part                | Reserved, it will be used in next API version for multi-part messages   https://github.com/silicon-heaven/libshv/wiki/multipart-messages
+18               | Part                | Reserved, it will be used in next API version for multi-part messages   <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
 
 Second part of RPC message is `IMap` with following possible keys.
 
