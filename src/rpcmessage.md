@@ -129,6 +129,7 @@ Value | Name  | Description
 8  | `MethodCallException` | 
 9  | `Unknown`             | 
 10 | `LoginRequired`       | Method call without previous successful login.
+11 | `UserIDRequired`      | Method call requires UserID to be present in the request message. Send it again with UserID.
 32 | `UserCode`            | 
 
 **Examples**
