@@ -17,7 +17,7 @@ Attribute number | Attribute name     | Expected type  | Description
 9                | ShvPath            | String         | Path on which method will be called. 
 10               | Method             | String         | Name of called RPC method 
 11               | CallerIds          | List of Int    | Internal attribute filled by broker in request message to distinguish requests with the same request ID, but issued by different clients.  
-13               | RespCallerIds      | List of Int    | Internal attribute filled by broker in response message to enable support for multi-part messages and tunneling. <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
+13               | RespCallerIds      | List of Int    | Reserved, internal attribute filled by broker in response message to enable support for multi-part messages and tunneling. <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
 14               | Access             | String         | Access granted by broker to called `shvPath` and `method` to current user. 
 16               | UserId             | String         | ID of user calling RPC method filled in by broker.
 17               | AccessLevel        | Int            | Reserved, integer value, it will be used in next API version for chained brokers access capping  
