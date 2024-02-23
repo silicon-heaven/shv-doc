@@ -48,11 +48,12 @@ The `ShvPath` is used to select exact node of method in the SHV tree.
 `Access` is part of access control. It is assigned to request by broker according to user rights.
 Multiple grants can be specified and separated by comma. 
 
-`AccessLevel` is new way to specify access level. It is numerical with
+`AccessLevel` is a new way to specify access level. It is numerical with
 predefined range (0-63) and brokers on the way can lower this number to even
 further limit access. Broker can't increase this number. `Access` should be used
-to get level if this field is not present and if even that is not present then
-Admin access should be considered.
+to get level if this field is not present. Admin access level should be
+considered as the base limit if neither `AccessLevel` nor `Access` field is
+present.
 
 | Name          | Numerical representation | `Access` representation |
 |---------------|--------------------------|-------------------------|
@@ -174,8 +175,8 @@ Attributes
 | `ShvPath`     | yes        | Property path
 | `Signal`      | no         | Signal name (if not specified `"chng"` is assumed)
 | `Source`      | no         | The name of the method this signal is associated with (if not specified `"get"` is assumed)
-| `Access`      | no         | Minimal access level needed for this method. The `"rd"` is used if not specified.
-| `AccessLevel` | no         | Minimal access level needed for this method (complements `Access`).
+| `Access`      | no         | Minimal access level needed for this signal. The `"rd"` is used if not specified.
+| `AccessLevel` | no         | Minimal access level needed for this signal (complements `Access`).
 
 Keys
 
