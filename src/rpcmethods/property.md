@@ -18,12 +18,14 @@ can be considered as property node.
 |-------------|--------|
 | Null \| Int | Any    |
 
-It supports an optional Integer argument which is maximal age in milliseconds.
-This is used with caches along the way where sometimes `*:get` might be served
-from it without need to actually address the target device.
+Integer argument is maximal age in milliseconds. Value can be of any age if
+*Null* parameter is used (or omitted). The age is relevant when latest value
+must be received over some other medium (such as from Modbus) and thus every
+request would trigger a new exchange. Instead if latest exchange was withing
+specified age the value can be served from cache.
 
 ```
-=> <id:42, method:"get", path:"test/property">i{}
+=> <id:42, mtehod:"get", path:"test/property">i{}
 <= <id:42>i{2:"hello"}
 ```
 ```
@@ -57,21 +59,24 @@ reference is read-write property and real value is read-only one.
 <= <id:42>i{}
 ```
 
-## `*:chng`
+## `*:*chng`
 
-| Name   | SHV Path | Signature   | Flags  | Access |
-|--------|----------|-------------|--------|--------|
-| `chng` | Any      | `ret(void)` | Signal | Read   |
+| Name    | SHV Path | Signature   | Flags  | Source | Access |
+|---------|----------|-------------|--------|--------|--------|
+| `*chng` | Any      | `ret(void)` | Signal | `get`  | Read   |
 
 This is signal, and thus it gets emitted on its own and can't be called. It is
 used when you have desire to get info about value change without polling. Note
 that signal might not be emitted just on value change (that means old value can
 be same as the new one) and it might not be emitted on some value changes (for
-example if change was under some notification dead band level). To get latest
-value you should always use `*:get` instead of waiting on `*:chng` but if you
-receive `*:chng` then you can safe yourself a `*:get` call.
+example if change was under some notification deadband level). To get latest
+value you should always use `*:get` instead of waiting for `*:*chng` signal but
+if you receive `*:*chng` then you can save yourself a `*:get` call.
 
-The `*:chng` needs to provide the same value as `*:get` would, which is value
+The signal name can be either just `chng` or any name with that as suffix (such
+as `fchng`).
+
+The `*:*chng` needs to provide the same value as `*:get` would, which is value
 associated with the SHV path.
 
 | Value |
@@ -79,5 +84,4 @@ associated with the SHV path.
 | Any   |
 
 ```
-<= <method:"chng", path:"test/property">i{1:"Hello World"}
-```
+<= <signal:"chng", path:"test/property", source:"get">i{1:"Hello World"}
