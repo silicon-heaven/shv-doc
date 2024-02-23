@@ -13,6 +13,7 @@
   - [Device API](./rpcmethods/device.md)
   - [Broker API](./rpcmethods/broker.md)
   - [Property nodes](./rpcmethods/property.md)
+  - [File nodes](./rpcmethods/file.md)
   - [History](./rpcmethods/history.md)
 - [RPC transport layer](./rpctransportlayer.md)
 - [RPC URL](./rpcurl.md)
