@@ -1,87 +1,96 @@
 # ChainPack
 
-## PackedValue
-```
-+---------------+------------+
-| PackingSchema | PackedData |
-+---------------+------------+
-```
-* `PackingSchema` - uint8_t
-* `PackedData` - binary blob of arbitrary length interpreted according to `PackingSchema`
+ChainPack is binary data format that caries type information with data. It is
+designed to be read and written in streams.
 
-## PackingSchema
+Note that different implementations can have different limitations on data
+representation compared to the full range ChainPack supports. Always consult
+your implementation's documentation to identify them.
 
-Dec | Hex | Bin | Name
-----|-----|-----|-----
-128 | 80 | 10000000 | Null
-129 | 81 | 10000001 | UInt
-130 | 82 | 10000010 | Int
-131 | 83 | 10000011 | Double
-132 | 84 | 10000100 | Bool
-133 | 85 | 10000101 | Blob
-134 | 86 | 10000110 | String
-136 | 88 | 10001000 | List
-137 | 89 | 10001001 | Map
-138 | 8a | 10001010 | IMap
-139 | 8b | 10001011 | MetaMap
-140 | 8c | 10001100 | Decimal
-141 | 8d | 10001101 | DateTime
-142 | 8e | 10001110 | CString 
-143 | 8f | 10001111 | BlobChain (Experimental)
-253 | fd | 11111101 | FALSE
-254 | fe | 11111110 | TRUE
-255 | ff | 11111111 | TERM
+Every value is prefixed with a single byte that specifies format of the
+following data, referenced as *packing schema* in this document. The following
+formats are defined:
 
-### TERM
-Special type. Terminates packed List and Map elements
-### FALSE
-No packed data after *PackingSchema*. Optimization type, Used to save 1 byte when bool value is packed 
-### TRUE
-No packed data after *PackingSchema*. Optimization type, Used to save 1 byte when bool value is packed 
+| Dec | Hex | Bin      | Name      |
+|-----|-----|----------|-----------|
+| 128 | 80  | 10000000 | Null      |
+| 129 | 81  | 10000001 | UInt      |
+| 130 | 82  | 10000010 | Int       |
+| 131 | 83  | 10000011 | Double    |
+| 132 | 84  | 10000100 | Bool      |
+| 133 | 85  | 10000101 | Blob      |
+| 134 | 86  | 10000110 | String    |
+| 136 | 88  | 10001000 | List      |
+| 137 | 89  | 10001001 | Map       |
+| 138 | 8a  | 10001010 | IMap      |
+| 139 | 8b  | 10001011 | MetaMap   |
+| 140 | 8c  | 10001100 | Decimal   |
+| 141 | 8d  | 10001101 | DateTime  |
+| 142 | 8e  | 10001110 | CString   |
+| 143 | 8f  | 10001111 | BlobChain |
+| 253 | fd  | 11111101 | FALSE     |
+| 254 | fe  | 11111110 | TRUE      |
+| 255 | ff  | 11111111 | TERM      |
+
+The values from 0 to 127 are used as **UInt** and **Int** values and are more
+discussed in their paragraphs.
+
 ### Null
-No packed data after *PackingSchema*. 
-### UInt
-Values 0-63 are packed directly in `PackingSchema` to save one byte.
+Represented just with its *packing schema*, no additional bytes are expected.
 
-LSB is the least significant byte
 ```
- 0 ...  7 bits  1  byte  |0|x|x|x|x|x|x|x|<-- LSB
- 8 ... 14 bits  2  bytes |1|0|x|x|x|x|x|x| |x|x|x|x|x|x|x|x|<-- LSB
-15 ... 21 bits  3  bytes |1|1|0|x|x|x|x|x| |x|x|x|x|x|x|x|x| |x|x|x|x|x|x|x|x|<-- LSB
-22 ... 28 bits  4  bytes |1|1|1|0|x|x|x|x| |x|x|x|x|x|x|x|x| |x|x|x|x|x|x|x|x| |x|x|x|x|x|x|x|x|<-- LSB
-29+       bits  5+ bytes |1|1|1|1|n|n|n|n| |x|x|x|x|x|x|x|x| |x|x|x|x|x|x|x|x| |x|x|x|x|x|x|x|x| ... <-- LSB
-                    n ==  0 ->  4 bytes number (32 bit number)
-                    n ==  1 ->  5 bytes number
-                    n == 13 -> 17 bytes number
-                    n == 14 -> RESERVED
-                    n == 15 -> not used because it is TERM type
++------+
+| 0x80 |
++------+
 ```
-example:
+
+### Bool
+Represented with either **TRUE** or **FALSE** *packing schema*. There are no
+additional bytes expected after it.
+
+True:
 ```
-               2u              0x2 ... len:  1  dump:  00000010
-              16u             0x10 ... len:  1  dump:  00010000
-             127u             0x7f ... len:  2  dump:  10000001|01111111
-             128u             0x80 ... len:  3  dump:  10000001|10000000|10000000
-             512u            0x200 ... len:  3  dump:  10000001|10000010|00000000
-            4096u           0x1000 ... len:  3  dump:  10000001|10010000|00000000
-           32768u           0x8000 ... len:  4  dump:  10000001|11000000|10000000|00000000
-         1048576u         0x100000 ... len:  4  dump:  10000001|11010000|00000000|00000000
-         8388608u         0x800000 ... len:  5  dump:  10000001|11100000|10000000|00000000|00000000
-        33554432u        0x2000000 ... len:  5  dump:  10000001|11100010|00000000|00000000|00000000
-       268435456u       0x10000000 ... len:  6  dump:  10000001|11110000|00010000|00000000|00000000|00000000
-     68719476736u     0x1000000000 ... len:  7  dump:  10000001|11110001|00010000|00000000|00000000|00000000|00000000
-  17592186044416u   0x100000000000 ... len:  8  dump:  10000001|11110010|00010000|00000000|00000000|00000000|00000000|00000000
- 140737488355328u   0x800000000000 ... len:  8  dump:  10000001|11110010|10000000|00000000|00000000|00000000|00000000|00000000
-4503599627370496u 0x10000000000000 ... len:  9  dump:  10000001|11110011|00010000|00000000|00000000|00000000|00000000|00000000|00000000
++------+
+| 0xfd |
++------+
 ```
+
+False:
+```
++------+
+| 0xfe |
++------+
+```
+
 ### Int
-Values 0-63 are packed directly in `PackingSchema` like `64+n` to save one byte.
+Signed integers can be packed directly in *packing schema* for values from 0 to
+63 or with *packing schema* **Int** followed by bytes with integer value encoded
+in a specific way.
 
-Signed int is stored in the same way as the unsigned one, the only difference is that the sign bit is stored at position marked by `s`
+The values from 0 to 63 can be packed directly in *packing schema* by adding 64
+to them. The value 42 thus would be packed as `0x6a`.
 
-LSB is the least significant byte
+```
++--------------+
+| 0x40 + Value |
++--------------+
+Value ∈ <0, 63>
+```
 
-s is sign bit
+```
++------+---------+
+| 0x82 | Data ...
++------+---------+
+```
+
+Signed integers are stored in their absolute value with sign bit. Number of
+bytes integer spans can be decoded from the first byte in the way described in
+the following visualization.
+
+Bytes in stream must be from left to right and unsigned integer itself is
+included with its most significant bit in first byte that should carry it
+(big-endian).
+
 ```
  0 ...  6 bits  1  byte  |0|s|x|x|x|x|x|x|<-- LSB
  7 ... 13 bits  2  bytes |1|0|s|x|x|x|x|x| |x|x|x|x|x|x|x|x|<-- LSB
@@ -94,7 +103,11 @@ s is sign bit
                     n == 14 -> RESERVED
                     n == 15 -> not used because it is TERM type
 ```
-example:
+`s` is sign bit and `x` is big-endian unsigned integer bits.
+
+The representation must strictly be sent in lowest possible bytes length.
+
+Examples:
 ```
              4            0x4 ... len:  1  dump:  01000100
             16           0x10 ... len:  1  dump:  01010000
@@ -122,103 +135,171 @@ example:
  -16384 ... len:  4  dump:  10000010|11010000|01000000|00000000
 -262144 ... len:  4  dump:  10000010|11010100|00000000|00000000
 ```
+
+### UInt
+Unsigned integers can be packed directly in *packing schema* for values from 0
+to 63 or with *packing schema* **UInt** followed by bytes with integer value.
+
+Values packed directly to *packing schema* are packed as they are. The value 42
+thus would be packed as `0x2a`.
+
+```
++--------------+
+| 0x40 + Value |
++--------------+
+Value ∈ <0, 63>
+```
+
+```
++------+---------+
+| 0x81 | Data ...
++------+---------+
+```
+
+Number of bytes integer spans can be decoded from the first byte in the way
+described in the following visualization. Bytes in stream must be from left to
+right and integer itself is included with its most significant bit in first byte
+that should carry it (big-endian).
+
+```
+ 0 ...  7 bits  1  byte  |0|x|x|x|x|x|x|x|<-- LSB
+ 8 ... 14 bits  2  bytes |1|0|x|x|x|x|x|x| |x|x|x|x|x|x|x|x|<-- LSB
+15 ... 21 bits  3  bytes |1|1|0|x|x|x|x|x| |x|x|x|x|x|x|x|x| |x|x|x|x|x|x|x|x|<-- LSB
+22 ... 28 bits  4  bytes |1|1|1|0|x|x|x|x| |x|x|x|x|x|x|x|x| |x|x|x|x|x|x|x|x| |x|x|x|x|x|x|x|x|<-- LSB
+29+       bits  5+ bytes |1|1|1|1|n|n|n|n| |x|x|x|x|x|x|x|x| |x|x|x|x|x|x|x|x| |x|x|x|x|x|x|x|x| ... <-- LSB
+                    n ==  0 ->  4 bytes number (32 bit number)
+                    n ==  1 ->  5 bytes number
+                    n == 13 -> 17 bytes number
+                    n == 14 -> RESERVED
+                    n == 15 -> not used because it is TERM type
+```
+`s` is sign bit and `x` is big-endian unsigned integer bits.
+
+The representation must strictly be sent in lowest possible bytes length.
+
+Examples:
+```
+               2u              0x2 ... len:  1  dump:  00000010
+              16u             0x10 ... len:  1  dump:  00010000
+             127u             0x7f ... len:  2  dump:  10000001|01111111
+             128u             0x80 ... len:  3  dump:  10000001|10000000|10000000
+             512u            0x200 ... len:  3  dump:  10000001|10000010|00000000
+            4096u           0x1000 ... len:  3  dump:  10000001|10010000|00000000
+           32768u           0x8000 ... len:  4  dump:  10000001|11000000|10000000|00000000
+         1048576u         0x100000 ... len:  4  dump:  10000001|11010000|00000000|00000000
+         8388608u         0x800000 ... len:  5  dump:  10000001|11100000|10000000|00000000|00000000
+        33554432u        0x2000000 ... len:  5  dump:  10000001|11100010|00000000|00000000|00000000
+       268435456u       0x10000000 ... len:  6  dump:  10000001|11110000|00010000|00000000|00000000|00000000
+     68719476736u     0x1000000000 ... len:  7  dump:  10000001|11110001|00010000|00000000|00000000|00000000|00000000
+  17592186044416u   0x100000000000 ... len:  8  dump:  10000001|11110010|00010000|00000000|00000000|00000000|00000000|00000000
+ 140737488355328u   0x800000000000 ... len:  8  dump:  10000001|11110010|10000000|00000000|00000000|00000000|00000000|00000000
+4503599627370496u 0x10000000000000 ... len:  9  dump:  10000001|11110011|00010000|00000000|00000000|00000000|00000000|00000000|00000000
+```
+
 ### Double 
-64 bit blob, because this layout depends on system endianness, the *LITTLE ENDIAN* is used.
-example:
+Double-precision floating-point as defined in IEEE 754-2008 in little-endian.
+
 ```
-0.0:       
--40000.0:  
++------+-------+-------+-------+-------+-------+-------+-------+-------+
+| 0x83 | Byte0 | Byte1 | Byte2 | Byte3 | Byte4 | Byte5 | Byte6 | Byte7 |
++------+-------+-------+-------+-------+-------+-------+-------+-------+
 ```
+
 ### Decimal
+Exponential number of base 10 is packed as two **Int** types (without *packing
+schema*) where first is the mantisa and second is exponent (`mantisa *
+10^exponent`). The second **Int** (exponent) can also be special value `0xff`
+(also use as **TERM**) to encode special values.
+
 ```
-+-------------+---------------+
-| Int mantisa | Int exponent  |
-+-------------+---------------+
++------+---       ---+---         ---+
+| 0x8c | Int mantisa | Int exponent |
++------+---       ---+---         ---+
 ```
-Exponential number with exponent of base `10`. Base `2` might be used in future for type `BinaryExp`
 
-value = mantissa * (base ^ exponent)
+The special values when exponent is `0xff`:
+* `mantisa == 1` is positive infinity (`+INF`)
+* `mantisa == -1` is negative infinity (`-INF`)
+* `matinsa == 0` is quiet NaN (`qNaN`)
+* `mantisa == 2` is signaling NaN (`sNaN`)
+* Other values of mantisa are reserved
 
-both `mantisa` and `exponent` can have value of `TERM` to encode special values
-
-`exponent` == `TERM` :
-* `mantisa == 1` - `+INF`
-* `mantisa == -1` - `-INF`
-* `mantisa == 0` - `qNaN`
-* `mantisa == 2` - `sNaN`
-
-`mantisa` == `TERM` : RESERVED
-
-`INF` and `NaN` is not supported yet
-
-### Bool
-one byte, 0 - false, 1 - true
-
-### String
-```
-+-------------+------------+
-| UInt length | utf-8 data |
-+-------------+------------+
-```
-example:
-```
-"fpowf":  10001010|00000101|01100110|01110000|01101111|01110111|01100110
-```
 
 ### Blob
+Blob is sent with **UInt** (without *packing schema*) prefixed that specifies
+number of data bytes. The data should be sent in little-endian.
+
 ```
-+-------------+------+
-| UInt length | data |
-+-------------+------+
++------+---       ---+---      ---+
+| 0x84 | UInt length | Data bytes |
++------+---       ---+---      ---+
 ```
-example:
+
+Example:
 ```
 "fpowf\u0000sapofkpsaokfsa":  10001010|00010100|01100110|01110000|01101111|01110111|01100110|00000000|01110011|01100001|01110000|01101111|01100110|01101011|01110000|01110011|01100001|01101111|01101011|01100110|01110011|01100001
 ```
 
-### CString
-`CString` is stream of `utf-8` valid bytes terminated by `\0`. `CString` MUST NOT contain `\0` byte inside, so escaping is not needed.
+### BlobChain
+Blob packed in parts. It provides a way to pack binary data that are not of
+known size upfront. Data are sent in blocks with their **UInt** (without
+*packing schema*) size prefixed and termination is done by packing zero as data
+length.
 
 ```
-+--------------+------+
-| escaped data | `\0` |
-+--------------+------+
++------+---       ---+---      ---+-- --+---+
+| 0x8f | UInt length | Data bytes | ... | 0 |
++------+---       ---+---      ---+-- --+---+
 ```
-example:
+
+### String
+UTF-8 encoded string. It is sent with **UInt** (without *packing schema*)
+prefixed that specifies number of data bytes (not characters!). The data must be
+sent in little-endian.
+
+```
++------+-------------+------------+
+| 0x86 | UInt length | UTF-8 data |
++------+-------------+------------+
+```
+
+Example:
+```
+"fpowf":  10001010|00000101|01100110|01110000|01101111|01110111|01100110
+```
+
+### CString
+UTF-8 string stream that is terminated with `\0` (thus full size is not
+immediately known when read from stream). The string itself can't contain `\0`
+byte inside because there is no escaping of it available.
+
+```
++------+--------------+----+
+| 0x8e | UTF-8 data | `\0` |
++------+--------------+----+
+```
+
+Example:
 ```
 "fpowf":  10001110|00000101|01100110|01110000|01101111|01110111|01100110|00000000
 ```
 
-### BlobChain
-`BlobChain` provides a way to pack binary data that are not of known size
-upfront. Data are sent in blocks with their size prefixed and termination is
-done by packing zero as data length.
-
-```
-+-------------+------+-----+-------------+------+---+
-| UInt length | data | ... | UInt length | data | 0 |
-+-------------+------+-----+-------------+------+---+
-```
-
-
 ### DateTime
-```
-bit 0: has TZ flag
-bit 1: has not msec part flag
-```
-* Take Int value `msecs since 2018-02-02`
+Date and time encoded as **Int** (without *packing schema*) with these
+conversion sequence:
+
+* Take integer value `msecs since 2018-02-02`
 * if msec part == 0 `val /= 1000`
 * if UTC offset != 0 `val = (val << 7) + (utc_offset_min / 15)` -63 <= offset <= 63
 * `val <<= 2`
 * set flags for TZ and msec part
 
-note:
+```
+bit 0: has TZ flag
+bit 1: has not msec part flag
+```
 
-Current libshv implementation stores datetime msecs in:
-* `signed 55 bit int` with TZ. This covers dates from year `-571232` to `571232`
-* `signed 62 bit int` without TZ. This covers dates from year `-73117802` to `73117802`
-
-example:
+Example:
 ```
 d"2018-02-02 0:00:00.001"       len:  2  dump:  10001101|00000100
 d"2018-02-02 01:00:00.001+01"   len:  3  dump:  10001101|10000010|00010001
@@ -239,47 +320,61 @@ d"2017-05-03T15:52:03Z"         len:  5  dump:  10001101|11101101|10100110|10110
 d"2017-05-03T15:52:03.000-0130" len:  7  dump:  10001101|11110001|10000010|11010011|00110000|10001000|00010101
 d"2017-05-03T15:52:03.923+00"   len:  7  dump:  10001101|11110001|10010110|00010011|00110100|10111110|10110100
 ```
+
 ### List
+This is sequence of other RPC values. It starts with *packing schema* and is
+terminate with **TERM** (`0xff`).
+
 ```
-+------------+-----+------------+------+
-| RpcValue_1 | ... | RpcValue_n | TERM |
-+------------+-----+------------+------+
++------+---   ---+-- --+---   ---+------+
+| 0x88 | Value 1 | ... | Value n | 0xff |
++------+---   ---+-- --+---   ---+------+
 ```
-example:
+
+Example:
 ```
 ["a",123,true,[1,2,3],null]
 10001100|10001010|00000001|01100001|10000110|01000000|01111011|10000011|10001100|01000001|01000010|01000011|11111111|10000100|11111111
 ```
+
 ### Map
-Key value container with unique keys, key order is not guaranteed.
+Encoded as sequence of **String** (with *packing schema*) key and RPC value
+pairs. The order of pairs is not guaranteed and should not be relied upon. The
+last pair must be followed by **TERM** (`0xff`) that terminates the **Map**.
+
 ```
-+--------------+------------+-----+--------------+------------+------+
-| String key_1 | RpcValue_1 | ... | String key_n | RpcValue_n | TERM |
-+--------------+------------+-----+--------------+------------+------+
++------+---        ---+---   ---+-- --+---        ---+---   ---+------+
+| 0x88 | String key 1 | Value 1 | ... | String key n | Value n | 0xff |
++------+---        ---+---   ---+-- --+---        ---+---   ---+------+
 ```
-example:
+
+Example:
 ```
 {"bar":2,"baz":3,"foo":1}
 10001101|00000011|01100010|01100001|01110010|01000010|00000011|01100010|01100001|01111010|01000011|00000011|01100110|01101111|01101111|01000001|11111111
 {"bar":2,"baz":3,"foo":[11,12,13]}
 10001101|00000011|01100010|01100001|01110010|01000010|00000011|01100010|01100001|01111010|01000011|00000011|01100110|01101111|01101111|10001100|01001011|01001100|01001101|11111111|11111111
 ```
+
 ### IMap
-Key value container with unique keys, key order is not guaranteed.
+Encoded as sequence of **Int** (with *packing schema*) key and RPC value pairs.
+The order of pairs is not guaranteed and should not be relied upon. The last
+pair must be followed by **TERM** (`0xff`) that terminates the **IMap**.
+
 ```
-+-----------+------------+-----+-----------+------------+------+
-| Int key_1 | RpcValue_1 | ... | Int key_n | RpcValue_n | TERM |
-+-----------+------------+-----+-----------+------------+------+
++------+---     ---+---   ---+-- --+---     ---+---   ---+------+
+| 0x88 | Int key 1 | Value 1 | ... | Int key n | Value n | 0xff |
++------+---     ---+---   ---+-- --+---     ---+---   ---+------+
 ```
-example:
+
+Example:
 ```
 i{1:"foo",2:"bar",333:15}
 10001110|00000001|10001010|00000011|01100110|01101111|01101111|00000010|10001010|00000011|01100010|01100001|01110010|10000001|01001101|01001111|11111111
 ```
+
+Notice that keys are of type **Int** not **UInt**!
+
 ### MetaMap
-Like `IMap` but can have also `String` keys. 
-Key order is not guaranteed.
-
-### RpcValue with MetaData
-MetaData are prepended before packed RpcValue in form of dictionary quoted by `<` and `>`. MetaMap may contain Int and String keys.
-
+Encoded like **Map** and **IMap** but with keys being both **Int** and
+**String**.

@@ -1,36 +1,132 @@
-# Cpon - ChainPack Object Notation
+# CPON - ChainPack Object Notation
 
-Text representation of [RpcValue](rpcvalue.md)
+CPON is inspired by [JSON](https://www.json.org/json-en.html). It is used for
+data dumping as well as user input.
 
-Super-set of [JSON](https://www.json.org/json-en.html) with following extensions or exceptions:
-* **String** - C-escaped Utf8 encoded string, can contain any char except of `"`, `\`, `TAB`, `CR`, `LF`, `0`. Supported escape sequences are `\0`, `\b`, `f`, `\n`, `\r`, `\t`. Octal, hexadecimal and Unicode `\xHH` and `\uHHHH` sequences are not supported yet.
-* **Blob**
-  * **Escaped** - `b"..."` values `0x00 - 0x1f` and `0x7f - 0xff` are stored as escape sequence `\hh`, `\` as `\\`, `"` as `\"`, `TAB` as `\t`, `CR` as `\r`, `LF` as `\n`, other values as ASCII `b"ab\31"` is the same as `b"ab1"`
-  * **Hex** - `x"..."` char values are saved as hh, for example `"ab1"` is coded as `x"616231"` 
-* **MetaMap** - `< int_key: val1 , "string_key": val2, ...  >` with Int or String keys, example `<3:42u, "foo":"bar">`
-* **IMap** - `i{ key: val , ... }`, map with int keys, example `i{3:42u, 4:"abc"}`
-* **hexadecimal** notation for int is supported, example: `0x20`, `0x40u`
-* **UInt** - u suffix, example `123u` is `UInt(123)`
-* **Decimal** - floating point numbers with decimal point `.` or in exponential format, example: `123.45`, `12345e-2`. Decimals are not converted to double, the are stored as mantissa + exponent instead without loose of precision. For example 1.1 is stored as pair (11,-1) 
-* **DateTime** - d prefix, example `d"2017-05-03T15:52:31.123"`
-* **List** and Map fields can be delimited by any white-space character including new line, ie. `[1 2 3]` means `[1,2,3]`
-* **List** and Map fields can have delimiter `,` after last item like: `[1,2,3,]`
-* C style comments are supported, for example `[1,/*2,*/3]` means `[1,3]`
-* Trailing coma separators at end of line is optional. Trailing coma after last element of list or map is enabled, for example `[1,2,3,]`.
+CPON text should be encoded in UTF-8.
 
-If [RpcValue](rpcvalue.md) has meta-data, they are placed before value quoted by `<` and `>` characters, see examples below.
- 
-Example:
-```
-<"type": "temperature">32
-```
-```
-<1:"AdressBookEntry">
-{
-  "name": "John",
-  "birth": <"format": "ISODate">"2000-12-11",
-}
-```
+CPON supports C style comments and thus `/* foo */` is just simply ignored and
+considered as a white space character.
 
-## Text editor support
-Syntax definition for tree sitter can be found at <https://github.com/amaanq/tree-sitter-cpon>
+[RPC Value](./rpcvalue.md) types are encoded in the following way:
+
+### Null
+Represented with plain `null` (compatible with JSON).
+
+### Bool
+Represented with either `true` or `false` (compatible with JSON).
+
+### Int
+Represented as number just like in JSON (e.g. `123`, `-42`) with additional
+support for common hexadecimal (e.g. `0x20`) and binary representation (e.g.
+`0b1001`).
+
+Tools generating CPON should prefer plain number representation (thus compatible
+with JSON).
+
+### UInt
+Represented as **Int** with suffix `u` (e.g. `123u`, `0x20u`, `0b1001u`).
+
+### Double
+Represented in scientific notation with `P` (or `p`) between significant and
+exponent represented as **Int** (e.g.  `1.25p-2`, `-0.0625p3`, `0b1001p+2`).
+
+Tools generating CPON should prefer format `[-]0xh.hhhp[+|-]dd`, thus
+significant is normalized hexadecimal number and exponent is decimal.
+
+### Decimal
+Represented in scientific notation (both `E` and `e` can be used) from
+significant and exponent **Int** number, or as decimal number with decimal point
+(`.`) (e.g.  `123.45`, `1.2345e2`, `12345E-0x2`).
+
+Tools generating CPON should prefer scientific notation with `e` where both
+significant and exponent is decimal and optionally representation with decimal
+point if number of inserted zeroes would be small enough.
+
+### Blob
+Represented as **String** with `b` prefix where values from `0x00` to `0x1f` and
+from `0x7f` to `0xff` are represented as escape sequences `\hh` (where `hh` is
+character's hexadecimal numeric value) with these exceptions:
+
+| Character | Escape sequence |
+|-----------|-----------------|
+| `\`       | `\\`            |
+| `"`       | `\"`            |
+| TAB       | `\t`            |
+| CR        | `\r`            |
+| LF        | `\n`            |
+
+Example: `b"ab\31"`
+
+Tools generating CPON should prefer special escape sequences over hexadecimal
+numeric ones.
+
+### HexBlob
+This is CPON extension on **Blob** type. There is no such alternative in
+ChainPack.
+
+Blob is represented as series of hexadecimal numeric values in String like
+syntax with `x` prefix.
+
+Example: `x"616231"`
+
+Tools generating CPON are discouraged from using this type.
+
+### String
+Represented as series of characters wrapped in `"`. It can contain any
+characters except of the following ones that are mapped to these escape
+sequences:
+
+| Character            | Escape sequence |
+|----------------------|-----------------|
+| `\`                  | `\\`            |
+| `"`                  | `\"`            |
+| HT (horizontal tab)  | `\t`            |
+| CR (carriage ret)    | `\r`            |
+| LF (new line)        | `\n`            |
+| FF (form feed)       | `\f`            |
+| BS (backspace)       | `\b`            |
+| NUL (null character) | `\0`            |
+
+Octal, hexadecimal and Unicode escape sequences are not support (this is
+incompatibility with JSON).
+
+Example: `"some\tstring"`
+
+### DateTime
+Represented as **String** with `d` prefix where string's value is date, time and
+optional time zone in ISO-8601 format (e.g. `d"2017-05-03T15:52:31.123"`)
+
+### List
+Represented as sequence of other RPC values wrapped in `[]`. Th sequence is
+delimited by white space characters or comma (`,`) (JSON compatible is comma).
+The additional comma is also allowed after last item (JSON incompatible).
+
+Examples: `[1 2 3]`, `[1,2,3,]`
+
+### Map
+Represented as pairs of **String** key and RPC value delimited by colon (`:`).
+All pairs are wrapped in `{}` and delimited by comma (`,`). Contrary to JSON's
+objects comma after last pair is allowed.
+
+Examples: `{"one": 1, "dec": 1.22,}`
+
+### IMap
+Reprensented as pairs of **Int** key and RPC value delimited by colon (`:`). All
+pairs are wrapped in `{}` and delimited by comma (`,`). Contrary to JSON's
+object comma after past pair is allowed.
+
+Examples: `{1: "one", 2: b"foo",}`
+
+### MetaMap
+Represented as pairs of **String** or **Int** key and RPC value delimited by
+color (`:`). All pairs are wrapped in `<>` and delimited by comma (`,`). Comma
+after past pair is allowed. **MetaMap** can't be alone, it must be followed by
+some other RPC value (that is not **MetaMap**).
+
+Example: `<1: "foo", "date": d"2017-05-03T15:52:31.123">42`
+
+
+## Syntax highlighting support
+Syntax definition for tree sitter can be found at
+<https://github.com/amaanq/tree-sitter-cpon>
