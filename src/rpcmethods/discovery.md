@@ -51,6 +51,7 @@ The method info in both *IMap* and *Map* must contain these fields:
     unique submit ID prevents from same request being handled multiple times
     because first execution will invalidate the submit ID and thus prevents
     re-execution.
+  * `32` (`1 << 5`) specifies that method requires ClientID to be called.
 * `"param"` for *Map* and `3` for *IMap* with *String* name of the parameter
   type as value. It can be missing or have value `null` instead of *String* if
   method takes no parameter (or `null`).

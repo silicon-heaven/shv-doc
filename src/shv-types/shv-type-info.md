@@ -1,5 +1,8 @@
 # SHV Type Info
 
+| ❗ This document is in DRAFT stage |
+|------------------------------------|
+
 > _TypeInfo_ =\
 > `<"version": 4> {`\
 > &nbsp;&nbsp;`"devicePaths"`: `{`\
