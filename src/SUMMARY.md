@@ -16,11 +16,11 @@
   - [History](./rpcmethods/history.md)
 - [RPC transport layer](./rpctransportlayer.md)
 - [RPC URL](./rpcurl.md)
-- [Implementations](./implementations.md)
 - [SHV types](./shv-types.md)
   - [SHV type info](./shv-types/shv-type-info.md)
   - [SHV journal](./shv-types/shv-journal.md)
 - [History Provider](./history-provider.md)
+- [Implementations](./implementations.md)
 
 ---
 
