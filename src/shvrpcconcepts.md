@@ -124,3 +124,16 @@ The predefined access levels are the following:
 
 Levels are sorted from the lowest to the highest and are understood to include
 all lover level rights.
+
+### User ID
+
+Sometimes devices want to record in their logs who triggered some of their
+methods. It can be, for example, when some error state is cleared. The
+information about user, who called that method, is normally known by the brokers
+on the way but not by the final device, because it gets only user's access
+level. And thus SHV RPC provides an optional way to propagate this info to it.
+To enable it the client sending request must add additional `ClientId` field to
+the RPC message's meta table with empty string value. Brokers on the way extend
+this value by their user's identification (appended after comma). The device
+thus gets full range of all users used to access it. Devices can signal the need
+for this field with `UserIDRequired` error.
