@@ -99,8 +99,8 @@ optional time zone in ISO-8601 format (e.g. `d"2017-05-03T15:52:31.123"`)
 
 ### List
 Represented as sequence of other RPC values wrapped in `[]`. Th sequence is
-delimited by white space characters or comma (`,`) (JSON compatible is comma).
-The additional comma is also allowed after last item (JSON incompatible).
+delimited by comma (`,`). The additional comma is allowed after last item (JSON
+incompatible).
 
 Examples: `[1 2 3]`, `[1,2,3,]`
 
