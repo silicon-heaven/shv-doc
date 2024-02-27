@@ -9,28 +9,29 @@ There are three kinds of RPC messages defined:
 
 RPC message can have meta-data attribute defined.
 
-Attribute number | Attribute name     | Expected type  | Description
-----------------:|--------------------|----------------|------------
-1                | MetaTypeId         | Int            | Always equal to `1` in case of RPC message 
-2                | MetaTypeNameSpaceId| Int            | Always equal to `0` in case of RPC message, may be omitted.
-8                | RequestId          | Int            | Every RPC request must have unique number per client. Matching RPC response will have the same number. 
-9                | ShvPath            | String         | Path on which method will be called. 
-10               | Method             | String         | Name of called RPC method 
-11               | CallerIds          | List of Int    | Internal attribute filled by broker in request message to distinguish requests with the same request ID, but issued by different clients.  
-13               | RespCallerIds      | List of Int    | Reserved, internal attribute filled by broker in response message to enable support for multi-part messages and tunneling. <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
-14               | Access             | String         | Access granted by broker to called `shvPath` and `method` to current user. 
-16               | UserId             | String         | ID of user calling RPC method filled in by broker.
-17               | AccessLevel        | Int            | Reserved, integer value, it will be used in next API version for chained brokers access capping  
-18               | Part               | Bool           | Reserved, it will be used in next API version for multi-part messages   <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
+| Attribute number  | Attribute name       | Expected type    | Description
+| ----------------: | -------------------- | ---------------- | ------------
+| 1                 | MetaTypeId           | Int              | Always equal to `1` in case of RPC message
+| 2                 | MetaTypeNameSpaceId  | Int              | Always equal to `0` in case of RPC message, may be omitted.
+| 8                 | RequestId            | Int              | Every RPC request must have unique number per client. Matching RPC response will have the same number.
+| 9                 | ShvPath              | String           | Path on which method will be called.
+| 10                | Method/Signal        | String           | Name of called RPC method or raised signal.
+| 11                | CallerIds            | List of Int      | Internal attribute filled by broker in request message to distinguish requests with the same request ID, but issued by different clients.
+| 13                | RespCallerIds        | List of Int      | Reserved, internal attribute filled by broker in response message to enable support for multi-part messages and tunneling. <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
+| 14                | Access               | String           | Access granted by broker to called `shvPath` and `method` to current user.
+| 16                | UserId               | String           | ID of user calling RPC method filled in by broker.
+| 17                | AccessLevel          | Int              | Reserved, integer value, it will be used in next API version for chained brokers access capping
+| 18                | Part                 | Bool             | Reserved, it will be used in next API version for multi-part messages   <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
+| 19                | Source               | String           | Used for signals to store method name this signal is associated with.
 
 Second part of RPC message is `IMap` with following possible keys.
 
 
-Key | Key name | Description
----:|----------|------------
-1   | Params   | Optional method parameters, any [RpcValue](rpcvalue.md) is allowed.
-2   | Result   | Successful method call result, any [RpcValue](rpcvalue.md) is allowed.
-3   | Error    | Method call exception, see [RPC error](#rpc-error) for more details
+| Key  | Key name   | Description
+| ---: | ---------- | ------------
+| 1    | Params     | Optional method parameters, any [RpcValue](rpcvalue.md) is allowed.
+| 2    | Result     | Successful method call result, any [RpcValue](rpcvalue.md) is allowed.
+| 3    | Error      | Method call exception, see [RPC error](#rpc-error) for more details
 
 `RequestId` can be any unique number assigned by side that sends request
 initially. It is used to pair up requests with their responses. The common
@@ -57,23 +58,23 @@ send request again when you receive no response because of this.
 
 Attributes
 
-Attribute | Required | Note
-----------|----------|-----
-`MetaTypeId`   | yes | Always set to `1`
-`RequestId`    | yes |
-`ShvPath`      | yes |
-`Method`       | yes |
-`RevCallerIds` | no  | If tunneling or multi-part message is needed
-`CallerIds`    | no  | Modified or added by brokers
-`Access`       |     | Set by broker
-`AccessLevel`  | no  | Set or modified (by reducing access level) by broker
-`UserId`       | no  | Modified by brokers if present
+| Attribute      | Required   | Note
+| ----------     | ---------- | -----
+| `MetaTypeId`   | yes        | Always set to `1`
+| `RequestId`    | yes        |
+| `ShvPath`      | yes        |
+| `Method`       | yes        |
+| `RevCallerIds` | no         | If tunneling or multi-part message is needed
+| `CallerIds`    | no         | Modified or added by brokers
+| `Access`       |            | Set by broker
+| `AccessLevel`  | no         | Set or modified (by reducing access level) by broker
+| `UserId`       | no         | Modified by brokers if present
 
 Keys
 
-Key      | Required | Note
----------|----------|-----
-`Params` | no       | Any valid [RpcValue](rpcvalue.md)
+| Key       | Required   | Note
+| --------- | ---------- | -----
+| `Params`  | no         | Any valid [RpcValue](rpcvalue.md)
 
 **Examples**
 
@@ -89,48 +90,47 @@ Response to [RpcRequest](rpcrequest.md)
 
 Attributes
 
-Attribute | Required | Note
-----------|----------|-----
-`MetaTypeId`   | yes | Always set to `1`
-`RequestId`    | yes | ID of matching `RpcRequest`
-`RevCallerIds` | no  | Must be copied from `RpcRequest` if present.
-`CallerIds`    | no  | Must be copied from `RpcRequest` if present.
+| Attribute      | Required   | Note
+| ----------     | ---------- | -----
+| `MetaTypeId`   | yes        | Always set to `1`
+| `RequestId`    | yes        | ID of matching `RpcRequest`
+| `RevCallerIds` | no         | Must be copied from `RpcRequest` if present.
+| `CallerIds`    | no         | Must be copied from `RpcRequest` if present.
 
 Keys
 
-Key      | Required | Note
----------|----------|-----
-`Result` | yes      | Required in case of successful method call result, any [RpcValue](rpcvalue.md) is allowed.
-`Error`  | yes      | Required in case of method call exception, see [RPC error](#rpc-error) for more details.
+| Key       | Required   | Note
+| --------- | ---------- | -----
+| `Result`  | yes        | Required in case of successful method call result, any [RpcValue](rpcvalue.md) is allowed.
+| `Error`   | yes        | Required in case of method call exception, see [RPC error](#rpc-error) for more details.
 
 ### RPC Error
 
 RPC Error is `IMap` with following keys defined
 
-Key | Key name  | Required | Description
----:|---------- |----------|-------
-1   | `Code`    | yes      | Error code
-2   | `Message` | no       | Error message string
-3   | `Data`    | no       | Arbitrary payload, can be used for example for exception localization aditional info.
-specific and it is not defined by SHV RPC.
+| Key  | Key name   | Required   | Description
+| ---: | ---------- | ---------- | -------
+| 1    | `Code`     | yes        | Error code
+| 2    | `Message`  | no         | Error message string
+| 3    | `Data`     | no         | Arbitrary payload, can be used for example for exception localization aditional info.
 
 Error codes
 
-Value | Name  | Description
------:|-------|----------
-0  | `NoError`             | 
-1  | `InvalidRequest`      | The `RpcValue` sent is not a valid RPC Request object.
-2  | `MethodNotFound`      | The method does not exist / is not available.
-3  | `InvalidParams`       | Invalid method parameter(s).
-4  | `InternalError`       | Internal RPC error.
-5  | `ParseError`          | Invalid `ChainPack` was received.
-6  | `MethodCallTimeout`   | 
-7  | `MethodCallCancelled` | 
-8  | `MethodCallException` | 
-9  | `Unknown`             | 
-10 | `LoginRequired`       | Method call without previous successful login.
-11 | `UserIDRequired`      | Method call requires UserID to be present in the request message. Send it again with UserID.
-32 | `UserCode`            | 
+| Value  | Name                  | Description
+| -----: | -------               | ----------
+| 1      | `InvalidRequest`      | The `RpcValue` sent is not a valid RPC Request object.
+| 2      | `MethodNotFound`      | The method does not exist or is not available or not accessible with given access level.
+| 3      | `InvalidParams`       | Invalid method parameter.
+| 4      | `InternalError`       | Internal RPC error.
+| 5      | `ParseError`          | Invalid `ChainPack` was received.
+| 6      | `MethodCallTimeout`   | Method execution timed out (for example if method implementation needs more time to access some other resources), you should try call later.
+| 7      | `MethodCallCancelled` |
+| 8      | `MethodCallException` | Generic execution exception of the method.
+| 9      | `Unknown`             | Used if error failure can't be determined (use only if absolutely necessary)
+| 10     | `LoginRequired`       | Method call without previous successful login.
+| 11     | `UserIDRequired`      | Method call requires UserID to be present in the request message. Send it again with UserID.
+| 12     | `NotCallable`         | Generated when `RpcRequest` is received for signal
+| 32     | `UserCode`            |
 
 **Examples**
 
@@ -150,24 +150,30 @@ It is used mainly notify clients that some technological value had changed witho
 
 Attributes
 
-Attribute | Required | Note
-----------|----------|-----
-`MetaTypeId`   | yes | Always set to `1`
-`ShvPath`      | yes | Property path
-`Method`       | yes | Signal name, the property changes have obviously method `chng`
-`Access`       | no  | Minimal access level needed for this method. The `"rd"` is used if not specified.
-`AccessLevel`  | no  | Minimal access level needed for this method (complements `Access`).
+| Attribute     | Required   | Note
+| ----------    | ---------- | -----
+| `MetaTypeId`  | yes        | Always set to `1`
+| `ShvPath`     | yes        | Property path
+| `Signal`      | no         | Signal name (if not specified `"chng"` is assumed)
+| `Source`      | no         | The name of the method this signal is associated with (if not specified `"get"` is assumed)
+| `Access`      | no         | Minimal access level needed for this method. The `"rd"` is used if not specified.
+| `AccessLevel` | no         | Minimal access level needed for this method (complements `Access`).
 
 Keys
 
-Key      | Required | Note
----------|----------|-----
-`Params` | no       | Any valid [RpcValue](rpcvalue.md)
+| Key       | Required   | Note
+| --------- | ---------- | -----
+| `Params`  | no         | Any valid [RpcValue](rpcvalue.md)
+
+Warning: all signal names ending with `chng` (that includes `chng` and others
+such as `fchng`) are considered as property changes of the method they are
+associated with, and thus cache can use to update its state them instead of
+method call. If your method emits signals with different parameter than
+response's result then do not use signal names ending with `chng`.
 
 **Examples**
 
 Spontaneous notification about change of `status/motorMoving` property to `true`.
 ```
-<1:1,9:"shv/test/pme/849V/status/motorMoving",10:"chng">i{1:true}
+<1:1,9:"shv/test/pme/849V/status/motorMoving",10:"chng",11:"get">i{1:true}
 ```
-

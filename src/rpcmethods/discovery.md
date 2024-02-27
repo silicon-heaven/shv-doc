@@ -34,9 +34,9 @@ The method info in both *IMap* and *Map* must contain these fields:
 * `"name"` for *Map* and `1` for *IMap* with string containing method's name.
 * `"flags"` for *Map* and `2` for *IMap* needs to have integer value assembled
   from the following ones:
-  * `1` (`1 << 0`) specifies that method is a signal and thus can't be
-    explicitly called but rather it gets automatically emitted on some event.
-    Requests sent to this method will result in error about missing method.
+  * `1` (`1 << 0`) specifies that this is a signal and thus can't be explicitly
+    called but rather it gets automatically emitted on some event. Requests sent
+    to this name must result in `NotCallable` error.
   * `2` (`1 << 1`) specifies that method is a getter. This method must be
     callable without side effects without any parameter.
   * `4` (`1 << 2`) specifies that method is a setter. This method must be
@@ -79,20 +79,24 @@ The method info in both *IMap* and *Map* must contain these fields:
       used for the method access limitation because this level should not be
       commonly assigned. It serves as a special management access level as well
       as broker to broker level.
+* `"source"` for *Map* and `6` for *IMap* that informs about source method for
+  this signal (*String*). It must be used alongside with flag `1`. The multiple
+  sources can be specified in list (*List* of *String*). This signal must be
+  always emitted with one of these sources set.
 
 Examples of `dir` requests:
 
 ```
 => <id:42, method:"dir", path:"">i{}
-<= <id:42>i{2:[i{1:"dir", 2:0, 3:"idir", 4:"odir", 5:"bws"},i{1:"ls", 2:0, 3:"idir", 4:"odir", 5:"bws"},{1:"lschng", 2:1, 4:"olschng", 5:"bws"}]}
+<= <id:42>i{2:[i{1:"dir", 2:0, 3:"idir", 4:"odir", 5:"bws"},i{1:"ls", 2:0, 3:"idir", 4:"odir", 5:"bws", 6:"lsmod"}]}
 ```
 ```
 => <id:43, method:"dir", path:"test/path">i{1:false}
-<= <id:43>i{2:[i{1:"dir", 2:0, 3:"idir", 4:"odir", 5:"bws"},i{1:"ls", 2:0, 3:"idir", 4:"odir", 5:"bws"},{1:"get", 2:2, 3:"iget" 4:"String", 5:"rd"}]}
+<= <id:43>i{2:[i{1:"dir", 2:0, 3:"idir", 4:"odir", 5:"bws"},i{1:"ls", 2:0, 3:"idir", 4:"odir", 5:"bws", 6:"lsmod"},{1:"get", 2:2, 3:"iget" e:"String", 5:"rd", 6:"chng"}]}
 ```
 ```
 => <id:44, method:"dir", path:"test/path">i{1:"get"}
-<= <id:44>i{2:i{1:"get", 2:2, 3:"iget" 4:"String", 5:"rd"}}
+<= <id:44>i{2:i{1:"get", 2:2, 3:"iget" 4:"String", 5:"rd", 6:"chng"}}
 ```
 ```
 => <id:44, method:"dir", path:"test/path">i{1:"nonexistent"}
@@ -100,7 +104,7 @@ Examples of `dir` requests:
 ```
 ```
 => <id:43, method:"dir", path:"test/path">i{1:true}
-<= <id:43>i{2:[{"name":"dir", "flags":0, "param":"idir", "result":"odir", "access":"bws"},i{"name":"ls", "flags":0, "param":"idir", "result":"odir", "access":"bws"},{"name":"get", "flags":2, "param":"iget" "result":"String", "access":"rd"}]}
+<= <id:43>i{2:[{"name":"dir", "flags":0, "param":"idir", "result":"odir", "access":"bws"},i{"name":"ls", "flags":0, "param":"idir", "result":"odir", "access":"bws"},{"name":"get", "flags":2, "param":"iget" "result":"String", "access":"rd", "signal":"chng"}]}
 ```
 
 The previous version (before SHV RPC 3.0) supported both *Null* and *String* but
@@ -112,9 +116,9 @@ well as the latest one.
 
 ## `*:ls`
 
-| Name | SHV Path | Signature    | Flags | Access |
-|------|----------|--------------|-------|--------|
-| `ls` | Any      | `ret(param)` |       | Browse |
+| Name | SHV Path | Signature    | Flags | Signal  | Access |
+|------|----------|--------------|-------|---------|--------|
+| `ls` | Any      | `ret(param)` |       | `lsmod` | Browse |
 
 This method needs to be implemented for every valid SHV path. It provides a way
 to list all children nodes of the node.
@@ -151,18 +155,19 @@ The previous versions (before SHV RPC 0.1) supported *Null* argument but not
 discouraged to be used by new clients. The *Null* variant is fully backward
 compatible.
 
-## `*:lschng`
+## `*:lsmod`
 
-| Name     | SHV Path | Signature   | Flags  | Access |
-|----------|----------|-------------|--------|--------|
-| `lschng` | Any      | `ret(void)` | Signal | Browse |
+| Name    | SHV Path | Signature   | Flags  | Source | Access |
+|---------|----------|-------------|--------|--------|--------|
+| `lsmod` | Any      | `ret(void)` | Signal | `ls`   | Browse |
 
 The signal that has to be sent if there is change in the result of the `*:ls`
 method. This includes case when new nodes are added as well as when nodes are
-removed.
+removed. The SHV Path must be to the lowest still valid node (valid after
+change).
 
-| Value          |
-|----------------|
+| Value         |
+|---------------|
 | {String:Bool} |
 
 The value sent with notification needs to be *Map* where keys are name of the
@@ -173,5 +178,5 @@ delay notification sending just to combine it with some future changes, it must
 be sent as soon as possible.
 
 ```
-<= <method:"lschng", path:"test">i{1:{"device":true}}
+<= <signal:"lsmod", path:"test", source:"ls">i{1:{"device":true}}
 ```

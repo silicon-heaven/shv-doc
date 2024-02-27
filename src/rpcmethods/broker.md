@@ -42,7 +42,7 @@ Client has always granted acces to these methods, so access is irrelevant in thi
 
 | Name        | SHV Path                    | Signature     | Flags | Access |
 |-------------|-----------------------------|---------------|-------|--------|
-| `subscribe` | `.app/broker/currentClient` | `void(param)` |       | Browse   |
+| `subscribe` | `.app/broker/currentClient` | `void(param)` |       | Browse |
 
 Adds rule that allows receiving of signals (notifications) from shv
 path. The subscription applies to all methods of given name in given path and
@@ -55,33 +55,39 @@ subscribes on given method in all accessible nodes of the broker.
 
 The parameter is *map* with:
 
+* `"signal"` wildcard pattern (rules from POSIX.2, 3.13 with exceptions that `/`
+  are not allowed) that must match the signal's name (`Signal`). It is assumed
+  to be `"*"` if not specified and thus matching all names.
+* `"source"` wildcard pattern (rules from POSIX.2, 3.13 with exceptions that `/`
+  are not allowed) that matches the signal's source (`Source`) and thus name of
+  the method this signal is associated with. It is assumed to be `"*"` if not
+  specified and thus matching all names.
+* `"paths"` wildcard pattern (rules from POSIX.2, 3.13 with added support for `**`
+  that matches multiple nodes) that must match the signal's path (`ShvPath`). It
+  is assumed to be `"**"` if not present and thus maching all nodes.
+* `"methods"` an obsolete alias for `"signal"`. It is used only if `"signal"` is
+  not provided. (OBSOLETE use `"signal"`)
 * `"method"` with optional method name (*String*) where default is `""` and
-  matches all methods.
+  matches all methods. Used only if `"signal"` or `"methods"` is not provided.
+  (OBSOLETE use `"methods"`)
 * `"path"` with optional SHV path (*String*) where default is `""` and thus
-  subscribe to all methods of given name in the tree.
-* `"methods"` that replaces `"method"` and instead of being exact name of the
-  method can be wildcard pattern (rules from POSIX.2, 3.13 with exceptions that
-  `/` are not allowed). `"method"` even if present is ignored once this field is
-  present.
-* `"paths"` that replaces `"path"` and instead of being static path it can be
-  a glob wildcard pattern (rules from POSIX.2, 3.13 with added support for `**`
-  that matches multiple nodes). `"path"` even if present is ignored once this
-  field is present.
+  subscribe to all methods of given name in the tree. Used only if `"paths"` is
+  not provided. (OBSOLETE use `"paths"`)
 
 ```
-=> <id:42, method:"subscribe", path:".app/broker/currentClient">i{1:{"methods":"chng", "paths":"**"}}
+=> <id:42, method:"subscribe", path:".app/broker/currentClient">i{1:{"signal":"chng", "paths":"**"}}
 <= <id:42>i{}
 ```
 ```
-=> <id:42, method:"subscribe", path:".app/broker/currentClient">i{1:{"methods":"chng", "paths":"test/device"}}
+=> <id:42, method:"subscribe", path:".app/broker/currentClient">i{1:{"signal":"chng", "paths":"test/device"}}
 <= <id:42>i{}
 ```
 
 ### `.app/broker/currentClient:unsubscribe`
 
-| Name          | SHV Path      | Signature    | Flags | Access |
-|---------------|---------------|--------------|-------|--------|
-| `unsubscribe` | `.app/broker/currentClient` | `ret(param)` |       | Browse   |
+| Name          | SHV Path                    | Signature    | Flags | Access |
+|---------------|-----------------------------|--------------|-------|--------|
+| `unsubscribe` | `.app/broker/currentClient` | `ret(param)` |       | Browse |
 
 Reverts an operation of `.app/broker/currentClient:subscribe`. The parameter
 must match exactly parameters used to subscribe.
@@ -94,19 +100,19 @@ It provides `true` in case subscription was removed and `false` if it couldn't
 have been found.
 
 ```
-=> <id:42, method:"unsubscribe", path:".app/broker/currentClient">i{1:{"method":"chng"}}
+=> <id:42, method:"unsubscribe", path:".app/broker/currentClient">i{1:{"signal":"chng"}}
 <= <id:42>i{2:true}
 ```
 ```
-=> <id:42, method:"unsubscribe", path:".app/broker/currentClient">i{1:{"method":"chng", "path":"invalid"}}
+=> <id:42, method:"unsubscribe", path:".app/broker/currentClient">i{1:{"signal":"chng", "paths":"invalid/**"}}
 <= <id:42>i{2:false}
 ```
 
 ### `.app/broker/currentClient:rejectNotSubscribed`
 
-| Name                  | SHV Path                | Signature    | Flags | Access |
-|-----------------------|-------------------------|--------------|-------|--------|
-| `rejectNotSubscribed` | `.app/broker/currentClient` | `ret(param)` |       | Browse   |
+| Name                  | SHV Path                    | Signature    | Flags | Access |
+|-----------------------|-----------------------------|--------------|-------|--------|
+| `rejectNotSubscribed` | `.app/broker/currentClient` | `ret(param)` |       | Browse |
 
 Unsubscribes all subscriptions matching the given method and SHV path. The
 intended use is when you receive notification that you are not interested in.
@@ -127,17 +133,17 @@ can be used when broker receives notification that is not subscribed by any of
 its current clients and that way remove any obsolete subscription down the line.
 
 ```
-=> <id:42, method:"rejectNotSubscribed", path:".app/broker/currentClient">i{1:{"method":"chng", "path":"test/device/foo"}}
+=> <id:42, method:"rejectNotSubscribed", path:".app/broker/currentClient">i{1:{"signal":"chng", "paths":"test/device/foo/**"}}
 <= <id:42>i{2:[{"method":"chng"}, {"method":"chng", "path":"test/device"}]}
-=> <id:42, method:"rejectNotSubscribed", path:".app/broker/currentClient">i{1:{"method":"chng", "path":"test/device/foo"}}
+=> <id:42, method:"rejectNotSubscribed", path:".app/broker/currentClient">i{1:{"signal":"chng", "paths":"test/device/foo/**"}}
 <= <id:42>i{2:[]}
 ```
 
 ### `.app/broker/currentClient:subscriptions`
 
-| Name            | SHV Path                | Signature   | Flags  | Access |
-|-----------------|-------------------------|-------------|--------|--------|
-| `subscriptions` | `.app/broker/currentClient` | `ret(void)` | Getter | Browse   |
+| Name            | SHV Path                    | Signature   | Flags  | Access |
+|-----------------|-----------------------------|-------------|--------|--------|
+| `subscriptions` | `.app/broker/currentClient` | `ret(void)` | Getter | Browse |
 
 This method allows you to list all existing subscriptions for the current
 client.
@@ -148,7 +154,7 @@ client.
 
 ```
 => <id:42, method:"subscriptions", path:".app/broker/currentClient">i{}
-<= <id:42>i{2:[{"method":"chng"},{"method":"chng", "path":"test/device"}]}
+<= <id:42>i{2:[{"method":"chng"},{"signal":"chng", "paths":"test/device/**", "source":"*"}]}
 ```
 
 ## Clients
@@ -160,9 +166,9 @@ network.
 
 ### `.app/broker:clientInfo`
 
-| Name         | SHV Path  | Signature    | Flags  | Access  |
-|--------------|-----------|--------------|--------|---------|
-| `clientInfo` | `.app/broker` | `ret(param)` |  | SuperService |
+| Name         | SHV Path      | Signature    | Flags | Access       |
+|--------------|---------------|--------------|-------|--------------|
+| `clientInfo` | `.app/broker` | `ret(param)` |       | SuperService |
 
 Information the broker has on the client.
 
@@ -198,9 +204,9 @@ required nor standardized at the moment.
 
 ### `.app/broker:mountedClientInfo`
 
-| Name                | SHV Path  | Signature    | Flags  | Access  |
-|---------------------|-----------|--------------|--------|---------|
-| `mountedClientInfo` | `.app/broker` | `ret(param)` |  | SuperService |
+| Name                | SHV Path      | Signature    | Flags | Access       |
+|---------------------|---------------|--------------|-------|--------------|
+| `mountedClientInfo` | `.app/broker` | `ret(param)` |       | SuperService |
 
 Information the broker has on the client that is mounted on the given SHV path.
 
@@ -231,8 +237,8 @@ The provided *Map* must contain the same fields as `.app/broker:clientInfo` does
 
 ### `.app/broker/currentClient:info`
 
-| Name   | SHV Path                | Signature   | Flags  | Access |
-|--------|-------------------------|-------------|--------|--------|
+| Name   | SHV Path                    | Signature   | Flags  | Access |
+|--------|-----------------------------|-------------|--------|--------|
 | `info` | `.app/broker/currentClient` | `ret(void)` | Getter | Browse |
 
 Access to the information broker has for the current client. The result is
@@ -254,9 +260,9 @@ users.
 
 ### `.app/broker:clients`
 
-| Name      | SHV Path  | Signature   | Flags  | Access  |
-|-----------|-----------|-------------|--------|---------|
-| `clients` | `.app/broker` | `ret(void)` |  | SuperService |
+| Name      | SHV Path      | Signature   | Flags | Access       |
+|-----------|---------------|-------------|-------|--------------|
+| `clients` | `.app/broker` | `ret(void)` |       | SuperService |
 
 This method allows you get list of all clients connected to the broker. This
 is an administration task.
@@ -279,15 +285,15 @@ connected clients.
 ```
 ### `.app/broker:mounts`
 
-| Name      | SHV Path  | Signature   | Flags  | Access  |
-|-----------|-----------|-------------|--------|---------|
-| `mounts` | `.app/broker` | `ret(void)` |  | SuperService |
+| Name     | SHV Path      | Signature   | Flags | Access       |
+|----------|---------------|-------------|-------|--------------|
+| `mounts` | `.app/broker` | `ret(void)` |       | SuperService |
 
 This method allows you get list of all mount paths of devices connected to the broker. This
 is an administration task.
 
-| Parameter | Result     |
-|-----------|------------|
+| Parameter | Result        |
+|-----------|---------------|
 | Null      | [String, ...] |
 
 The *List* of *Strings*s is provided where strings are mount paths of all currently mounted devices.
@@ -299,8 +305,8 @@ The *List* of *Strings*s is provided where strings are mount paths of all curren
 
 ### `.app/broker:disconnectClient`
 
-| Name               | SHV Path  | Signature     | Flags | Access  |
-|--------------------|-----------|---------------|-------|---------|
+| Name               | SHV Path      | Signature     | Flags | Access       |
+|--------------------|---------------|---------------|-------|--------------|
 | `disconnectClient` | `.app/broker` | `void(param)` |       | SuperService |
 
 Forces some specific client to be immediately disconnected from the SHV broker.
