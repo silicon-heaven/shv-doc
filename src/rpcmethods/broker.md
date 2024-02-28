@@ -5,8 +5,8 @@ methods and broker's side of the login sequence (unless it connects to other
 broker and in such case it performs client side).
 
 The broker can be pretty much ignored when you are sending requests and
-receiving responses to them. The notification delivery needs to be subscribed in
-the broker and thus for notification the knowledge about broker is a must.
+receiving responses to them. The signal message delivery needs to be subscribed
+in the broker and thus for signals the knowledge about broker is a must.
 
 The call to `.app:ls("broker")` can be used to identify application as being a
 broker.
@@ -18,25 +18,38 @@ broker.
 * [.app/broker:disconnectClient](#appbrokerdisconnectclient)
 * [.app/broker/currentClient:subscribe](#appbrokercurrentclientsubscribe)
 * [.app/broker/currentClient:unsubscribe](#appbrokercurrentclientunsubscribe)
-* [.app/broker/currentClient:rejectNotSubscribed](#appbrokercurrentclientrejectnotsubscribed)
 * [.app/broker/currentClient:subscriptions](#appbrokercurrentclientsubscriptions)
 * [.app/broker/currentClient:info](#appbrokercurrentclientinfo)
 
-## Notifications filtering
+## Signals filtering
 
-Devices send regularly notifications but by propagating these notifications to
-all clients is not always desirable. For that reason notifications are filtered.
-The default is to not send notifications and clients need to explicitly request
-them with subscriptions (note that it is allowed that subscriptions would be
-seeded by the broker based on the login).
+Devices send regularly signal messages but by propagating these messages to
+all clients is not always desirable. For that reason signals are filtered.
+The default is to not send signal messages and clients need to explicitly
+request them with subscriptions (note that it is allowed that subscriptions
+would be seeded by the broker based on the login).
 
 The speciality of these methods is that they are client specific. In general RPC
-should respond to all clients, if it has access rights high enough, the
-same way. But these methods manage client's specific table of subscriptions, and
-thus it must work with only client specific info.
+should respond to all clients the same way, if it has access rights high enough.
+But these methods manage client's specific table of subscriptions, and thus it
+must work with only client specific info.
 
-Note that all the methods under `.app/broker/currentClient` have access set to `Browse`. 
-Client has always granted acces to these methods, so access is irrelevant in this case.
+Note that all the methods under `.app/broker/currentClient` have access set to
+`Browse`. Client must always have access to these methods, so access is
+irrelevant in this case. On the other hand broker must deny access to the
+`.app/broker/currentClient:subscribe` and
+`.app/broker/currentClient:unsubscribe` of their mount points to their clients.
+That is because otherwise clients could influence subscriptions that need to be
+maintained by the broker itself.
+
+Brokers can be chained by mounting broker inside another one. Such mounted
+broker of course won't automatically be sending its signal messages and thus
+they won't be propagated. Simple solution is to subscribe for all signal
+messages, but that is not efficient. The better solution is to derive an
+appropriate subscription for mounted broker (by modifying the `"path"`) and
+subscribe for only this limited set of signal messages. If you are implementing
+broker then be aware that multiple subscribes can be derived to the same one and
+thus unsubscribe must be performed with care to not remove still needed ones.
 
 ### `.app/broker/currentClient:subscribe`
 
@@ -51,9 +64,9 @@ subscribes on given method in all accessible nodes of the broker.
 
 | Parameter | Result |
 |-----------|--------|
-| {...}     | Null   |
+| {...}     | Bool   |
 
-The parameter is *map* with:
+The parameter is *Map* with:
 
 * `"signal"` wildcard pattern (rules from POSIX.2, 3.13 with exceptions that `/`
   are not allowed) that must match the signal's name (`Signal`). It is assumed
@@ -74,6 +87,9 @@ The parameter is *map* with:
   subscribe to all methods of given name in the tree. Used only if `"paths"` is
   not provided. (OBSOLETE use `"paths"`)
 
+It provides `true` if sunscription was added and `false` if there was already
+such subscription.
+
 ```
 => <id:42, method:"subscribe", path:".app/broker/currentClient">i{1:{"signal":"chng", "paths":"**"}}
 <= <id:42>i{}
@@ -89,15 +105,16 @@ The parameter is *map* with:
 |---------------|-----------------------------|--------------|-------|--------|
 | `unsubscribe` | `.app/broker/currentClient` | `ret(param)` |       | Browse |
 
-Reverts an operation of `.app/broker/currentClient:subscribe`. The parameter
-must match exactly parameters used to subscribe.
+Reverts an operation of `.app/broker/currentClient:subscribe`.
 
 | Parameter | Result |
 |-----------|--------|
 | {...}     | Bool   |
 
-It provides `true` in case subscription was removed and `false` if it couldn't
-have been found.
+The parameter must match exactly parameters used to subscribe
+
+It provides `true` in case subscription was removed or request count modified
+and `false` if it couldn't have been found.
 
 ```
 => <id:42, method:"unsubscribe", path:".app/broker/currentClient">i{1:{"signal":"chng"}}
@@ -106,37 +123,6 @@ have been found.
 ```
 => <id:42, method:"unsubscribe", path:".app/broker/currentClient">i{1:{"signal":"chng", "paths":"invalid/**"}}
 <= <id:42>i{2:false}
-```
-
-### `.app/broker/currentClient:rejectNotSubscribed`
-
-| Name                  | SHV Path                    | Signature    | Flags | Access |
-|-----------------------|-----------------------------|--------------|-------|--------|
-| `rejectNotSubscribed` | `.app/broker/currentClient` | `ret(param)` |       | Browse |
-
-Unsubscribes all subscriptions matching the given method and SHV path. The
-intended use is when you receive notification that you are not interested in.
-You can send this request with method and SHV path of such notification to just
-unsubscribe. Be aware that you always subscribe on the node and all its
-subnodes, you can't pick and choose nodes in the subtree with this method.
-
-| Parameter                        | Result       |
-|----------------------------------|--------------|
-| {"method":String, "path":String} | [{...}, ...] |
-
-As a result it provides subscription descriptions (see
-`.app/broker/currentClient:subscribe`) that were unsubscribed.
-
-This is primarily used for broker to broker communication. It removes need to
-track subscriptions in sub-brokers (brokers mounted in the broker) because this
-can be used when broker receives notification that is not subscribed by any of
-its current clients and that way remove any obsolete subscription down the line.
-
-```
-=> <id:42, method:"rejectNotSubscribed", path:".app/broker/currentClient">i{1:{"signal":"chng", "paths":"test/device/foo/**"}}
-<= <id:42>i{2:[{"method":"chng"}, {"method":"chng", "path":"test/device"}]}
-=> <id:42, method:"rejectNotSubscribed", path:".app/broker/currentClient">i{1:{"signal":"chng", "paths":"test/device/foo/**"}}
-<= <id:42>i{2:[]}
 ```
 
 ### `.app/broker/currentClient:subscriptions`
@@ -148,13 +134,21 @@ its current clients and that way remove any obsolete subscription down the line.
 This method allows you to list all existing subscriptions for the current
 client.
 
-| Parameter | Result                                        |
-|-----------|-----------------------------------------------|
-| Null      | [{"method":String, "path":String\|Null}, ...] |
+| Parameter | Result       |
+|-----------|--------------|
+| Null      | [{...}, ...] |
+
+*Map*s provided in the list will have the following fields:
+
+* `"signal"` that is copied over from original subscription request. It is also
+  used if you subscribed with `"methods"` or `"method"`.
+* `"source"` that is copied over from original subscription request.
+* `"paths"` that is copied over from original subscription request. It is also
+  used if you subscribed with `"path"`.
 
 ```
 => <id:42, method:"subscriptions", path:".app/broker/currentClient">i{}
-<= <id:42>i{2:[{"method":"chng"},{"signal":"chng", "paths":"test/device/**", "source":"*"}]}
+<= <id:42>i{2:[{"method":"chng"},{"signal":"chng", "paths":"test/device/**", "source":"*", "ref":1}]}
 ```
 
 ## Clients
@@ -330,9 +324,10 @@ reconnection request.
 
 It is desirable to be able to access clients directly without mounting them on a
 specific path. This helps with their identification by administrators. This is
-done by automatically mounting them in `.app/broker/client/<clientId>`. This mount
-won't be reported by `.app/broker:mountPoints` method, nor it should be the mount
-point reported in `.app/broker:cientInfo`.
+done by automatically mounting them in `.app/broker/client/<clientId>`. This
+mount won't be reported by `.app/broker:mountPoints` method, nor it should be
+the mount point reported in `.app/broker:cientInfo`. And due to not being mount
+point it also can't support signal messages.
 
 The access to this path should be allowed only to the broker administrators. The
 rule of thumb is that if user can access `.app/broker:disconnectClient`, it should
