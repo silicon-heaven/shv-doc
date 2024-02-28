@@ -4,9 +4,11 @@ The broker needs to implement application API, as well as some additional
 methods and broker's side of the login sequence (unless it connects to other
 broker and in such case it performs client side).
 
-The broker can be pretty much ignored when you are sending requests and
-receiving responses to them. The signal message delivery needs to be subscribed
-in the broker and thus for signals the knowledge about broker is a must.
+The broker can be pretty much ignored when you are calling methods (sending
+request and receiving response messages). On the other hand, signal message
+retrieval needs to be requested from broker, because broker won't pass them
+automatically and thus knowledge about broker is required for clients wanting to
+receive signals.
 
 The call to `.app:ls("broker")` can be used to identify application as being a
 broker.
