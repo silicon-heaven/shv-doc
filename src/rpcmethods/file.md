@@ -102,6 +102,38 @@ with files that are growing.
 <= <id:42>i{2:25819716}
 ```
 
+## `*:sha1`
+
+| Name   | SHV Path | Signature    | Flags | Access |
+|--------|----------|--------------|-------|--------|
+| `sha1` | Any      | `ret(param)` |       | Read   |
+
+The basic CRC32 algorithm, that is required alongside with `*:read`, is
+serviceable but it has higher probability of result collision. If you want to
+use it to not only detect modification of the file but instead identification of
+it, then SHA1 is the better choice. The implementation of this method is
+optional (but when it exists the `*:crc` must exist as well).
+
+| Parameter          | Result |
+|--------------------|--------|
+| Null \| [Int, Int] | Bytes  |
+
+You can either pass `Null` and in such case sha1 of the whole file will be
+provided, or you can pass list with offset and size in bytes that identifies
+range the hash should be calculate for.
+
+No error must be raised if range specified by parameter is outside of the file.
+Only bytes present in the range are used to calculate SHA1 (this includes case
+when there are no bytes captured by specified range). This allows easier work
+with files that are growing.
+
+The result must always be 20 bytes long *Bytes*.
+
+```
+=> <id:42, method:"sha1", path:"test/file">i{}
+<= <id:42>i{2:b"4\972t\cc\efj\b4\df\aa\f8e\99y/\a9\c3\feF\89"}
+```
+
 ## `*:read`
 
 | Name   | SHV Path | Signature    | Flags             | Access |
