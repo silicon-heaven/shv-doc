@@ -227,6 +227,6 @@ outside file boundary.
 The parameter is sequence of bytes to be appended to the file.
 
 ```
-=> <id:42, method:"truncate", path:"test/file">i{1:1024}
+=> <id:42, method:"truncate", path:"test/file">i{1:b"Some text..."}
 <= <id:42>i{}
 ```
