@@ -8,11 +8,11 @@ identification of such devices in the SHV tree.
 The call to `.app:ls("device")` can be used to identify application as being a
 device.
 
-## `.app/device:name`
+## `.device:name`
 
 | Name   | SHV Path      | Signature   | Flags  | Access |
 |--------|---------------|-------------|--------|--------|
-| `name` | `.app/device` | `ret(void)` | Getter | Browse |
+| `name` | `.device`     | `ret(void)` | Getter | Browse |
 
 This method must provide the device name. This is a specific generic name of the
 device.
@@ -22,15 +22,15 @@ device.
 | Null      | String |
 
 ```
-=> <id:42, method:"name", path:".app/device">i{}
+=> <id:42, method:"name", path:".device">i{}
 <= <id:42>i{2:"OurDevice"}
 ```
 
-## `.app/device:version`
+## `.device:version`
 
 | Name      | SHV Path      | Signature   | Flags  | Access |
 |-----------|---------------|-------------|--------|--------|
-| `version` | `.app/device` | `ret(void)` | Getter | Browse |
+| `version` | `.device`     | `ret(void)` | Getter | Browse |
 
 This method must provide version (revision) of the device.
 
@@ -39,15 +39,15 @@ This method must provide version (revision) of the device.
 | Null      | String |
 
 ```
-=> <id:42, method:"name", path:".app/device">i{}
+=> <id:42, method:"name", path:".device">i{}
 <= <id:42>i{2:"g2"}
 ```
 
-## `.app/device:serialNumber`
+## `.device:serialNumber`
 
 | Name           | SHV Path      | Signature   | Flags  | Access |
 |----------------|---------------|-------------|--------|--------|
-| `serialNumber` | `.app/device` | `ret(void)` | Getter | Browse |
+| `serialNumber` | `.device`     | `ret(void)` | Getter | Browse |
 
 This method can provide serial number of the device if that is something the
 device has. It is allowed to provide *Null* in case there is no serial number
@@ -58,6 +58,6 @@ assigned to this device.
 | Null      | String \| Null |
 
 ```
-=> <id:42, method:"serialNumber", path:".app/device">i{}
+=> <id:42, method:"serialNumber", path:".device">i{}
 <= <id:42>i{2:"12590"}
 ```
