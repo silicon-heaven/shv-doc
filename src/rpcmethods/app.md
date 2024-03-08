@@ -45,8 +45,8 @@ these additions you can use this number.
 
 ## `.app:name`
 
-| Name      | SHV Path | Signature   | Flags  | Access |
-|-----------|----------|-------------|--------|--------|
+| Name   | SHV Path | Signature   | Flags  | Access |
+|--------|----------|-------------|--------|--------|
 | `name` | `.app`   | `ret(void)` | Getter | Browse |
 
 This method must provide the name of the application, or at least the SHV
@@ -63,13 +63,17 @@ implementation used in the application.
 
 ## `.app:version`
 
-| Name         | SHV Path | Signature   | Flags  | Access |
-|--------------|----------|-------------|--------|--------|
+| Name      | SHV Path | Signature   | Flags  | Access |
+|-----------|----------|-------------|--------|--------|
 | `version` | `.app`   | `ret(void)` | Getter | Browse |
 
 This method must provide the application version, or at least the SHV
 implementation used in the application (must be consistent with information in
 `.app:appName`).
+
+| Parameter | Result |
+|-----------|--------|
+| Null      | String |
 
 ```
 => <id:42, method:"version", path:".app">i{}
@@ -93,4 +97,34 @@ well as to keep connection in case of SHV Broker.
 ```
 => <id:42, method:"ping", path:".app">i{}
 <= <id:42>i{}
+```
+
+## `.app:date`
+
+| Name   | SHV Path | Signature   | Flags | Access |
+|--------|----------|-------------|-------|--------|
+| `date` | `.app`   | `ret(void)` |       | Browse |
+
+This is an optional method that provides access to the date and time this
+application is using (that includes time zone). Applications running on systems
+without RTC are expected to implement this method. You must implement this any
+time methods this application provides to SHV works with date and time.
+
+You should use this to detect time shift between your time and time of the
+device you are talking to. Date and time sent by device will be relative to this
+one and thus even if it has wrong time set you have change to calculate the
+correct one. The same applies the other way around, but in general such methods
+should be avoided.
+
+Note that there is unspecified overhead of SHV RPC network in up to seconds for
+transferring messages and thus precision of comparison with local time must
+consider this.
+
+| Parameter | Result   |
+|-----------|----------|
+| Null      | DateTime |
+
+```
+=> <id:42, method:"date", path:".app">i{}
+<= <id:42>i{2:d"2017-05-03T15:52:31.123"}
 ```
