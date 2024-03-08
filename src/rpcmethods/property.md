@@ -33,6 +33,30 @@ specified age the value can be served from cache.
 <= <id:42>i{2:"Cached"}
 ```
 
+### Signal `*chng`
+
+Value change can be optionally signaled with signal. It is used when you have
+desire to get info about value change without polling. Note that signal might
+not be emitted just on value change (that means old value can be same as the new
+one) and it might not be emitted on some value changes (for example if change
+was under some notification deadband level). To get latest value you should
+always use `*:get` instead of waiting for `*chng` signal but if you receive
+`*chng` then you can save yourself a `*:get` call.
+
+The signal name can be either just `chng` or any name with that as suffix (such
+as `fchng`).
+
+The `*chng` needs to provide the same value as `*:get` would, which is value
+associated with the SHV path.
+
+| Value |
+|-------|
+| Any   |
+
+```
+<= <signal:"chng", path:"test/property", source:"get">i{1:"Hello World"}
+
+
 ## `*:set`
 
 | Name  | SHV Path | Signature     | Flags  | Access |
@@ -58,30 +82,3 @@ reference is read-write property and real value is read-only one.
 => <id:42, method:"set", path:"test/property">i{1:"Hello World"}
 <= <id:42>i{}
 ```
-
-## `*:*chng`
-
-| Name    | SHV Path | Signature   | Flags  | Source | Access |
-|---------|----------|-------------|--------|--------|--------|
-| `*chng` | Any      | `ret(void)` | Signal | `get`  | Read   |
-
-This is signal, and thus it gets emitted on its own and can't be called. It is
-used when you have desire to get info about value change without polling. Note
-that signal might not be emitted just on value change (that means old value can
-be same as the new one) and it might not be emitted on some value changes (for
-example if change was under some notification deadband level). To get latest
-value you should always use `*:get` instead of waiting for `*:*chng` signal but
-if you receive `*:*chng` then you can save yourself a `*:get` call.
-
-The signal name can be either just `chng` or any name with that as suffix (such
-as `fchng`).
-
-The `*:*chng` needs to provide the same value as `*:get` would, which is value
-associated with the SHV path.
-
-| Value |
-|-------|
-| Any   |
-
-```
-<= <signal:"chng", path:"test/property", source:"get">i{1:"Hello World"}

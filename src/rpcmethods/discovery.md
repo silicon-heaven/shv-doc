@@ -12,31 +12,28 @@ associated with it.
 This method needs to be implemented for every node (that is every valid SHV
 path). It provides a way to list all available methods and signals of the node.
 
-| Parameter       | Result                                                                                          |
-|-----------------|-------------------------------------------------------------------------------------------------|
-| Null \| `false` | [i{1:String, 2:Int<0,15>, 2:String, 4:String, 5:String}, ...]                                   |
-| `true`          | [{"name":String, "flags":Int<0,31>, "param":String, "result":String, "access":String ...}, ...] |
-| String          | i{1:String, 2:Int<0,15>, 3:String, 4:String, 5:String}                                                                                            |
+| Parameter                 | Result        |
+|---------------------------|---------------|
+| Null \| `false` \| `true` | [i{...}, ...] |
+| String                    | Bool          |
 
 This method can be called with or without parameter. The valid parameters are:
 
-* *Null* or `false` and in such case all methods are listed with their info in
-  *IMap*.
-* `true` is same as `false` or *Null* with exception that result is expected to
-  be *Map* instead of *IMap*. That allows custom extension that is beneficial in
-  some cases. The implementations that do not support this extension are allowed
-  to return *IMap* just like for *Null* or `false`.
-* *String* with possible method name for which info should be provided. *Null*
-  is provided if there is no such method.
+* *Null* or `false` and in such case all methods are listed with their info.
+* `true` is same as `false` or *Null* with exception that result can also
+  contain extra map.
+* *String* with possible method name for which `true` is returned if node has
+  such method and `false` if there is no such method.
 
-The method info in both *IMap* and *Map* must contain these fields:
+The method info in *IMap* must contain these fields:
 
-* `"name"` for *Map* and `1` for *IMap* with string containing method's name.
-* `"flags"` for *Map* and `2` for *IMap* needs to have integer value assembled
-  from the following ones:
-  * `1` (`1 << 0`) specifies that this is a signal and thus can't be explicitly
-    called but rather it gets automatically emitted on some event. Requests sent
-    to this name must result in `NotCallable` error.
+* `1`: string containing method's name. This must be unique name for single
+  node. It is not allowed to provide multiple descriptions with same name for
+  the same node.
+* `2`: is integer value flag assembled from the following values:
+  * `1` (`1 << 0`) no longer used and reserved for compatibility reasons. In the
+    past it signaled that name is not callable. New implementations should
+    ignore method descriptions with this bit set.
   * `2` (`1 << 1`) specifies that method is a getter. This method must be
     callable without side effects without any parameter.
   * `4` (`1 << 2`) specifies that method is a setter. This method must be
@@ -52,59 +49,42 @@ The method info in both *IMap* and *Map* must contain these fields:
     because first execution will invalidate the submit ID and thus prevents
     re-execution.
   * `32` (`1 << 5`) specifies that method requires ClientID to be called.
-* `"param"` for *Map* and `3` for *IMap* with *String* name of the parameter
-  type as value. It can be missing or have value `null` instead of *String* if
-  method takes no parameter (or `null`).
-* `"result"` for *Map* and `4` for *IMap* with *String* name of the provided
-  value type as value. It can be missing or have value `null` instead of
-  *String* if method provides no  value (or `null`).
-* `"access"` for *Map* and  `5` for *IMap* that is used to inform about minimal
-  access level needed to invoke the method. If client has lower access level
-  than request to this method is going to result in an error. Note that actual
-  user's access level is defined by SHV broker and deduced by potentially
-  complex rule set. The allowed values are:
-    * `"bws"` (browse) is the lowest access level allowing to discover SHV nodes
-      and methods.
-    * `"rd"` (read) allows reading of values.
-    * `"wr"` (write) allows setting values.
-    * `"cmd"` (command) allows performing a commanding operation.
-    * `"cfg"` (config) allows changing configuration values.
-    * `"srv"` (service) allows access to the service info.
-    * `"ssrv` (super service) allows access to the service info that can't be
-      included for what ever reason in `"srv"`.
-    * `"dev"` (develop) is the highest common access level. Methods with this
-      access level provide access to the functionality that is needed only for
-      testing and development.
-    * `"su"` (admin) is the absolutely highest access level. It is commonly not
-      used for the method access limitation because this level should not be
-      commonly assigned. It serves as a special management access level as well
-      as broker to broker level.
-* `"source"` for *Map* and `6` for *IMap* that informs about source method for
-  this signal (*String*). It must be used alongside with flag `1`. The multiple
-  sources can be specified in list (*List* of *String*). This signal must be
-  always emitted with one of these sources set.
+    Calling this method without it should result in `UserIDRequired` error.
+* `3`: defines parameter type for the requests. Type is a *String* identifier.
+  It can be missing or have value *Null* instead of *String* if method takes no
+  parameter (or only *Null*).
+* `4`: defines result type for the responses. The is a *String* identifier. It
+  can be missing or have value *Null* instead of *String* if method provides no
+  value (or only *Null*).
+* `5`: specifies minimal access level needed to call this method as *Int*. The
+  allowed values can be found in table in [RpcMessage](../rpcmesasge.md)
+  article.
+* `6`: is used for signals associated with this method. Signals have their names
+  and type identifier for value they carry. They are specified as a *Map* from
+  signal's name to *String* type identifier. It is allowed to use *Null* instead
+  of *String* for type and in such case type is the method's result type (of
+  course field `4` must be defined).
+* `63` extra *Map* that can contain anything you want. It is provided only if
+  `true` is passed as argument and can be used to provide additional
+  implementation specific info for this method.
 
 Examples of `dir` requests:
 
 ```
 => <id:42, method:"dir", path:"">i{}
-<= <id:42>i{2:[i{1:"dir", 2:0, 3:"idir", 4:"odir", 5:"bws"},i{1:"ls", 2:0, 3:"idir", 4:"odir", 5:"bws", 6:"lsmod"}]}
+<= <id:42>i{2:[i{1:"dir", 2:0, 3:"idir", 4:"odir", 5:1},i{1:"ls", 2:0, 3:"ils", 4:"ols", 5:1, 6:{"lsmod":"olsmod"}}]}
 ```
 ```
 => <id:43, method:"dir", path:"test/path">i{1:false}
-<= <id:43>i{2:[i{1:"dir", 2:0, 3:"idir", 4:"odir", 5:"bws"},i{1:"ls", 2:0, 3:"idir", 4:"odir", 5:"bws", 6:"lsmod"},{1:"get", 2:2, 3:"iget" e:"String", 5:"rd", 6:"chng"}]}
+<= <id:43>i{2:[i{1:"dir", 2:0, 3:"idir", 4:"odir", 5:1},i{1:"ls", 2:0, 3:"ils", 4:"ols", 5:1, 6:{"lsmod":"olsmod"}},{1:"get", 2:2, 3:"iget", 4:"String", 5:8, 6:{"chng":null}}]}
 ```
 ```
 => <id:44, method:"dir", path:"test/path">i{1:"get"}
-<= <id:44>i{2:i{1:"get", 2:2, 3:"iget" 4:"String", 5:"rd", 6:"chng"}}
+<= <id:44>i{2:true}
 ```
 ```
 => <id:44, method:"dir", path:"test/path">i{1:"nonexistent"}
-<= <id:44>i{2:null}
-```
-```
-=> <id:43, method:"dir", path:"test/path">i{1:true}
-<= <id:43>i{2:[{"name":"dir", "flags":0, "param":"idir", "result":"odir", "access":"bws"},i{"name":"ls", "flags":0, "param":"idir", "result":"odir", "access":"bws"},{"name":"get", "flags":2, "param":"iget" "result":"String", "access":"rd", "signal":"chng"}]}
+<= <id:44>i{2:false}
 ```
 
 The previous version (before SHV RPC 3.0) supported both *Null* and *String* but
@@ -113,6 +93,14 @@ list (with one or no maps). Even older implementations provided list of lists
 `[[name, signature, flags, description],...]`. Clients that do want to fully
 support all existing devices should support both of the old representations as
 well as the latest one.
+
+The compatibility mapping between *IMap* keys and historical *Map* is:
+
+| IMap key | Map key                                                                           |
+|----------|-----------------------------------------------------------------------------------|
+| `1`      | `"name"`                                                                          |
+| `2`      | `"flags"`                                                                         |
+| `5`      | `"access"` or `"accessGrant"` but value is string like for `Access` in RpcMessage |
 
 ## `*:ls`
 
@@ -155,11 +143,7 @@ The previous versions (before SHV RPC 0.1) supported *Null* argument but not
 discouraged to be used by new clients. The *Null* variant is fully backward
 compatible.
 
-## `*:lsmod`
-
-| Name    | SHV Path | Signature   | Flags  | Source | Access |
-|---------|----------|-------------|--------|--------|--------|
-| `lsmod` | Any      | `ret(void)` | Signal | `ls`   | Browse |
+### Signal `lsmod`
 
 The signal that has to be sent if there is change in the result of the `*:ls`
 method. This includes case when new nodes are added as well as when nodes are
