@@ -148,7 +148,7 @@ Error codes
 | 9      | `Unknown`             | Used if error failure can't be determined (use only if absolutely necessary)
 | 10     | `LoginRequired`       | Method call without previous successful login.
 | 11     | `UserIDRequired`      | Method call requires UserID to be present in the request message. Send it again with UserID.
-| 12     | `NotCallable`         | Generated when `RpcRequest` is received for signal
+| 12     | `NotImplemented`      | Can be used if method is valid but not implemented for what ever reason.
 | 32     | `UserCode`            |
 
 **Examples**
