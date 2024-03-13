@@ -57,7 +57,7 @@ The method info in *IMap* must contain these fields:
   can be missing or have value *Null* instead of *String* if method provides no
   value (or only *Null*).
 * `5`: specifies minimal access level needed to call this method as *Int*. The
-  allowed values can be found in table in [RpcMessage](../rpcmesasge.md)
+  allowed values can be found in table in [RpcMessage](../rpcmessage.md)
   article.
 * `6`: is used for signals associated with this method. Signals have their names
   and type identifier for value they carry. They are specified as a *Map* from
