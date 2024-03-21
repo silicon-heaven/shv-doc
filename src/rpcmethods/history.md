@@ -110,15 +110,18 @@ The provided value is list of *IMap*s with following fields:
   single received record but only the latest unique ones. It is up to the
   implementation if this is used or not. Simple implementations can choose to
   generate bigger messages and not use this field at all.
-* `3`(*path*): with SHV path to the node relative to the path `getLog` was
-  called on. The default if not specified is `""`.
-* `4`(*signal*): with signal name. The default if not specified is `"chng"`.
-* `5`(*source*): with signal's associated method name. The default if not
-  specified is `"get"`.
+* `3`(*path*): *String* with SHV path to the node relative to the path `getLog`
+  was called on. The default if not specified is `""`.
+* `4`(*signal*): *String* with signal name. The default if not specified is
+  `"chng"`.
+* `5`(*source*): *String* with signal's associated method name. The default if
+  not specified is `"get"`.
 * `6`(*Value*): with signal's value (parameter). The default if not specified is
   `null`.
-* `10`(*isAnchor*): with *Bool* where `true` means that this is an anchor record
-  and `false` that it is not. The default, if not specified, is `false`. This is
+* `7`(*userId*): *String* with `UserId` carried by signal message. The default
+  if not present is `null` and thus there was no user's ID in the message.
+* `10`(*isAnchor*): *Bool* where `true` means that this is an anchor record and
+  `false` that it is not. The default, if not specified, is `false`. This is
   used only if `"anchor"` field was `true`.
 
 The provided records should be sorted according to the *DateTime* field `1`
@@ -189,6 +192,8 @@ The call provides list of records. Every record is *IMap* with following fields:
   specified is `null`.
 * `6`(*accessLevel*): *Int* with signal's access level. The default if not
   specified is *Read*.
+* `7`(*userId*): *String* with `UserId` carried by signal message. The default
+  if not present is `null` and thus there was no user's ID in the message.
 * `60`(*timeJump*): *Int* with number of seconds of time skip. This is used with
   key `0` being `3`.
 
@@ -263,6 +268,8 @@ The rest of the file must contain *List*s with following columns:
   specified is `null`.
 * *accessLevel*: *Int* with signal's access level. The default if not specified
   is *Read*.
+* *userId*: *String* with `UserId` carried by signal message. The default if not
+  present is `null` and thus there was no user's ID in the message.
 * *isAnchor*: *Bool* if this is anchor record. File log must start with anchor
   logs of all latest recorded values from the previous log. This is to provide
   full information in a single log file.
