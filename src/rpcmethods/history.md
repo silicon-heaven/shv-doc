@@ -52,37 +52,39 @@ provided only if aggregated log access is provided and in such case it is
 required.
 
 
-| Parameter                                                                                                                | Result        |
-|--------------------------------------------------------------------------------------------------------------------------|---------------|
-| {"since": DateTime, "until": DateTime, "count": Int, "anchor": Bool, "paths": String, "signal": String, "source": String} | [i{...}, ...] |
+| Parameter | Result        |
+|-----------|---------------|
+| {...}     | [i{...}, ...] |
 
 The parameter is *Map* with the following fields:
 
-* `"since"` is required and value must be date and time since logs should be
-  provided. The record that exactly matches this date and time is not provided.
-  This allows followup requests from last date and time of the last returned
-  record.
-* `"until"` is required and value must be date and time until logs should be
-  provided. Device might not reach this date if there is too much records in the
-  time range. If you want to make sure that you received all records then you
-  must follow with another request where `"since"` is replaced with date and
-  time of the last provided log. Note that this date and time can precede
-  `"since"` and in such case logs returned are sorted from newest to the oldest
-  (normally they are sorted from oldest to the newest).
-* `"count"` is optional limitation for the number of records to be at most
-  returned. The device on its own can limit number of returned records but this
-  can lower that even further (thus minimum is used). This should be used if you
-  for example need to know only latest few records (you would use current date
-  and time as `"since"` and 2018-02-02 as `"until"` and set number of records to
-  `"count"`. The device alone decides limit on number of provided records if
-  this field is not specified. In a special case when there are multiple
-  matching signals recorded with same date and time, then all of them must be
-  provided even when that goes over count limit.
-* `"anchor"` controls if virtual records should be inserted at the start (at
+* `"since"` is *DateTime* since logs should be provided. The record that exactly
+  matches this date and time is not provided. This allows followup requests from
+  last date and time of the last returned record. The default is the time of
+  request retrieval if not provided.
+* `"until"` is *DateTime* until logs should be provided. Device might not reach
+  this date if there is too much records in the time range. If you want to make
+  sure that you received all records then you must follow with another request
+  where `"since"` is replaced with date and time of the last provided log. Note
+  that this date and time can precede `"since"` and in such case logs returned
+  are sorted from newest to the oldest (normally they are sorted from oldest to
+  the newest). The default is the time of request retrieval if not provided.
+* `"count"` is optional *Int* as a limitation for the number of records to be at
+  most returned. The device on its own can limit number of returned records but
+  this can lower that even further (thus minimum is used). This should be used
+  if you for example need to know only latest few records (you would use current
+  date and time as `"since"` and 2018-02-02 as `"until"` and set number of
+  records to `"count"`. The device alone decides limit on number of provided
+  records if this field is not specified. In a special case when there are
+  multiple matching signals recorded with same date and time, then all of them
+  must be provided even when that goes over count limit. Snapshot is not part of
+  this limit and thus you can ask for snapshot only with count set to zero. The
+  default if not specified (or `null`) is unlimited number of records.
+* `"snapshot"` controls if virtual records should be inserted at the start (at
   `"since"` time) that copy state of the signals. This provides fixed point to
-  start when you for example plotting data. Records used to construct this fixed
-  point are always at the opposite direction than `"until"` is from `"since"`.
-  These records are virtual and are not actually recorded.
+  start when you for example plotting data. These records are virtual and are
+  not actually captured signals. This makes sense only for `"since"` being
+  before `"until"` and no snapshot can be provided if that is not fulfilled.
 * `"paths"` same meaning as argument for
   [`.broker/currentClient:subscribe`](./broker.md#brokercurrentclientsubscribe)
   that is used to filter logs and provide only those matching this path pattern.
@@ -97,7 +99,7 @@ The parameter is *Map* with the following fields:
 
 The provided value is list of *IMap*s with following fields:
 
-* `1`(*time*): *DateTime* of the record. This field is required.
+* `1`(*timestamp*): *DateTime* of the record. This field is required.
 * `2`(*ref*): provides a way to reference the previous record to use it as the
   default for *path*, *signal* and *source* (instead of the documented
   defaults). It is *Int* where `0` is record right before this one in the list.
@@ -111,7 +113,7 @@ The provided value is list of *IMap*s with following fields:
 * `4`(*signal*): with signal name. The default if not specified is `"chng"`.
 * `5`(*source*): with signal's associated method name. The default if not
   specified is `"get"`.
-* `6`(*value*): with signal's value (parameter). The default if not specified is
+* `6`(*Value*): with signal's value (parameter). The default if not specified is
   `null`.
 * `10`(*isAnchor*): with *Bool* where `true` means that this is an anchor record
   and `false` that it is not. The default, if not specified, is `false`. This is
@@ -173,8 +175,8 @@ The call provides list of records. Every record is *IMap* with following fields:
     recorded when time jump length can't be determined (backward skip of time
     commonly after boot) and thus time desynchronization is detected. The only
     field alongside this one must be `1`.
-* `1`(*time*): *DateTime* of system when record was created. This depends on
-  record type. For normal records this is time of signal retrieval.
+* `1`(*timestamp*): *DateTime* of system when record was created. This depends
+  on record type. For normal records this is time of signal retrieval.
 * `2`(*path*): *String* with SHV path to the node relative to the `.history`'s
   parent. The default if not specified is `""`.
 * `3`(*signal*): *String* with signal name. The default if not specified is
