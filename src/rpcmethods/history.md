@@ -22,23 +22,6 @@ point, that is why all paths for this API are prefixed with `.history/`. Any
 other mount point is not valid for RPC History because it should be at the same
 node as `.app` is present.
 
-## Time of logs
-
-The time when signal is recorded as happened is the time when it got delivered
-to the History application for recording. In proxy this time is the date and
-time the history application keeps. Unfortunately this can be wrong and
-subsequent correction of this time can cause time jump in the logs. This jump
-can be either back in time, which would be a huge issue, or less problematic
-jump forward. The reasonable expectation is that the latest time modification is
-the correct one and thus all previous logs should be modified by the same time
-shift, but that is not possible due to requirement for systematic retrieval of
-the logs. Instead we can only record this time shift in the logs and let anyone
-who interprets these logs to do the shifting work.
-
-Device can experience time discontinuity due to the following events:
-* Lost of RTC power and thus reset of time counter to zero
-* Synchronization of time 
-
 
 ## `.history/**`
 
