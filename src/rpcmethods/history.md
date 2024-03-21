@@ -42,7 +42,7 @@ but all paths recorded (or to be recorded) in single log must be provided.
 
 | Name     | SHV Path      | Signature    | Flags           | Access |
 |----------|---------------|--------------|-----------------|--------|
-| `getLog` | `.history/**` | `ret(param)` | HintLargeResult | Read   |
+| `getLog` | `.history/**` | `ret(param)` | HintLargeResult | Browse |
 
 Queries logs for the recorded signals in given time range.
 
@@ -59,7 +59,9 @@ required.
 The parameter is *Map* with the following fields:
 
 * `"since"` is required and value must be date and time since logs should be
-  provided.
+  provided. The record that exactly matches this date and time is not provided.
+  This allows followup requests from last date and time of the last returned
+  record.
 * `"until"` is required and value must be date and time until logs should be
   provided. Device might not reach this date if there is too much records in the
   time range. If you want to make sure that you received all records then you
@@ -73,7 +75,9 @@ The parameter is *Map* with the following fields:
   for example need to know only latest few records (you would use current date
   and time as `"since"` and 2018-02-02 as `"until"` and set number of records to
   `"count"`. The device alone decides limit on number of provided records if
-  this field is not specified.
+  this field is not specified. In a special case when there are multiple
+  matching signals recorded with same date and time, then all of them must be
+  provided even when that goes over count limit.
 * `"anchor"` controls if virtual records should be inserted at the start (at
   `"since"` time) that copy state of the signals. This provides fixed point to
   start when you for example plotting data. Records used to construct this fixed
@@ -93,20 +97,35 @@ The parameter is *Map* with the following fields:
 
 The provided value is list of *IMap*s with following fields:
 
-* `1`: *DateTime* of the record. This field is required.
-* `2`: with SHV path to the node relative to the path `getLog` was called on.
-  The default if not specified is `""`.
-* `3`: with signal name. The default if not specified is `"chng"`.
-* `4`: with signal's associated method name. The default if not specified is
-  `"get"`.
-* `5`: with signal's value (parameter). The default if not specified is `null`.
-* `10`: with *Bool* where `true` means that this is anchor record and `false`
-  that it is not. The default, if not specified, is `false`. This is used only
-  if `"anchor"` field was `true`.
+* `1`(*time*): *DateTime* of the record. This field is required.
+* `2`(*ref*): provides a way to reference the previous record to use it as the
+  default for *path*, *signal* and *source* (instead of the documented
+  defaults). It is *Int* where `0` is record right before this one in the list.
+  The offset must always be to the most closest record that specifies desired
+  default. This simplifies parsing because there is no need to remember every
+  single received record but only the latest unique ones. It is up to the
+  implementation if this is used or not. Simple implementations can choose to
+  generate bigger messages and not use this field at all.
+* `3`(*path*): with SHV path to the node relative to the path `getLog` was
+  called on. The default if not specified is `""`.
+* `4`(*signal*): with signal name. The default if not specified is `"chng"`.
+* `5`(*source*): with signal's associated method name. The default if not
+  specified is `"get"`.
+* `6`(*value*): with signal's value (parameter). The default if not specified is
+  `null`.
+* `10`(*isAnchor*): with *Bool* where `true` means that this is an anchor record
+  and `false` that it is not. The default, if not specified, is `false`. This is
+  used only if `"anchor"` field was `true`.
 
 The provided records should be sorted according to the *DateTime* field `1`
 either in ascending order if `"since"` is before `"until"` or descending order
 if `"util"` is before `"since"`.
+
+The method itself has only Browse access level but it must filter provided logs
+based on their access level and thus user with low access level might not see
+all that is provided. Note that it is not possible to decrease access level of
+the user for some part of the SHV tree because he could always ask the upper
+node where his access level is high enough and logs would be provided.
 
 
 ### `.history/**/.records/*`
@@ -137,37 +156,37 @@ Parameter is tuple of first record ID to be provided and number of records (thus
 last record returned is `parameter[0] + parameter[1] - 1`).
 
 The call provides list of records. Every record is *IMap* with following fields:
-* `0` *Int* signaling record type:
-  * `1` for normal records.
-  * `2` for keep records. These are normal records repeated with newer date and
-    time if there is no update of them in past number of records. They can also
-    be used to seed log with values that are valid at first boot time (at log
-    creation time).
-  * `3` time jump record. This is information that all previous recorded times
-    should actually be considered to be with time modification. The time offset
-    is specified in field `60`. Field `1` must be also provided but others are
-    not contrary to normal and keep records. This is recorded when time
-    synchronization causes system clock to jump by more than a second.
-  * `4` time ambiguity record. This is information that date and time of the new
-    logs has no relevance compared to the previous ones. Any subsequent records
-    of type `3` should not be applied to them. This is recorded when time jump
-    length can't be determined (backward skip of time commonly after boot) and
-    thus time desynchronization is detected. The only field alongside this one
-    must be `1`.
-* `1` *DateTime* of system when record was created. This depends on record type.
-  For normal records this is time of signal retrieval.
-* `2`: *String* with SHV path to the node relative to the `.history`'s parent.
-  The default if not specified is `""`.
-* `3`: *String* with signal name. The default if not specified is `"chng"`.
-* `4`: *String* with signal's associated method name. The default if not
-  specified is `"get"`.
-* `5`: *String* with signal's value (parameter). The default if not specified is
-  `null`.
-* `6`: *Int* with signal's access level. The default if not specified is *Read*.
-* `7`: *Bool* signaling if record is keep record or not. The default if not
-  specified is `false` (not being keep record).
-* `60`: *Int* with number of seconds of time skip. This is used with key `0`
-  being `3`.
+* `0`(*type*): *Int* signaling record type:
+  * `1`(*normal*) for normal records.
+  * `2`(*keep*) for keep records. These are normal records repeated with newer
+    date and time if there is no update of them in past number of records. They
+    can also be used to seed log with values that are valid at first boot time
+    (at log creation time).
+  * `3`(*timeJump*) time jump record. This is information that all previous
+    recorded times should actually be considered to be with time modification.
+    The time offset is specified in field `60`. Field `1` must be also provided
+    but others are not contrary to normal and keep records. This is recorded
+    when time synchronization causes system clock to jump by more than a second.
+  * `4`(*timeAbiq*) time ambiguity record. This is information that date and
+    time of the new logs has no relevance compared to the previous ones. Any
+    subsequent records of type `3` should not be applied to them. This is
+    recorded when time jump length can't be determined (backward skip of time
+    commonly after boot) and thus time desynchronization is detected. The only
+    field alongside this one must be `1`.
+* `1`(*time*): *DateTime* of system when record was created. This depends on
+  record type. For normal records this is time of signal retrieval.
+* `2`(*path*): *String* with SHV path to the node relative to the `.history`'s
+  parent. The default if not specified is `""`.
+* `3`(*signal*): *String* with signal name. The default if not specified is
+  `"chng"`.
+* `4`(*source*): *String* with signal's associated method name. The default if
+  not specified is `"get"`.
+* `5`(*value*): *String* with signal's value (parameter). The default if not
+  specified is `null`.
+* `6`(*accessLevel*): *Int* with signal's access level. The default if not
+  specified is *Read*.
+* `60`(*timeJump*): *Int* with number of seconds of time skip. This is used with
+  key `0` being `3`.
 
 Fetch that is outside of the valid record ID range must not provide error.
 
@@ -230,18 +249,19 @@ Notice that the first line is the only way to record time jump and thus when
 time jump is detected you should always open a new log file.
 
 The rest of the file must contain *List*s with following columns:
-* *DateTime* of system when record was created.
-* *String* with SHV path to the node relative to the `.history`'s parent.
+* *time*: *DateTime* of system when record was created.
+* *path*: *String* with SHV path to the node relative to the `.history`'s parent.
   The default if not specified is `""`.
-* *String* with signal name. The default if not specified is `"chng"`.
-* *String* with signal's associated method name. The default if not specified is
-  `"get"`.
-* *String* with signal's value (parameter). The default if not specified is
-  `null`.
-* *Int* with signal's access level. The default if not specified is *Read*.
-* *Bool* if this is repeated record. File log must start with repeat of all
-  latest recorded values from the previous log. This is to provide full
-  information in a single log file.
+* *signal*: *String* with signal name. The default if not specified is `"chng"`.
+* *source*: *String* with signal's associated method name. The default if not
+  specified is `"get"`.
+* *value*: *String* with signal's value (parameter). The default if not
+  specified is `null`.
+* *accessLevel*: *Int* with signal's access level. The default if not specified
+  is *Read*.
+* *isAnchor*: *Bool* if this is anchor record. File log must start with anchor
+  logs of all latest recorded values from the previous log. This is to provide
+  full information in a single log file.
 
 ### `.history/**/.records/*:sync` and `.history/**/.files/*:sync`
 
