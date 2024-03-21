@@ -13,16 +13,6 @@ receive signals.
 The call to `.app:ls("broker")` can be used to identify application as being a
 broker.
 
-* [.broker:clientInfo](#appbrokerclientinfo)
-* [.broker:mountedClientInfo](#appbrokermountedclientinfo)
-* [.broker:clients](#appbrokerclients)
-* [.broker:mounts](#appbrokermounts)
-* [.broker:disconnectClient](#appbrokerdisconnectclient)
-* [.broker/currentClient:subscribe](#appbrokercurrentclientsubscribe)
-* [.broker/currentClient:unsubscribe](#appbrokercurrentclientunsubscribe)
-* [.broker/currentClient:subscriptions](#appbrokercurrentclientsubscriptions)
-* [.broker/currentClient:info](#appbrokercurrentclientinfo)
-
 ## Signals filtering
 
 Devices send regularly signal messages but by propagating these messages to
