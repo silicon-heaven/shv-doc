@@ -100,7 +100,10 @@ The compatibility mapping between *IMap* keys and historical *Map* is:
 |----------|-----------------------------------------------------------------------------------|
 | `1`      | `"name"`                                                                          |
 | `2`      | `"flags"`                                                                         |
+| `3`      | `"param"`                                                                         |
+| `4`      | `"result"`                                                                        |
 | `5`      | `"access"` or `"accessGrant"` but value is string like for `Access` in RpcMessage |
+| `63`     | `"extra"`                                                                        |
 
 ## `*:ls`
 
