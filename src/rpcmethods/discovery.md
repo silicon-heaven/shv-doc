@@ -103,6 +103,7 @@ The compatibility mapping between *IMap* keys and historical *Map* is:
 | `3`      | `"param"`                                                                         |
 | `4`      | `"result"`                                                                        |
 | `5`      | `"access"` or `"accessGrant"` but value is string like for `Access` in RpcMessage |
+| `6`      | `"signals"`                                                                        |
 | `63`     | `"tags"`                                                                        |
 
 ## `*:ls`
