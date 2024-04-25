@@ -1,8 +1,5 @@
 # History
 
-| ❗ This document is in DRAFT stage |
-|------------------------------------|
-
 History is functionality that allows logging of signals and access to the
 history of changes of these signals. Client with history can provide its
 history to upper implementations and that way histories can be propagated
