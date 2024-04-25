@@ -101,7 +101,9 @@ The parameter is *Map* with the following fields:
 
 The provided value is list of *IMap*s with following fields:
 
-* `1`(*timestamp*): *DateTime* of the record. This field is required.
+* `1`(*timestamp*): *DateTime* of the record. This field is required. Note that
+  if you requested `"snapshot"` then records with exactly time of `"since"` will
+  be provided and will be the snapshot records.
 * `2`(*ref*): provides a way to reference the previous record to use it as the
   default for *path*, *signal* and *source* (instead of the documented
   defaults). It is *Int* where `0` is record right before this one in the list.
@@ -116,13 +118,12 @@ The provided value is list of *IMap*s with following fields:
   `"chng"`.
 * `5`(*source*): *String* with signal's associated method name. The default if
   not specified is `"get"`.
-* `6`(*Value*): with signal's value (parameter). The default if not specified is
+* `6`(*value*): with signal's value (parameter). The default if not specified is
   `null`.
 * `7`(*userId*): *String* with `UserId` carried by signal message. The default
   if not present is `null` and thus there was no user's ID in the message.
-* `10`(*isAnchor*): *Bool* where `true` means that this is an anchor record and
-  `false` that it is not. The default, if not specified, is `false`. This is
-  used only if `"anchor"` field was `true`.
+* `8`(*repeat*): *Bool* with `Repeat` carried by signal message. The default if
+  not present is `False`.
 
 The provided records should be sorted according to the *DateTime* field `1`
 either in ascending order if `"since"` is before `"until"` or descending order
@@ -139,7 +140,7 @@ node where his access level is high enough and logs would be provided.
 
 These nodes provide systematic access to the records. Every record has unique ID
 and mustn't change once it is recorded. This ID must be increasing for new
-records but it doesn't have to be monotonic (there can be unused IDs).
+records but it doesn't have to be sequential (there can be unused IDs).
 
 Other history implementations can take ID of their latest record and fetch
 everything from it to correctly synchronize.
@@ -174,7 +175,7 @@ The call provides list of records. Every record is *IMap* with following fields:
     The time offset is specified in field `60`. Field `1` must be also provided
     but others are not contrary to normal and keep records. This is recorded
     when time synchronization causes system clock to jump by more than a second.
-  * `4`(*timeAbiq*) time ambiguity record. This is information that date and
+  * `4`(*timeAbig*) time ambiguity record. This is information that date and
     time of the new logs has no relevance compared to the previous ones. Any
     subsequent records of type `3` should not be applied to them. This is
     recorded when time jump length can't be determined (backward skip of time
@@ -194,6 +195,8 @@ The call provides list of records. Every record is *IMap* with following fields:
   specified is *Read*.
 * `7`(*userId*): *String* with `UserId` carried by signal message. The default
   if not present is `null` and thus there was no user's ID in the message.
+* `8`(*repeat*): *Bool* with `Repeat` carried by signal message. The default
+  if not present is `false`.
 * `60`(*timeJump*): *Int* with number of seconds of time skip. This is used with
   key `0` being `3`.
 
@@ -229,7 +232,7 @@ only appending to the log files and never modifying them. Logs propagation is
 then performed by copying appended data from existing files and new files.
 
 Files are exposed as read only [file nodes](./file.md). The name of the file
-must be date and time of the first record in the file in ISO-8601 format with
+must be date and time of the first record in the file in ISO-8601 format without
 timezone and with seconds precision with ".log3" extension. The new files must
 be created with date and time after the last log even if system clock is right
 now set before that time. If system time is before the latest log file name then
@@ -258,7 +261,10 @@ Notice that the first line is the only way to record time jump and thus when
 time jump is detected you should always open a new log file.
 
 The rest of the file must contain *List*s with following columns:
-* *time*: *DateTime* of system when record was created.
+* *time*: *DateTime* of system when record was created or *Null* for anchor
+  logs at the start of the file. File log must start with anchor logs of all
+  latest recorded values from the previous log. This is to provide full
+  information in a single log file.
 * *path*: *String* with SHV path to the node relative to the `.history`'s parent.
   The default if not specified is `""`.
 * *signal*: *String* with signal name. The default if not specified is `"chng"`.
@@ -270,9 +276,8 @@ The rest of the file must contain *List*s with following columns:
   is *Read*.
 * *userId*: *String* with `UserId` carried by signal message. The default if not
   present is `null` and thus there was no user's ID in the message.
-* *isAnchor*: *Bool* if this is anchor record. File log must start with anchor
-  logs of all latest recorded values from the previous log. This is to provide
-  full information in a single log file.
+* *repeat*: *Bool* with `Repeat` carried by signal message. The default if not
+  present is `false`.
 
 ### `.history/**/.records/*:sync` and `.history/**/.files/*:sync`
 
@@ -314,12 +319,11 @@ Implementations should use time when they last called
 
 ## Time management in logs
 
-Logs are recorded with device's time and that include timezone set on the
-device. The RPC History then only copies these logs from one instance to the
-other without modification. This means that date and time is always kept as it
-was on the device that recorded it. This is ideal when device has the correct
-real time clock but that might not be true and thus time modifications come into
-play.
+Logs are recorded with device's UTC time. The RPC History then only copies these
+logs from one instance to the other without modification. This means that date
+and time is always kept as it was on the device that recorded it. This is ideal
+when device has the correct real time clock but that might not be true and thus
+time modifications come into play.
 
 There are two types of time modifications recorded in the logs. We have either
 known time jump or unknown time desynchronization. 

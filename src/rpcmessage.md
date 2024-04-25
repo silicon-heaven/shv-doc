@@ -23,6 +23,7 @@ RPC message can have meta-data attribute defined.
 | 17                | AccessLevel          | Int              | Access level user has assigned for request or minimal access level needed to allow signal to be received.
 | 18                | Part                 | Bool             | Reserved, it will be used in next API version for multi-part messages   <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
 | 19                | Source               | String           | Used for signals to store method name this signal is associated with.
+| 20                | Repeat               | Bool             | Used for signals to informat that signal was emited as a repeat of some older ones (that might not might not have been sent).
 
 Second part of RPC message is `IMap` with following possible keys.
 
@@ -181,6 +182,7 @@ Attributes
 | `Source`      | no       | copied                                 | If not specified `"get"` is assumed)                                             |
 | `AccessLevel` | no       | copied                                 | Used to decide signal propagation on brokers, if not specified *Read* is assumed |
 | `UserId`      | no       | copied                                 |                                                                                  |
+| `Repeat`      | no       | copied                                 | If not specified `false` is assumed                                              |
 
 Keys
 
