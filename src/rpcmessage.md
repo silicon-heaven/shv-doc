@@ -9,7 +9,7 @@ There are three kinds of RPC messages defined:
 
 RPC message can have meta-data attribute defined.
 
-| Attribute number  | Attribute name       | Expected type    | Description
+| Attribute number  | Attribute name       | Type             | Description
 | ----------------: | -------------------- | ---------------- | ------------
 | 1                 | MetaTypeId           | Int              | Always equal to `1` in case of RPC message
 | 2                 | MetaTypeNameSpaceId  | Int              | Always equal to `0` in case of RPC message, may be omitted.
@@ -18,11 +18,12 @@ RPC message can have meta-data attribute defined.
 | 10                | Method/Signal        | String           | Name of called RPC method or raised signal.
 | 11                | CallerIds            | List of Int      | Internal attribute filled by broker in request message to distinguish requests with the same request ID, but issued by different clients.
 | 13                | RespCallerIds        | List of Int      | Reserved, internal attribute filled by broker in response message to enable support for multi-part messages and tunneling. <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
-| 14                | Access               | String           | Access granted by broker to called `shvPath` and `method` to current user.
-| 16                | UserId               | String           | ID of user calling RPC method filled in by broker.
-| 17                | AccessLevel          | Int              | Reserved, integer value, it will be used in next API version for chained brokers access capping
+| 14                | Access               | String           | Access granted by broker for called `shvPath` and `method` to current user. This should be used only for extra access info and for backward compatibility while `AccessLevel` is prefered instead.
+| 16                | UserId               | String           | ID of user calling RPC method.
+| 17                | AccessLevel          | Int              | Access level user has assigned for request or minimal access level needed to allow signal to be received.
 | 18                | Part                 | Bool             | Reserved, it will be used in next API version for multi-part messages   <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
 | 19                | Source               | String           | Used for signals to store method name this signal is associated with.
+| 20                | Repeat               | Bool             | Used for signals to informat that signal was emited as a repeat of some older ones (that might not might not have been sent).
 
 Second part of RPC message is `IMap` with following possible keys.
 
@@ -45,15 +46,19 @@ request.
 
 The `ShvPath` is used to select exact node of method in the SHV tree. 
 
-`Access` is part of access control. It is assigned to request by broker according to user rights.
-Multiple grants can be specified and separated by comma. 
-
-`AccessLevel` is a new way to specify access level. It is numerical with
+`AccessLevel` is the way to specify access level. It is numerical with
 predefined range (0-63) and brokers on the way can lower this number to even
-further limit access. Broker can't increase this number. `Access` should be used
-to get level if this field is not present. Admin access level should be
-considered as the base limit if neither `AccessLevel` nor `Access` field is
-present.
+further limit access. Broker are prohibited to increase this number. `Access`
+should be used to get level if this field is not present. *Admin* access level
+should be considered as the base limit if neither `AccessLevel` nor `Access`
+field is present.
+
+`Access` is older approach for the access control. It is assigned to request by
+broker according to user rights. Multiple grants can be specified and separated
+by comma. This is no longer the primary way and is used only for pre-SHV 3.0
+peers or if additional access fields are specified.
+
+The following are all defined `AccessLevel`s and their `Access` representations:
 
 | Name          | Numerical representation | `Access` representation |
 |---------------|--------------------------|-------------------------|
@@ -77,17 +82,17 @@ send request again when you receive no response because of this.
 
 Attributes
 
-| Attribute      | Required   | Note
-| ----------     | ---------- | -----
-| `MetaTypeId`   | yes        | Always set to `1`
-| `RequestId`    | yes        |
-| `ShvPath`      | yes        |
-| `Method`       | yes        |
-| `RevCallerIds` | no         | If tunneling or multi-part message is needed
-| `CallerIds`    | no         | Modified or added by brokers
-| `Access`       |            | Set by broker
-| `AccessLevel`  | no         | Set or modified (by reducing access level) by broker
-| `UserId`       | no         | Modified by brokers if present
+| Attribute      | Required | Broker propagation                                            | Note                                                            |
+|----------------|----------|---------------------------------------------------------------|-----------------------------------------------------------------|
+| `MetaTypeId`   | yes      | copied                                                        |                                                                 |
+| `RequestId`    | yes      | copied                                                        |                                                                 |
+| `ShvPath`      | yes      | matched prefix removed                                        |                                                                 |
+| `Method`       | yes      | copied                                                        |                                                                 |
+| `RevCallerIds` | no       | broker's reverse path identifier can be removed from the list | If tunneling or multi-part message is needed                    |
+| `CallerIds`    | no       | broker's path identifier can be added to the list             | Added and modified by brokers                                   |
+| `Access`       | no       | set and modified                                              | Must be kept in sync with `AccessLevel` or not specified at all |
+| `AccessLevel`  | no       | set and modified                                              | Broker always only reduces the already present value            |
+| `UserId`       | no       | appended if present                                           | Append to non-zero string with comma                            |
 
 Keys
 
@@ -109,12 +114,12 @@ Response to [RpcRequest](rpcrequest.md)
 
 Attributes
 
-| Attribute      | Required   | Note
-| ----------     | ---------- | -----
-| `MetaTypeId`   | yes        | Always set to `1`
-| `RequestId`    | yes        | ID of matching `RpcRequest`
-| `RevCallerIds` | no         | Must be copied from `RpcRequest` if present.
-| `CallerIds`    | no         | Must be copied from `RpcRequest` if present.
+| Attribute      | Required | Broker propagation                                                | Note                                                          |
+|----------------|----------|-------------------------------------------------------------------|---------------------------------------------------------------|
+| `MetaTypeId`   | yes      | copied                                                            |                                                               |
+| `RequestId`    | yes      | copied                                                            |                                                               |
+| `RevCallerIds` | no       | broker's reverse path identifier can be removed added to the list | Sender must copy original value form *RpcRequest* if present. |
+| `CallerIds`    | no       | broker's path identifier can be removed from the list             | Sender must copy original value form *RpcRequest* if present. |
 
 Keys
 
@@ -169,14 +174,15 @@ It is used mainly notify clients that some technological value had changed witho
 
 Attributes
 
-| Attribute     | Required   | Note
-| ----------    | ---------- | -----
-| `MetaTypeId`  | yes        | Always set to `1`
-| `ShvPath`     | yes        | Property path
-| `Signal`      | no         | Signal name (if not specified `"chng"` is assumed)
-| `Source`      | no         | The name of the method this signal is associated with (if not specified `"get"` is assumed)
-| `Access`      | no         | Minimal access level needed for this signal. The `"rd"` is used if not specified.
-| `AccessLevel` | no         | Minimal access level needed for this signal (complements `Access`).
+| Attribute     | Required | Broker propagation                     | Note                                                                             |
+|---------------|----------|----------------------------------------|----------------------------------------------------------------------------------|
+| `MetaTypeId`  | yes      | copied                                 |                                                                                  |
+| `ShvPath`     | yes      | mouint point of the source is prefixed |                                                                                  |
+| `Signal`      | no       | copied                                 | If not specified `"chng"` is assumed                                             |
+| `Source`      | no       | copied                                 | If not specified `"get"` is assumed)                                             |
+| `AccessLevel` | no       | copied                                 | Used to decide signal propagation on brokers, if not specified *Read* is assumed |
+| `UserId`      | no       | copied                                 |                                                                                  |
+| `Repeat`      | no       | copied                                 | If not specified `false` is assumed                                              |
 
 Keys
 

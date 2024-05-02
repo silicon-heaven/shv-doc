@@ -107,8 +107,8 @@ well as to keep connection in case of SHV Broker.
 
 This is an optional method that provides access to the date and time this
 application is using (that includes time zone). Applications running on systems
-without RTC are expected to implement this method. You must implement this any
-time methods this application provides to SHV works with date and time.
+without RTC are not expected to implement this method. You must implement this
+any time methods this application provides to SHV works with date and time.
 
 You should use this to detect time shift between your time and time of the
 device you are talking to. Date and time sent by device will be relative to this
