@@ -61,3 +61,39 @@ assigned to this device.
 => <id:42, method:"serialNumber", path:".device">i{}
 <= <id:42>i{2:"12590"}
 ```
+
+## `.device:uptime`
+
+| Name     | SHV Path  | Signature   | Flags  | Access |
+|----------|-----------|-------------|--------|--------|
+| `uptime` | `.device` | `ret(void)` | Getter | Read   |
+
+This provide current device's uptime in seconds. It is allowed to provide *Null*
+in case device doesn't track its uptime.
+
+| Parameter | Result       |
+|-----------|--------------|
+| Null      | UInt \| Null |
+
+```
+=> <id:42, method:"uptime", path:".device">i{}
+<= <id:42>i{2:3842}
+```
+
+## `.device:reset`
+
+| Name    | SHV Path  | Signature    | Flags | Access  |
+|---------|-----------|--------------|-------|---------|
+| `reset` | `.device` | `void(void)` |       | Command |
+
+Initiate the device's reset. This might not be implemented and in such case
+`NotImplemented` error should be provided.
+
+| Parameter | Result       |
+|-----------|--------------|
+| Null      |  Null |
+
+```
+=> <id:42, method:"reset", path:".device">i{}
+<= <id:42>i{}
+```
