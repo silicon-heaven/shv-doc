@@ -5,7 +5,7 @@ benefical to see the difference between random application and application that
 runs in dedicated device and controls such device. This allows generic
 identification of such devices in the SHV tree.
 
-The call to `.app:ls("device")` can be used to identify application as being a
+The call to `:ls(".app")` can be used to identify application as being a
 device.
 
 ## `.device:name`
