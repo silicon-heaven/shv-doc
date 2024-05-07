@@ -40,7 +40,7 @@ authority = host [":" port]
 The default `host` is `localhost` and `port` is `3755`. Any non-empty `path` is
 invalid as it has no meaning in IP.
 
-This uses TCP/IP with [Stream transport layer](rpctransportlayer.md#stream).
+This uses TCP/IP with [Block transport layer](rpctransportlayer.md#stream).
 
 
 ## TCP/IP serial protocol
@@ -82,7 +82,7 @@ The additional supported options are:
   should be verified or not. The default, if not specifies, is `true`. Setting
   `false` forces client to accept any certificate as valid.
 
-This uses TLS TCP/IP with [Stream transport layer](rpctransportlayer.md#stream).
+This uses TLS TCP/IP with [Block transport layer](rpctransportlayer.md#stream).
 
 
 ## TCP/IP serial protocol with SSL
@@ -108,7 +108,7 @@ scheme = "unix"
 There is no default path and thus empty `path` is considered invalid. Any
 non-empty `authority` is also considered as invalid because it has no meaning.
 
-This uses Unix sockets for local interprocess communication with [Stream
+This uses Unix sockets for local interprocess communication with [Block
 transport layer](rpctransportlayer.md#stream).
 
 

@@ -36,7 +36,7 @@ It is `01 00` on stream layer or `STX 00 ETX` or `STX 00 ETX D2 02 EF 8D` (if CR
 The message must be sent before `hello` on layers without connection tracking (TTY, CAN). It might
 be optionally sent also on other layers like socket.
 
-## Stream
+## Block
 
 The communication on bidirectional stream where delivery is ensured and checked.
 The transport layer establishes and maintains point-to-point connection on its
