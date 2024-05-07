@@ -117,14 +117,22 @@ transport layers that are point-to-point this is bus and thus it must not only
 provide message transfer but also a connection tracking.
 
 CAN has the following abilities:
-* Delivery of the CAN messages is not ensured (it can be lost)
-* Single CAN message can be transmitted multiple times
-* CAN messages are delivered in order based on CAN ID priority and never out of
+* Delivery of the CAN frames is not ensured (it can be lost)
+* Single CAN frame can be transmitted multiple times
+* CAN frames are delivered in order based on CAN ID priority and never out of
   order
 * Collision is resolved by avoiding it based on the CAN ID (lower has higher
   priority)
-* CAN messages correctness is ensured with CRC32
+* CAN frames correctness is ensured with CRC32
 * Flow control is handled by CAN overload frame
+
+CAN supports few different types of the frames:
+* Data frames: regular frames used to transfer data
+* Remote frames: frame that caries no data and data length (`0x0` - `0xf`) is
+  just informative. SHV RPC uses these as following signal frames:
+  * Message abort frame with data length `0x0`
+  * Device advertisement frame with data length `0x1`
+  * Device discover frame with data length `0x2`
 
 CAN bus is designed for control applications but SHV RPC is rather configuration
 and management interface and thus the design here prioritizes fair queueing over
@@ -147,16 +155,16 @@ ID.
 +-------------+-----------+---------+--------------------+
 ```
 
-* `NotLast` is `0` when no subsequent message will follow this one and `1`
+* `NotLast` is `0` when no subsequent CAN frame will follow this one and `1`
   otherwise. This prioritizes message termination on the bus.
-* `First` is `1` when this is initial message and `0` otherwise. This penalizes
+* `First` is `1` when this is initial CAN frame and `0` otherwise. This penalizes
   start of the new message and thus prefers SHV RPC message finish.
 * `QoS` should be flipped on every SHV RPC message sent. It ensures that devices
   with high CAN ID (low priority) get chance to transmit their messages. It is
   allowed that device that is quiet for considerable amount of time to set it to
   any state (commonly beneficial for that device).
 * `Device address` this must be unique address of the device transmitting CAN
-  message or bitwise not of it when `QoS` is `1`. The addresses `0x0` and `0xff`
+  frame or bitwise not of it when `QoS` is `1`. The addresses `0x0` and `0xff`
   are reserved. The bit flipping of the device address based on the `QoS`
   ensures that high priority CAN IDs in QoS `1` are low priority ones in the QoS
   `0` and vice versa, thus devices should get somewhat equal chance to transmit
@@ -168,39 +176,39 @@ thus communication faster._
 
 ### First data byte
 
-The first data byte in the CAN message has special meaning.
+The first data byte in the CAN frame has special meaning.
 
-For CAN messages with `First` bit set (`1`) in CAN ID the first byte must be
+For CAN frames with `First` bit set (`1`) in CAN ID the first byte must be
 destination device address. This identifies the device this SHV RPC message is
 intended for. 
 
-For CAN messages with `First` bit unset (`0`) in CAN ID the first byte must be
-sequence number that starts with `0x0` for the second message (third is `0x1`
+For CAN frames with `First` bit unset (`0`) in CAN ID the first byte must be
+sequence number that starts with `0x0` for the second CAN frame (third is `0x1`
 and so on). If sequence number reaches `0xff` then it just simply wraps around
 to `0x0`.
 
-The complete and valid messages thus starts with CAN message with `First` set,
-continues with CAN messages where `First` is not set and `NotLast` is, and
-terminates with with CAN message where `NotLast` is not set. The consistency of
-the message (that no CAN message is lost) is ensured with counter in first data
-byte.
+The complete and valid SHV RPC message thus starts with CAN frame with `First`
+set, continues with CAN frames where `First` is not set and `NotLast` is set and
+first data byte is sequence, and terminates by CAN frame where `NotLast` is not
+set. The consistency of the message (that no CAN frame is lost) is ensured with
+counter in first data byte.
 
-Transport error is detected if CAN message with `First` not set in CAN ID is
-received with byte having number out of order (while ignoring messages with
-number same as the last received CAN message from that specific device). Such
-SHV RPC message is silently dropped and error is ignored as subsequent messages
-can be consistent again without any action.
+Transport error is detected if CAN frame with `First` not set in CAN ID is
+received with byte having number in first data byte out of order (while ignoring
+frames with same number as the last received CAN frame from that specific
+device). Such SHV RPC message is silently dropped and error is ignored as
+subsequent messages can be consistent again without any action.
 
-The message can be terminated by CAN RTR message (Remote transmission request)
+The message can be terminated by CAN RTR frame (Remote transmission request)
 with both `NotLast` and `First` unset and data length set to `0x0`.
 
 ### Connection
 
 Connection between devices is automatically established with first message being
 exchanged. There can be only one connection channel between two devices. To
-disengage it the `ResetSession` message can be sent (that is regular CAN message
-with `NotLast` not set and `First` set in CAN ID and data containing only 
-byte with destination device address and one `00` byte.
+disengage it the `ResetSession` message can be sent (that is regular CAN frame
+with `NotLast` not set and `First` set in CAN ID and data containing only byte
+with destination device address and one `00` byte).
 
 ### Broadcast
 
@@ -222,17 +230,47 @@ One concrete example when this is beneficial is for date and time
 synchronization device. Such device can send signals with precise time to let
 other devices to synchronize with it.
 
-### Device discovery
+### SHV Device discovery
 
-Devices on CAN bus must be possible to discover to not only be able to
+SHV devices on CAN bus must be possible to discover to not only be able to
 dynamically mount them to SHV RPC Broker but also to actively diagnose the CAN
 bus.
 
-Once device is ready to receive messages on CAN bus it should send CAN RTR
-message (Remote transmission request) with data length set to `0x1` (the CAN ID
-should have `NotLast` not set and `First` set which applies to all CAN RTR
-messages). This ensures that it gets discovered as soon as possible.
+Once device is ready to receive messages on CAN bus it should send CAN RTR frame
+(Remote transmission request) with data length set to `0x1` (the CAN ID should
+have `NotLast` not set and `First` set which applies to all CAN RTR frames).
+This ensures that it gets discovered as soon as possible.
 
-Device that wants to perform discovery can send CAN RTR message (Remote
+Device that wants to perform discovery can send CAN RTR frame (Remote
 transmission request) with data length set to `0x2`. Device that receives this
-CAN message must respond with CAN RTR message with data length set to `0x1`.
+CAN frame must respond with CAN RTR frame with data length set to `0x1`.
+
+### Address collision resolution
+
+The standard deployment should prevent address collisions by allocating them for
+the whole bus before deployment, but there is also a use case for on site ad hoc
+connection and in such situation it is unclear what address should be chosen.
+The device should select random unallocated address but that won't prevent
+collision, only minimize them.
+
+All CAN devices (that includes SHV clients) must listen for others using their
+address and must send CAN RTR (Remote transmission request) frame with size set
+to `0x3` when they receive CAN frame they did not send. CAN devices with same
+dynamic address receiving this RTR frame must choose a different one.
+
+The best practice is to choose address from upper range (close to 255) and
+initially send dummy CAN RTR frame with size set to `0xf`. Do this in 200ms
+intervals five times. The communication with other CAN devices can start if no
+CAN RTR frame with size `0x3` is received in the meantime.
+
+### CAN RTR frames index
+
+This is full list of all different CAN RTR frames used in the protocol:
+
+| Data length field | Usage                        |
+|-------------------|------------------------------|
+| 0x0               | SHV message termination      |
+| 0x1               | Device presence announcement |
+| 0x2               | Device discovery request     |
+| 0x3               | Address collision notice     |
+| 0xf               | Dummy frame with no effect   |
