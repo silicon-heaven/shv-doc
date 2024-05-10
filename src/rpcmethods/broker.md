@@ -171,7 +171,8 @@ The *Map* containing at least these fields:
 
 * `"clientId"` with *Int* containing ID assigned to this client.
 * `"userName"` with *String* user name used during the login sequence. This is
-  optional because login might not be always required.
+  optional because broker can have clients it established itself and thus won't
+  perform any login.
 * `"mountPoint"` with *String* SHV path where device is mounted. This can be
   *Null* in case this is not a device.
 * `"subscriptions"` is a list of active subscriptions of this client.
