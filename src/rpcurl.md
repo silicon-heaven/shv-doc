@@ -145,3 +145,34 @@ bit, enabled hardware flow control, disabled software flow control.
 
 This uses serial console or terminal like interface as bidirectional stream
 channel with [Serial transport layer](rpctransportlayer.md#serial).
+
+## WebSocket
+
+```
+scheme = ("ws")
+authority = host [":" port]
+```
+
+The default `host` is `localhost` and `port` is `8755`.
+
+## WebSocket over SSL
+
+```
+scheme = ("wss")
+authority = host [":" port]
+```
+
+The default `host` is `localhost` and `port` is `8766`.
+
+* `ca`: Path to the file with CA certificates used to verify the peer.
+* `cert`: Path to the file with certificate. For clients connecting to the
+  server this is client certificate that is validated by server for access and
+  in some cases can replace password. For server this is certificate clients
+  verify to validate if they are connecting to the correct server.
+* `key`: Path to the file with secret part of the `cert`. This must be specified
+  alongside with `cert`.
+* `crl`: Path to the file with certification revocation list. This is used to
+  invalidate client certificates on the server.
+* `verify`: can be used with either `true` or `false` to control if server
+  should be verified or not. The default, if not specifies, is `true`. Setting
+  `false` forces client to accept any certificate as valid.
