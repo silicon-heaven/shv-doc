@@ -33,7 +33,7 @@ specified age the value can be served from cache.
 <= <id:42>i{2:"Cached"}
 ```
 
-### Signal `*chng`
+## `*:get:*chng`
 
 Value change can be optionally signaled with signal. It is used when you have
 desire to get info about value change without polling. Note that signal might
@@ -55,6 +55,7 @@ associated with the SHV path.
 
 ```
 <= <signal:"chng", path:"test/property", source:"get">i{1:"Hello World"}
+```
 
 
 ## `*:set`

@@ -14,6 +14,7 @@
   - [Broker API](./rpcmethods/broker.md)
   - [Property nodes](./rpcmethods/property.md)
   - [File nodes](./rpcmethods/file.md)
+  - [Bytes Exchange nodes](./rpcmethods/exchange.md)
   - [History](./rpcmethods/history.md)
 - [RPC transport layer](./rpctransportlayer.md)
 - [RPC URL](./rpcurl.md)
