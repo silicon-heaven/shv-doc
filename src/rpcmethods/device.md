@@ -10,9 +10,9 @@ device.
 
 ## `.device:name`
 
-| Name   | SHV Path      | Signature   | Flags  | Access |
-|--------|---------------|-------------|--------|--------|
-| `name` | `.device`     | `ret(void)` | Getter | Browse |
+| Name   | SHV Path      | Flags  | Access |
+|--------|---------------|--------|--------|
+| `name` | `.device`     | Getter | Browse |
 
 This method must provide the device name. This is a specific generic name of the
 device.
@@ -28,9 +28,9 @@ device.
 
 ## `.device:version`
 
-| Name      | SHV Path      | Signature   | Flags  | Access |
-|-----------|---------------|-------------|--------|--------|
-| `version` | `.device`     | `ret(void)` | Getter | Browse |
+| Name      | SHV Path      | Flags  | Access |
+|-----------|---------------|--------|--------|
+| `version` | `.device`     | Getter | Browse |
 
 This method must provide version (revision) of the device.
 
@@ -45,9 +45,9 @@ This method must provide version (revision) of the device.
 
 ## `.device:serialNumber`
 
-| Name           | SHV Path      | Signature   | Flags  | Access |
-|----------------|---------------|-------------|--------|--------|
-| `serialNumber` | `.device`     | `ret(void)` | Getter | Browse |
+| Name           | SHV Path      | Flags  | Access |
+|----------------|---------------|--------|--------|
+| `serialNumber` | `.device`     | Getter | Browse |
 
 This method can provide serial number of the device if that is something the
 device has. It is allowed to provide *Null* in case there is no serial number
@@ -64,9 +64,9 @@ assigned to this device.
 
 ## `.device:uptime`
 
-| Name     | SHV Path  | Signature   | Flags  | Access |
-|----------|-----------|-------------|--------|--------|
-| `uptime` | `.device` | `ret(void)` | Getter | Read   |
+| Name     | SHV Path  | Flags  | Access |
+|----------|-----------|--------|--------|
+| `uptime` | `.device` | Getter | Read   |
 
 This provide current device's uptime in seconds. It is allowed to provide *Null*
 in case device doesn't track its uptime.
@@ -82,9 +82,9 @@ in case device doesn't track its uptime.
 
 ## `.device:reset`
 
-| Name    | SHV Path  | Signature    | Flags | Access  |
-|---------|-----------|--------------|-------|---------|
-| `reset` | `.device` | `void(void)` |       | Command |
+| Name    | SHV Path  | Flags | Access  |
+|---------|-----------|-------|---------|
+| `reset` | `.device` |       | Command |
 
 Initiate the device's reset. This might not be implemented and in such case
 `NotImplemented` error should be provided.

@@ -6,9 +6,9 @@ signaled.
 
 ## `*:get`
 
-| Name  | SHV Path | Signature    | Flags  | Access |
-|-------|----------|--------------|--------|--------|
-| `get` | Any      | `ret(param)` | Getter | Read   |
+| Name  | SHV Path | Flags  | Access |
+|-------|----------|--------|--------|
+| `get` | Any      | Getter | Read   |
 
 This method is used for getting the current value associated with SHV path.
 Every property node needs to have `get` method and every node with `get` method
@@ -60,9 +60,9 @@ associated with the SHV path.
 
 ## `*:set`
 
-| Name  | SHV Path | Signature     | Flags  | Access |
-|-------|----------|---------------|--------|--------|
-| `set` | Any      | `void(param)` | Setter | Write  |
+| Name  | SHV Path | Flags  | Access |
+|-------|----------|--------|--------|
+| `set` | Any      | Setter | Write  |
 
 This method is used for changing the value associated with SHV path. By
 providing this method alongside with `*:get` you are making the read-write

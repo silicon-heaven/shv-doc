@@ -24,9 +24,9 @@ caller doesn't call `exchange` for `idleTimeOut` (in default 30 seconds).
 
 ## `*:newExchange`
 
-| Name          | SHV Path | Signature   | Flags | Access          |
-|---------------|----------|-------------|-------|-----------------|
-| `newExchange` | Any      | `ret(void)` |       | Write or higher |
+| Name          | SHV Path | Flags | Access          |
+|---------------|----------|-------|-----------------|
+| `newExchange` | Any      |       | Write or higher |
 
 This creates new connection for this bytes exchange node. The
 connections are maintained as sub-nodes of this one.
@@ -58,9 +58,9 @@ assignment should minimize the reuse of the node names as much as possible.
 
 ## `*/ASSIGNED:exchange`
 
-| Name       | SHV Path                   | Signature    | Flags | Access |
-|------------|----------------------------|--------------|-------|--------|
-| `exchange` | Bellow Bytes Exchange node | `ret(param)` |       | Write  |
+| Name       | SHV Path                   | Flags | Access |
+|------------|----------------------------|-------|--------|
+| `exchange` | Bellow Bytes Exchange node |       | Write  |
 
 This is the method that is called to exchange bytes.
 
@@ -136,9 +136,9 @@ The more realistic exchange to the one used as an example for
 
 ## `*/ASSIGNED:options`
 
-| Name      | SHV Path                   | Signature   | Flags  | Access        |
-|-----------|----------------------------|-------------|--------|---------------|
-| `options` | Bellow Bytes Exchange node | `ret(void)` | Getter | Super-service |
+| Name      | SHV Path                   | Flags  | Access        |
+|-----------|----------------------------|--------|---------------|
+| `options` | Bellow Bytes Exchange node | Getter | Super-service |
 
 This provide access to the options associated with this connection.
 
@@ -162,9 +162,9 @@ The result is Map with at least these fields:
 
 ## `*/ASSIGNED:setOptions`
 
-| Name         | SHV Path                   | Signature     | Flags  | Access        |
-|--------------|----------------------------|---------------|--------|---------------|
-| `setOptions` | Bellow Bytes Exchange node | `void(param)` | Setter | Super-service |
+| Name         | SHV Path                   | Flags  | Access        |
+|--------------|----------------------------|--------|---------------|
+| `setOptions` | Bellow Bytes Exchange node | Setter | Super-service |
 
 This allows modification of option associated with this connection. Note that
 not all options might be modifiable and only fields specified in Map are
@@ -186,9 +186,9 @@ this node must be allowed.
 
 ## `*/ASSIGNED:close`
 
-| Name    | SHV Path                   | Signature    | Flags | Access        |
-|---------|----------------------------|--------------|-------|---------------|
-| `close` | Bellow Bytes Exchange node | `void(void)` |       | Super-service |
+| Name    | SHV Path                   | Flags | Access        |
+|---------|----------------------------|-------|---------------|
+| `close` | Bellow Bytes Exchange node |       | Super-service |
 
 This method allows caller to terminate the connection.
 
@@ -208,9 +208,9 @@ this node must be allowed.
 
 ## `*/ASSIGNED:peer`
 
-| Name   | SHV Path                   | Signature   | Flags  | Access        |
-|--------|----------------------------|-------------|--------|---------------|
-| `peer` | Bellow Bytes Exchange node | `ret(void)` | Getter | Super-service |
+| Name   | SHV Path                   | Flags  | Access        |
+|--------|----------------------------|--------|---------------|
+| `peer` | Bellow Bytes Exchange node | Getter | Super-service |
 
 This provide ClientIds from `*:newExchange` that created this sub-node.
 

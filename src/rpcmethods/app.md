@@ -7,9 +7,9 @@ than just a few requests.
 
 ## `.app:shvVersionMajor`
 
-| Name              | SHV Path | Signature   | Flags  | Access |
-|-------------------|----------|-------------|--------|--------|
-| `shvVersionMajor` | `.app`   | `ret(void)` | Getter | Browse |
+| Name              | SHV Path | Flags  | Access |
+|-------------------|----------|--------|--------|
+| `shvVersionMajor` | `.app`   | Getter | Browse |
 
 This method provides information about implemented SHV standard. Major version
 number signal major changes in the standard and thus you are most likely
@@ -26,9 +26,9 @@ interested just in this number.
 
 ## `.app:shvVersionMinor`
 
-| Name              | SHV Path | Signature   | Flags  | Access |
-|-------------------|----------|-------------|--------|--------|
-| `shvVersionMinor` | `.app`   | `ret(void)` | Getter | Browse |
+| Name              | SHV Path | Flags  | Access |
+|-------------------|----------|--------|--------|
+| `shvVersionMinor` | `.app`   | Getter | Browse |
 
 This method provides information about implemented SHV standard. Minor version
 number signals new features added and thus if you wish to check for support of
@@ -45,9 +45,9 @@ these additions you can use this number.
 
 ## `.app:name`
 
-| Name   | SHV Path | Signature   | Flags  | Access |
-|--------|----------|-------------|--------|--------|
-| `name` | `.app`   | `ret(void)` | Getter | Browse |
+| Name   | SHV Path | Flags  | Access |
+|--------|----------|--------|--------|
+| `name` | `.app`   | Getter | Browse |
 
 This method must provide the name of the application, or at least the SHV
 implementation used in the application.
@@ -63,9 +63,9 @@ implementation used in the application.
 
 ## `.app:version`
 
-| Name      | SHV Path | Signature   | Flags  | Access |
-|-----------|----------|-------------|--------|--------|
-| `version` | `.app`   | `ret(void)` | Getter | Browse |
+| Name      | SHV Path | Flags  | Access |
+|-----------|----------|--------|--------|
+| `version` | `.app`   | Getter | Browse |
 
 This method must provide the application version, or at least the SHV
 implementation used in the application (must be consistent with information in
@@ -82,9 +82,9 @@ implementation used in the application (must be consistent with information in
 
 ## `.app:ping`
 
-| Name   | SHV Path | Signature    | Flags | Access |
-|--------|----------|--------------|-------|--------|
-| `ping` | `.app`   | `void(void)` |       | Browse |
+| Name   | SHV Path | Flags | Access |
+|--------|----------|-------|--------|
+| `ping` | `.app`   |       | Browse |
 
 This method should reliably do nothing and should always be successful. It is
 used to check the connection (if message can be passed to and from client) as
@@ -101,9 +101,9 @@ well as to keep connection in case of SHV Broker.
 
 ## `.app:date`
 
-| Name   | SHV Path | Signature   | Flags | Access |
-|--------|----------|-------------|-------|--------|
-| `date` | `.app`   | `ret(void)` |       | Browse |
+| Name   | SHV Path | Flags | Access |
+|--------|----------|-------|--------|
+| `date` | `.app`   |       | Browse |
 
 This is an optional method that provides access to the date and time this
 application is using (that includes time zone). Applications running on systems

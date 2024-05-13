@@ -15,9 +15,9 @@ regular user, while write and truncate to super users).
 
 ## `*:stat`
 
-| Name   | SHV Path | Signature   | Flags  | Access |
-|--------|----------|-------------|--------|--------|
-| `stat` | Any      | `ret(void)` | Getter | Read   |
+| Name   | SHV Path | Flags  | Access |
+|--------|----------|--------|--------|
+| `stat` | Any      | Getter | Read   |
 
 This method provides information about this file. It is required for file nodes.
 
@@ -42,9 +42,9 @@ The result is IMap with these fields:
 
 ## `*:size`
 
-| Name   | SHV Path | Signature   | Flags  | Access |
-|--------|----------|-------------|--------|--------|
-| `size` | Any      | `ret(void)` | Getter | Read   |
+| Name   | SHV Path | Flags  | Access |
+|--------|----------|--------|--------|
+| `size` | Any      | Getter | Read   |
 
 This provides faster access to only file size. Although it is also part of the
 `*:stat` the size of the file is commonly used to quickly identify added data to
@@ -62,9 +62,9 @@ implemented together with `*:stat`.
 
 ## `*:crc`
 
-| Name  | SHV Path | Signature    | Flags | Access |
-|-------|----------|--------------|-------|--------|
-| `crc` | Any      | `ret(param)` |       | Read   |
+| Name  | SHV Path | Flags | Access |
+|-------|----------|-------|--------|
+| `crc` | Any      |       | Read   |
 
 The validation of the data is common operation that can be done either to verify
 that all went all right or to detect that write might not be required because
@@ -104,9 +104,9 @@ with files that are growing.
 
 ## `*:sha1`
 
-| Name   | SHV Path | Signature    | Flags | Access |
-|--------|----------|--------------|-------|--------|
-| `sha1` | Any      | `ret(param)` |       | Read   |
+| Name   | SHV Path | Flags | Access |
+|--------|----------|-------|--------|
+| `sha1` | Any      |       | Read   |
 
 The basic CRC32 algorithm, that is required alongside with `*:read`, is
 serviceable but it has higher probability of result collision. If you want to
@@ -136,9 +136,9 @@ The result must always be 20 bytes long *Bytes*.
 
 ## `*:read`
 
-| Name   | SHV Path | Signature    | Flags             | Access |
-|--------|----------|--------------|-------------------|--------|
-| `read` | Any      | `ret(param)` | LARGE_RESULT_HINT | Read   |
+| Name   | SHV Path | Flags             | Access |
+|--------|----------|-------------------|--------|
+| `read` | Any      | LARGE_RESULT_HINT | Read   |
 
 Method for reading data from file. This method should be implemented only if you
 allow reading of the file.
@@ -162,9 +162,9 @@ zero length bytes value is provided.
 
 ## `*:write`
 
-| Name    | SHV Path | Signature    | Flags | Access |
-|---------|----------|--------------|-------|--------|
-| `write` | Any      | `void(param)` |       | Write  |
+| Name    | SHV Path | Flags | Access |
+|---------|----------|-------|--------|
+| `write` | Any      |       | Write  |
 
 Write is optional method that can be provided if modification of the file over
 SHV RCP is allowed.
@@ -186,9 +186,9 @@ extend file boundary if that is possible, or it can result into an error.
 
 ## `*:truncate`
 
-| Name       | SHV Path | Signature     | Flags | Access |
-|------------|----------|---------------|-------|--------|
-| `truncate` | Any      | `void(param)` |       | Write  |
+| Name       | SHV Path | Flags | Access |
+|------------|----------|-------|--------|
+| `truncate` | Any      |       | Write  |
 
 Change the file boundary. This method should be implemented if `*:write` allows
 write outside of the file boundary. It should not be present if that is not
@@ -211,9 +211,9 @@ such as only increase is allowed, or maximal size of the file.
 
 ## `*:append`
 
-| Name     | SHV Path | Signature     | Flags | Access |
-|----------|----------|---------------|-------|--------|
-| `append` | Any      | `void(param)` |       | Write  |
+| Name     | SHV Path | Flags | Access |
+|----------|----------|-------|--------|
+| `append` | Any      |       | Write  |
 
 Append is a optional special way to perform write by always appending to the end
 of the file. Append can be provided even if `*:write` is not and other way
