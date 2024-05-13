@@ -17,6 +17,8 @@
   - [Bytes Exchange nodes](./rpcmethods/exchange.md)
   - [History](./rpcmethods/history.md)
 - [RPC transport layer](./rpctransportlayer.md)
+  - [Stream transport layers](./rpctransportlayer/stream.md)
+  - [CAN Bus](./rpctransportlayer/can.md)
 - [RPC URL](./rpcurl.md)
 - [SHV types](./shv-types.md)
   - [SHV type info](./shv-types/shv-type-info.md)
