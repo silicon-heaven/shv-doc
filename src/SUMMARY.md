@@ -20,6 +20,7 @@
   - [Stream transport layers](./rpctransportlayer/stream.md)
   - [CAN Bus](./rpctransportlayer/can.md)
 - [RPC URL](./rpcurl.md)
+- [RPC RI](./rpcri.md)
 - [SHV types](./shv-types.md)
   - [SHV type info](./shv-types/shv-type-info.md)
   - [SHV journal](./shv-types/shv-journal.md)
