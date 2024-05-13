@@ -25,4 +25,4 @@
 
 ---
 
-# SHV standard: 3.0
+# SHV standard: 3.0 pre-release
