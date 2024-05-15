@@ -13,6 +13,18 @@ method definition in this standard). That is because sometimes you want to allow
 a different levels of access to different users to same file (such as append to
 regular user, while write and truncate to super users).
 
+The combination of provided method for file node will define the expected
+functionality of the file. For the convinience of reader the following table is
+provided with various, but not all, types of file node modes. The methods
+`*:stat`, and `*:size` are always provided.
+
+|             | `*:crc` / `*:sha1` | `*:read` | `*:write` | `*:truncate` | `*:append` |
+|-------------|--------------------|----------|-----------|--------------|------------|
+| Read only   | ✔️                  | ✔️        | ❌        | ❌           | ❌         |
+| Fixed size  | ✔️                  | ✔️        | ✔️         | ❌           | ❌         |
+| Resizable   | ✔️                  | ✔️        | ✔️         | ✔️            | ✔️          |
+| Append only | ✔️                  | ✔️        | ❌        | ❌           | ✔️          |
+
 ## `*:stat`
 
 | Name   | SHV Path | Flags  | Access |
@@ -167,7 +179,7 @@ zero length bytes value is provided.
 | `write` | Any      |       | Write  |
 
 Write is optional method that can be provided if modification of the file over
-SHV RCP is allowed.
+SHV RPC is allowed.
 
 | Parameter    | Result |
 |--------------|--------|

@@ -4,6 +4,16 @@ Property node is a convention where we associate value storage with some SHV
 path. The value can be received, optionally modified and its change can be
 signaled.
 
+The type of the property depends on the presence of the methods. The following
+table 
+
+|                                 | `*:get` | `*:get:*chng` | `*:set` |
+|---------------------------------|---------|---------------|---------|
+| Read only                       | ✔️       | ❌            | ❌      |
+| Read only with signaled change  | ✔️       | ✔️             | ❌      |
+| Read-write                      | ✔️       | ❌            | ✔️       |
+| Read-write with signaled change | ✔️       | ✔️             | ✔️       |
+
 ## `*:get`
 
 | Name  | SHV Path | Flags  | Access |
