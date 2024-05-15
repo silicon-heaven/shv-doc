@@ -14,9 +14,13 @@
   - [Broker API](./rpcmethods/broker.md)
   - [Property nodes](./rpcmethods/property.md)
   - [File nodes](./rpcmethods/file.md)
+  - [Bytes Exchange nodes](./rpcmethods/exchange.md)
   - [History](./rpcmethods/history.md)
 - [RPC transport layer](./rpctransportlayer.md)
+  - [Stream transport layers](./rpctransportlayer/stream.md)
+  - [CAN Bus](./rpctransportlayer/can.md)
 - [RPC URL](./rpcurl.md)
+- [RPC RI](./rpcri.md)
 - [SHV types](./shv-types.md)
   - [SHV type info](./shv-types/shv-type-info.md)
   - [SHV journal](./shv-types/shv-journal.md)
@@ -25,4 +29,4 @@
 
 ---
 
-# SHV standard: 3.0
+# SHV standard: 3.0 pre-release

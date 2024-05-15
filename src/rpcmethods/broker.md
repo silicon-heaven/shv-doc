@@ -45,9 +45,9 @@ thus unsubscribe must be performed with care to not remove still needed ones.
 
 ### `.broker/currentClient:subscribe`
 
-| Name        | SHV Path                    | Signature     | Flags | Access |
-|-------------|-----------------------------|---------------|-------|--------|
-| `subscribe` | `.broker/currentClient`     | `void(param)` |       | Browse |
+| Name        | SHV Path                    | Flags | Access |
+|-------------|-----------------------------|-------|--------|
+| `subscribe` | `.broker/currentClient`     |       | Browse |
 
 Adds rule that allows receiving of signals (notifications) from shv
 path. The subscription applies to all methods of given name in given path and
@@ -93,9 +93,9 @@ such subscription.
 
 ### `.broker/currentClient:unsubscribe`
 
-| Name          | SHV Path                    | Signature    | Flags | Access |
-|---------------|-----------------------------|--------------|-------|--------|
-| `unsubscribe` | `.broker/currentClient`     | `ret(param)` |       | Browse |
+| Name          | SHV Path                    | Flags | Access |
+|---------------|-----------------------------|-------|--------|
+| `unsubscribe` | `.broker/currentClient`     |       | Browse |
 
 Reverts an operation of `.broker/currentClient:subscribe`.
 
@@ -119,9 +119,9 @@ and `false` if it couldn't have been found.
 
 ### `.broker/currentClient:subscriptions`
 
-| Name            | SHV Path                    | Signature   | Flags  | Access |
-|-----------------|-----------------------------|-------------|--------|--------|
-| `subscriptions` | `.broker/currentClient`     | `ret(void)` | Getter | Browse |
+| Name            | SHV Path                    | Flags  | Access |
+|-----------------|-----------------------------|--------|--------|
+| `subscriptions` | `.broker/currentClient`     | Getter | Browse |
 
 This method allows you to list all existing subscriptions for the current
 client.
@@ -152,9 +152,9 @@ network.
 
 ### `.broker:clientInfo`
 
-| Name         | SHV Path      | Signature    | Flags | Access       |
-|--------------|---------------|--------------|-------|--------------|
-| `clientInfo` | `.broker` | `ret(param)`     |       | SuperService |
+| Name         | SHV Path  | Flags | Access       |
+|--------------|-----------|-------|--------------|
+| `clientInfo` | `.broker` |       | SuperService |
 
 Information the broker has on the client.
 
@@ -171,7 +171,8 @@ The *Map* containing at least these fields:
 
 * `"clientId"` with *Int* containing ID assigned to this client.
 * `"userName"` with *String* user name used during the login sequence. This is
-  optional because login might not be always required.
+  optional because broker can have clients it established itself and thus won't
+  perform any login.
 * `"mountPoint"` with *String* SHV path where device is mounted. This can be
   *Null* in case this is not a device.
 * `"subscriptions"` is a list of active subscriptions of this client.
@@ -190,9 +191,9 @@ required nor standardized at the moment.
 
 ### `.broker:mountedClientInfo`
 
-| Name                | SHV Path      | Signature    | Flags | Access       |
-|---------------------|---------------|--------------|-------|--------------|
-| `mountedClientInfo` | `.broker` | `ret(param)`     |       | SuperService |
+| Name                | SHV Path  | Flags | Access       |
+|---------------------|-----------|-------|--------------|
+| `mountedClientInfo` | `.broker` |       | SuperService |
 
 Information the broker has on the client that is mounted on the given SHV path.
 
@@ -223,9 +224,9 @@ The provided *Map* must contain the same fields as `.broker:clientInfo` does.
 
 ### `.broker/currentClient:info`
 
-| Name   | SHV Path                    | Signature   | Flags  | Access |
-|--------|-----------------------------|-------------|--------|--------|
-| `info` | `.broker/currentClient`     | `ret(void)` | Getter | Browse |
+| Name   | SHV Path                |  Flags  | Access |
+|--------|-------------------------|---------|--------|
+| `info` | `.broker/currentClient` |  Getter | Browse |
 
 Access to the information broker has for the current client. The result is
 client specific.
@@ -246,9 +247,9 @@ users.
 
 ### `.broker:clients`
 
-| Name      | SHV Path      | Signature   | Flags | Access       |
-|-----------|---------------|-------------|-------|--------------|
-| `clients` | `.broker` | `ret(void)`     |       | SuperService |
+| Name      | SHV Path  | Flags | Access       |
+|-----------|-----------|-------|--------------|
+| `clients` | `.broker` |       | SuperService |
 
 This method allows you get list of all clients connected to the broker. This
 is an administration task.
@@ -271,9 +272,9 @@ connected clients.
 ```
 ### `.broker:mounts`
 
-| Name     | SHV Path      | Signature   | Flags | Access       |
-|----------|---------------|-------------|-------|--------------|
-| `mounts` | `.broker` | `ret(void)`     |       | SuperService |
+| Name     | SHV Path  | Flags | Access       |
+|----------|-----------|-------|--------------|
+| `mounts` | `.broker` |       | SuperService |
 
 This method allows you get list of all mount paths of devices connected to the broker. This
 is an administration task.
@@ -291,9 +292,9 @@ The *List* of *Strings*s is provided where strings are mount paths of all curren
 
 ### `.broker:disconnectClient`
 
-| Name               | SHV Path      | Signature     | Flags | Access       |
-|--------------------|---------------|---------------|-------|--------------|
-| `disconnectClient` | `.broker` | `void(param)`     |       | SuperService |
+| Name               | SHV Path  | Flags | Access       |
+|--------------------|-----------|-------|--------------|
+| `disconnectClient` | `.broker` |       | SuperService |
 
 Forces some specific client to be immediately disconnected from the SHV broker.
 You need to provide client's ID as an argument. Based on the link layer client

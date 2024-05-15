@@ -4,11 +4,21 @@ Property node is a convention where we associate value storage with some SHV
 path. The value can be received, optionally modified and its change can be
 signaled.
 
+The type of the property depends on the presence of the methods. The following
+table 
+
+|                                 | `*:get` | `*:get:*chng` | `*:set` |
+|---------------------------------|---------|---------------|---------|
+| Read only                       | ✔️       | ❌            | ❌      |
+| Read only with signaled change  | ✔️       | ✔️             | ❌      |
+| Read-write                      | ✔️       | ❌            | ✔️       |
+| Read-write with signaled change | ✔️       | ✔️             | ✔️       |
+
 ## `*:get`
 
-| Name  | SHV Path | Signature    | Flags  | Access |
-|-------|----------|--------------|--------|--------|
-| `get` | Any      | `ret(param)` | Getter | Read   |
+| Name  | SHV Path | Flags  | Access |
+|-------|----------|--------|--------|
+| `get` | Any      | Getter | Read   |
 
 This method is used for getting the current value associated with SHV path.
 Every property node needs to have `get` method and every node with `get` method
@@ -33,7 +43,7 @@ specified age the value can be served from cache.
 <= <id:42>i{2:"Cached"}
 ```
 
-### Signal `*chng`
+## `*:get:*chng`
 
 Value change can be optionally signaled with signal. It is used when you have
 desire to get info about value change without polling. Note that signal might
@@ -55,13 +65,14 @@ associated with the SHV path.
 
 ```
 <= <signal:"chng", path:"test/property", source:"get">i{1:"Hello World"}
+```
 
 
 ## `*:set`
 
-| Name  | SHV Path | Signature     | Flags  | Access |
-|-------|----------|---------------|--------|--------|
-| `set` | Any      | `void(param)` | Setter | Write  |
+| Name  | SHV Path | Flags  | Access |
+|-------|----------|--------|--------|
+| `set` | Any      | Setter | Write  |
 
 This method is used for changing the value associated with SHV path. By
 providing this method alongside with `*:get` you are making the read-write

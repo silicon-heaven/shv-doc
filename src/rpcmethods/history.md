@@ -39,9 +39,9 @@ but all paths recorded (or to be recorded) in single log must be provided.
 
 ### `.history/**:getLog`
 
-| Name     | SHV Path      | Signature    | Flags           | Access |
-|----------|---------------|--------------|-----------------|--------|
-| `getLog` | `.history/**` | `ret(param)` | HintLargeResult | Browse |
+| Name     | SHV Path      | Flags           | Access |
+|----------|---------------|-----------------|--------|
+| `getLog` | `.history/**` | HintLargeResult | Browse |
 
 Queries logs for the recorded signals in given time range.
 
@@ -147,9 +147,9 @@ storage such as database or cyclic buffer.
 
 #### `.history/**/.records/*:fetch`
 
-| Name    | SHV Path                 | Signature   | Flags           | Access  |
-|---------|--------------------------|-------------|-----------------|---------|
-| `fetch` | `.history/**/.records/*` | `ret(void)` | HintLargeResult | Service |
+| Name    | SHV Path                 | Flags           | Access  |
+|---------|--------------------------|-----------------|---------|
+| `fetch` | `.history/**/.records/*` | HintLargeResult | Service |
 
 This allows you to fetch records from log.
 
@@ -201,9 +201,9 @@ Fetch that is outside of the valid record ID range must not provide error.
 
 #### `.history/**/.records/*:span`
 
-| Name   | SHV Path                 | Signature   | Flags  | Access  |
-|--------|--------------------------|-------------|--------|---------|
-| `span` | `.history/**/.records/*` | `ret(void)` | Getter | Service |
+| Name   | SHV Path                 | Flags  | Access  |
+|--------|--------------------------|--------|---------|
+| `span` | `.history/**/.records/*` | Getter | Service |
 
 This allows fetch of boundaries for the record IDs and also the keep record
 range.
@@ -278,9 +278,9 @@ The rest of the file must contain *List*s with following columns:
 
 ### `.history/**/.records/*:sync` and `.history/**/.files/*:sync`
 
-| Name       | SHV Path                                           | Signature    | Flags | Access       |
-|------------|----------------------------------------------------|--------------|-------|--------------|
-| `lastSync` | `.history/**/.records/*` or `.history/**/.files/*` | `void(void)` |       | SuperService |
+| Name       | SHV Path                                           | Flags | Access       |
+|------------|----------------------------------------------------|-------|--------------|
+| `lastSync` | `.history/**/.records/*` or `.history/**/.files/*` |       | SuperService |
 
 Trigger the synchronization manually right now.
 
@@ -296,9 +296,9 @@ already in the progress.
 
 ### `.history/**/.records/*:lastSync` and `.history/**/.files/*:lastSync`
 
-| Name       | SHV Path                                           | Signature   | Flags  | Access  |
-|------------|----------------------------------------------------|-------------|--------|---------|
-| `lastSync` | `.history/**/.records/*` or `.history/**/.files/*` | `ret(void)` | Getter | Service |
+| Name       | SHV Path                                           | Flags  | Access  |
+|------------|----------------------------------------------------|--------|---------|
+| `lastSync` | `.history/**/.records/*` or `.history/**/.files/*` | Getter | Service |
 
 This provides information when last synchronization was performed.
 

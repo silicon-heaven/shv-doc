@@ -5,9 +5,9 @@ associated with it.
 
 ## `*:dir`
 
-| Name  | SHV Path | Signature    | Flags | Access |
-|-------|----------|--------------|-------|--------|
-| `dir` | Any      | `ret(param)` |       | Browse |
+| Name  | SHV Path | Flags | Access |
+|-------|----------|-------|--------|
+| `dir` | Any      |       | Browse |
 
 This method needs to be implemented for every node (that is every valid SHV
 path). It provides a way to list all available methods and signals of the node.
@@ -108,9 +108,9 @@ The compatibility mapping between *IMap* keys and historical *Map* is:
 
 ## `*:ls`
 
-| Name | SHV Path | Signature    | Flags | Signal  | Access |
-|------|----------|--------------|-------|---------|--------|
-| `ls` | Any      | `ret(param)` |       | `lsmod` | Browse |
+| Name | SHV Path | Flags | Signal  | Access |
+|------|----------|-------|---------|--------|
+| `ls` | Any      |       | `lsmod` | Browse |
 
 This method needs to be implemented for every valid SHV path. It provides a way
 to list all children nodes of the node.
