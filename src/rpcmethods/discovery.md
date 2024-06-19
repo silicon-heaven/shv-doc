@@ -22,8 +22,8 @@ This method can be called with or without parameter. The valid parameters are:
 * *Null* or `false` and in such case all methods are listed with their info.
 * `true` is same as `false` or *Null* with exception that result can also
   contain extra map.
-* *String* with possible method name for which `true` is returned if node has
-  such method and `false` if there is no such method.
+* *String* with possible method name for which `false` is provided if there is
+  no such method and some other value (except of `null`) when there is.
 
 The method info in *IMap* must contain these fields:
 
@@ -124,8 +124,8 @@ This method can be called with or without parameter. The valid parameters are:
 
 * *Null* and in such case all children node names are provided in the
   list of strings.
-* *String* with possible child name for which `true` is returned if node has
-  such child and `false` if there is no such child.
+* *String* with possible child name for which `false` is provided if node has
+  no such child and some other value (except of `null`) if there is.
 
 Examples of ls requests:
 
