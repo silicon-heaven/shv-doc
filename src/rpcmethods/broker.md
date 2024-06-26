@@ -78,6 +78,12 @@ The parameter is *Map* with:
 * `"path"` with optional SHV path (*String*) where default is `""` and thus
   subscribe to all methods of given name in the tree. Used only if `"paths"` is
   not provided. (OBSOLETE use `"paths"`)
+* `"ttl"` with optional number of seconds for this subscribe to be valid
+  (*Int*). The subscribe is automatically dropped when provided number of
+  seconds elapsed. In case this parameter is not used then subscribe is kept
+  until explicit unsubscribe or client disconnects. The existing subscription is
+  replaced by this one if all parameters except of this one match; the effect is
+  that this filed is set for the existing subscription.
 
 It provides `true` if sunscription was added and `false` if there was already
 such subscription.
@@ -103,7 +109,7 @@ Reverts an operation of `.broker/currentClient:subscribe`.
 |-----------|--------|
 | {...}     | Bool   |
 
-The parameter must match exactly parameters used to subscribe
+The parameter must match parameters used to subscribe with exception of `"ttl"`.
 
 It provides `true` in case subscription was removed or request count modified
 and `false` if it couldn't have been found.
@@ -137,6 +143,8 @@ client.
 * `"source"` that is copied over from original subscription request.
 * `"paths"` that is copied over from original subscription request. It is also
   used if you subscribed with `"path"`.
+* `"ttl"` that is number of seconds until this subscription is dropped. This
+  might not be present if there is no TTL setup for it.
 
 ```
 => <id:42, method:"subscriptions", path:".broker/currentClient">i{}
@@ -163,7 +171,7 @@ Information the broker has on the client.
 | Int       | {"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...} \| Null |
 
 The parameter is client's ID (*Int*). The provided value is *Map* with info
-about the client. The *Null* is returned in case there is no client with this
+about the client. The *Null* is provided in case there is no client with this
 ID.
 
 #### ClientInfo
@@ -203,12 +211,12 @@ Information the broker has on the client that is mounted on the given SHV path.
 
 The parameter is SHV path (*String*). The provided value is [ClientInfo](#clientinfo) with info
 about the client that is mounted on the given path (or the parent of it). The
-*Null* is returned in case there is no client with such mount point.
+*Null* is provided in case there is no client with such mount point.
 
 The parameter can be either  *Int* and in such case info for client with
 matching ID is provided. Or it can be *String* with SHV path for which client
 mounted on the given path (this includes also all subnodes of the mount point)
-is provided. The *Null* is returned in case there is no client with this ID or
+is provided. The *Null* is provided in case there is no client with this ID or
 path is not mounted.
 
 The provided *Map* must contain the same fields as `.broker:clientInfo` does.
