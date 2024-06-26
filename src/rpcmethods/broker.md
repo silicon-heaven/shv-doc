@@ -81,8 +81,9 @@ The parameter is *Map* with:
 * `"ttl"` with optional number of seconds for this subscribe to be valid
   (*Int*). The subscribe is automatically dropped when provided number of
   seconds elapsed. In case this parameter is not used then subscribe is kept
-  until explicit unsubscribe or client disconnects. Existing subscriptions with
-  same parameters (except of this one) have TTL setup or removed based on this.
+  until explicit unsubscribe or client disconnects. The existing subscription is
+  replaced by this one if all parameters except of this one match; the effect is
+  that this filed is set for the existing subscription.
 
 It provides `true` if sunscription was added and `false` if there was already
 such subscription.
