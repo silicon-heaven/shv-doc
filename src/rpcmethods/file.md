@@ -92,13 +92,14 @@ crc calculation ranges).
 CRC32 algorithm to be used is the one used in IEEE 802.3 and [known as plain
 CRC-32](https://reveng.sourceforge.io/crc-catalogue/all.htm#crc.cat.crc-32-iso-hdlc).
 
-| Parameter          | Result |
-|--------------------|--------|
-| Null \| [Int, Int] | UInt   |
+| Parameter                  | Result |
+|----------------------------|--------|
+| Null \| [Int, Int \| Null] | UInt   |
 
 You can either pass `Null` and in such case checksum of the whole file will be
-provided, or you can pass list with offset and size in bytes that identifies
-range CRC32 should be calculate for.
+provided, or you can pass list with offset and size (that can be `Null` for the
+all data up to the end of the file) in bytes that identifies range CRC32 should
+be calculate for.
 
 No error must be raised if range specified by parameter is outside of the file.
 Only bytes present in the range are used to calculate CRC32 (this includes case
@@ -126,13 +127,14 @@ use it to not only detect modification of the file but instead identification of
 it, then SHA1 is the better choice. The implementation of this method is
 optional (but when it exists the `*:crc` must exist as well).
 
-| Parameter          | Result |
-|--------------------|--------|
-| Null \| [Int, Int] | Bytes  |
+| Parameter                  | Result |
+|----------------------------|--------|
+| Null \| [Int, Int \| Null] | Bytes  |
 
 You can either pass `Null` and in such case sha1 of the whole file will be
-provided, or you can pass list with offset and size in bytes that identifies
-range the hash should be calculate for.
+provided, or you can pass list with offset and size (that can be `Null` for the
+all data up to the end of the file) in bytes that identifies range the hash
+should be calculate for.
 
 No error must be raised if range specified by parameter is outside of the file.
 Only bytes present in the range are used to calculate SHA1 (this includes case
