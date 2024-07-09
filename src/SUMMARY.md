@@ -26,6 +26,7 @@
   - [SHV journal](./shv-types/shv-journal.md)
 - [History Provider](./history-provider.md)
 - [Implementations](./implementations.md)
+- [Tools](./tools.md)
 
 ---
 
