@@ -1,4 +1,4 @@
-# Common SHV RPC methods
+# Common RPC methods
 
 These are well known methods used in various situations. They provide backbone
 of SHV RPC communication.

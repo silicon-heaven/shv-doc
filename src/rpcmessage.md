@@ -1,11 +1,12 @@
-# RpcMessage
+# RPC Message
 
-`RpcMessage` is `IMap` with meta-data attached from [RpcValue](rpcvalue.md) point of view.
+Message exchanged in SHV is `IMap` with meta-data attached from
+[RPC Value](rpcvalue.md) point of view.
 
 There are three kinds of RPC messages defined:
-* [RpcRequest](#rpcrequest)
-* [RpcResponse](#rpcresponse)
-* [RpcSignal](#rpcsignal)
+* [Request](#rpcrequest)
+* [Response](#rpcresponse)
+* [Signal](#rpcsignal)
 
 RPC message can have meta-data attribute defined.
 
@@ -30,8 +31,8 @@ Second part of RPC message is `IMap` with following possible keys.
 
 | Key  | Key name   | Description
 | ---: | ---------- | ------------
-| 1    | Params     | Optional method parameters, any [RpcValue](rpcvalue.md) is allowed.
-| 2    | Result     | Successful method call result, any [RpcValue](rpcvalue.md) is allowed.
+| 1    | Params     | Optional method parameters, any [RPC Value](rpcvalue.md) is allowed.
+| 2    | Result     | Successful method call result, any [RPC Value](rpcvalue.md) is allowed.
 | 3    | Error      | Method call exception, see [RPC error](#rpc-error) for more details
 
 `RequestId` can be any unique number assigned by side that sends request
@@ -72,7 +73,7 @@ The following are all defined `AccessLevel`s and their `Access` representations:
 | Development   | 56                       | `dev`                   |
 | Admin         | 63                       | `su`                    |
 
-## RpcRequest
+## Request
 
 Message used to invoke remote method.
 
@@ -98,7 +99,7 @@ Keys
 
 | Key       | Required   | Note
 | --------- | ---------- | -----
-| `Params`  | no         | Any valid [RpcValue](rpcvalue.md)
+| `Params`  | no         | Any valid [RPC Value](rpcvalue.md)
 
 **Examples**
 
@@ -108,9 +109,9 @@ path `test/pme/849V` with request ID `56` and parameter `true`.
 <1:1,8:56,9:"test/pme/849V",10:"switchLeft">i{1:true}
 ```
 
-## RpcResponse
+## Response
 
-Response to [RpcRequest](rpcrequest.md)
+Response to [Request](rpcrequest.md)
 
 Attributes
 
@@ -118,14 +119,14 @@ Attributes
 |----------------|----------|-------------------------------------------------------------------|---------------------------------------------------------------|
 | `MetaTypeId`   | yes      | copied                                                            |                                                               |
 | `RequestId`    | yes      | copied                                                            |                                                               |
-| `RevCallerIds` | no       | broker's reverse path identifier can be removed added to the list | Sender must copy original value form *RpcRequest* if present. |
-| `CallerIds`    | no       | broker's path identifier can be removed from the list             | Sender must copy original value form *RpcRequest* if present. |
+| `RevCallerIds` | no       | broker's reverse path identifier can be removed added to the list | Sender must copy original value form *Request* if present. |
+| `CallerIds`    | no       | broker's path identifier can be removed from the list             | Sender must copy original value form *Request* if present. |
 
 Keys
 
 | Key       | Required   | Note
 | --------- | ---------- | -----
-| `Result`  | yes        | Required in case of successful method call result, any [RpcValue](rpcvalue.md) is allowed.
+| `Result`  | yes        | Required in case of successful method call result, any [RPC Value](rpcvalue.md) is allowed.
 | `Error`   | yes        | Required in case of method call exception, see [RPC error](#rpc-error) for more details.
 
 ### RPC Error
@@ -142,7 +143,7 @@ Error codes
 
 | Value  | Name                  | Description
 | -----: | -------               | ----------
-| 1      | `InvalidRequest`      | The `RpcValue` sent is not a valid RPC Request object.
+| 1      | `InvalidRequest`      | The `RPC Value` sent is not a valid RPC Request object.
 | 2      | `MethodNotFound`      | The method does not exist or is not available or not accessible with given access level.
 | 3      | `InvalidParams`       | Invalid method parameter.
 | 4      | `InternalError`       | Internal RPC error.
@@ -167,7 +168,7 @@ Exception when unknown method is called
 <1:1,8:11>i{3:i{1:8,2:"method: foo path:  what: Method: 'foo' on path 'shv/cze' doesn't exist"}}
 ```
 
-## RpcSignal
+## Signal
 
 Spontaneous message sent without prior request and thus without `RequestId`. 
 It is used mainly notify clients that some technological value had changed without need to poll.
@@ -188,7 +189,7 @@ Keys
 
 | Key       | Required   | Note
 | --------- | ---------- | -----
-| `Params`  | no         | Any valid [RpcValue](rpcvalue.md)
+| `Params`  | no         | Any valid [RPC Value](rpcvalue.md)
 
 Warning: all signal names ending with `chng` (that includes `chng` and others
 such as `fchng`) are considered as property changes of the method they are
