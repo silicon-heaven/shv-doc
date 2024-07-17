@@ -4,9 +4,9 @@ Message exchanged in SHV is `IMap` with meta-data attached from
 [RPC Value](rpcvalue.md) point of view.
 
 There are three kinds of RPC messages defined:
-* [Request](#rpcrequest)
-* [Response](#rpcresponse)
-* [Signal](#rpcsignal)
+* [Request](#request)
+* [Response](#response)
+* [Signal](#signal)
 
 RPC message can have meta-data attribute defined.
 
