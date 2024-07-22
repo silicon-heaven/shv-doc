@@ -27,44 +27,44 @@ This method can be called with or without parameter. The valid parameters are:
 
 The method info in *IMap* must contain these fields:
 
-* `1`: string containing method's name. This must be unique name for single
+* `1` (*name*): string containing method's name. This must be unique name for single
   node. It is not allowed to provide multiple descriptions with same name for
   the same node.
-* `2`: is integer value flag assembled from the following values:
+* `2` (*flags*): is integer value flag assembled from the following values:
   * `1` (`1 << 0`) no longer used and reserved for compatibility reasons. In the
     past it signaled that name is not callable. New implementations should
     ignore method descriptions with this bit set.
-  * `2` (`1 << 1`) specifies that method is a getter. This method must be
+  * `2` (*IsGetter*, `1 << 1`) specifies that method is a getter. This method must be
     callable without side effects without any parameter.
-  * `4` (`1 << 2`) specifies that method is a setter. This method must be
+  * `4` (*IsSetter*, `1 << 2`) specifies that method is a setter. This method must be
     callable that accepts parameter and provides no value. They are commonly
     paired with getter.
-  * `8` (`1 << 3`) specifies that provided value in response is going to be
+  * `8` (*LargeResult*, `1 << 3`) specifies that provided value in response is going to be
     large. This exists to signal that by calling this method you can block the
     connection for considerable amount of time.
-  * `16` (`1 << 4`) specifies that method is not idempotent. Such method can't
+  * `16` (*NotIdempotent*, `1 << 4`) specifies that method is not idempotent. Such method can't
     be simply called but instead needs to be called first without parameter to
     get unique submit ID that needs to be used in argument for real call. This
     unique submit ID prevents from same request being handled multiple times
     because first execution will invalidate the submit ID and thus prevents
     re-execution.
-  * `32` (`1 << 5`) specifies that method requires ClientID to be called.
+  * `32` (*UserIDRequired*, `1 << 5`) specifies that method requires UserID to be called.
     Calling this method without it should result in `UserIDRequired` error.
-* `3`: defines parameter type for the requests. Type is a *String* identifier.
+* `3` (*paramType*): defines parameter type for the requests. Type is a *String* identifier.
   It can be missing or have value *Null* instead of *String* if method takes no
   parameter (or only *Null*).
-* `4`: defines result type for the responses. The is a *String* identifier. It
+* `4` (*resultType*): defines result type for the responses. The is a *String* identifier. It
   can be missing or have value *Null* instead of *String* if method provides no
   value (or only *Null*).
-* `5`: specifies minimal access level needed to call this method as *Int*. The
+* `5` (*accessLevel*): specifies minimal access level needed to call this method as *Int*. The
   allowed values can be found in table in [RpcMessage](../rpcmessage.md)
   article.
-* `6`: is used for signals associated with this method. Signals have their names
+* `6` (*signals*): is used for signals associated with this method. Signals have their names
   and type identifier for value they carry. They are specified as a *Map* from
   signal's name to *String* type identifier. It is allowed to use *Null* instead
   of *String* for type and in such case type is the method's result type (of
   course field `4` must be defined).
-* `63` extra *Map* that can contain anything you want. It is provided only if
+* `63` (*extra*): extra *Map* that can contain anything you want. It is provided only if
   `true` is passed as argument and can be used to provide additional
   implementation specific info for this method.
 
