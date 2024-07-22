@@ -59,12 +59,12 @@ subscribes on given method in all accessible nodes of the broker.
 |--------------------------|--------|
 | String \| \[String, Int] | Bool   |
 
-The parameter is [resource identifier](../rpcri.md) that is used to match
-signals. There is also an option to subscribe only for limited time by using
-list parameter where first argument is RPC RI and the second is TTL in seconds.
-The subscribe with specified TTL is automatically dropped when given number of
-seconds elapses. This time can be extended by calling `subscribe` with TTL again
-or it can be even removed when called without TTL.
+The parameter is [resource identifier for signals](../rpcri.md). There is also
+an option to subscribe only for limited time by using list parameter where first
+argument is RPC RI and the second is TTL in seconds. The subscribe with
+specified TTL is automatically dropped when given number of seconds elapses.
+This time can be extended by calling `subscribe` with TTL again or it can be
+even removed when called without TTL.
 
 It provides `true` if subscription was added and `false` if there was already
 such subscription.
@@ -90,8 +90,8 @@ Reverts an operation of `.broker/currentClient:subscribe`.
 |-----------|--------|
 | String    | Bool   |
 
-The parameter must [resource identifier](../rpcri.md) used for subscription
-creation.
+The parameter must be [resource identifier for signal](../rpcri.md) used for
+subscription creation.
 
 It provides `true` in case subscription was removed and `false` if it couldn't
 have been found.
@@ -118,8 +118,8 @@ client.
 |-----------|---------------|
 | Null      | [String, ...] |
 
-List of strings is provided where strings are [resource identifiers](../rpcri.md)
-for the existing subscriptions.
+List of strings is provided where strings are [resource identifiers for
+signals](../rpcri.md) for the existing subscriptions.
 
 ```
 => <id:42, method:"subscriptions", path:".broker/currentClient">i{}
