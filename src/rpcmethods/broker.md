@@ -15,15 +15,15 @@ broker.
 
 ## Signals filtering
 
-Devices send regularly signal messages but by propagating these messages to
-all clients is not always desirable. For that reason signals are filtered.
-The default is to not send signal messages and clients need to explicitly
-request them with subscriptions (note that it is allowed that subscriptions
-would be seeded by the broker based on the login).
+Devices send regularly signal messages but by propagating these messages to all
+clients is not always desirable. For that reason signals are filtered. The
+default is to not send signal messages and clients need to explicitly request
+them with subscriptions (note that it is allowed that subscriptions would be
+seeded by the broker based on the login).
 
 The speciality of these methods is that they are client specific. In general RPC
-should respond to all clients the same way, if it has access rights high enough.
-But these methods manage client's specific table of subscriptions, and thus it
+should respond to all clients the same way, if it has access rights high enough,
+but these methods manage client's specific table of subscriptions, and thus it
 must work with only client specific info.
 
 Note that all the methods under `.broker/currentClient` have access set to
@@ -38,10 +38,11 @@ Brokers can be chained by mounting broker inside another one. Such mounted
 broker of course won't automatically be sending its signal messages and thus
 they won't be propagated. Simple solution is to subscribe for all signal
 messages, but that is not efficient. The better solution is to derive an
-appropriate subscription for mounted broker (by modifying the `"path"`) and
-subscribe for only this limited set of signal messages. If you are implementing
-broker then be aware that multiple subscribes can be derived to the same one and
-thus unsubscribe must be performed with care to not remove still needed ones.
+appropriate subscription for mounted broker and subscribe for only this limited
+set of signal messages. If you are implementing broker then be aware that
+multiple subscribes can be derived to the same one and thus unsubscribe must be
+performed with care to not remove still needed ones. The solution for that is to
+not use unsubscribe and rely on TTL instead.
 
 ### `.broker/currentClient:subscribe`
 
@@ -54,47 +55,27 @@ path. The subscription applies to all methods of given name in given path and
 sub-paths. The default path is an empty and thus root of the broker, this
 subscribes on given method in all accessible nodes of the broker.
 
-| Parameter | Result |
-|-----------|--------|
-| {...}     | Bool   |
+| Parameter                | Result |
+|--------------------------|--------|
+| String \| \[String, Int] | Bool   |
 
-The parameter is *Map* with:
+The parameter is [resource identifier for signals](../rpcri.md). There is also
+an option to subscribe only for limited time by using list parameter where first
+argument is RPC RI and the second is TTL in seconds. The subscribe with
+specified TTL is automatically dropped when given number of seconds elapses.
+This time can be extended by calling `subscribe` with TTL again or it can be
+even removed when called without TTL.
 
-* `"signal"` wildcard pattern (rules from POSIX.2, 3.13 with exceptions that `/`
-  are not allowed) that must match the signal's name (`Signal`). It is assumed
-  to be `"*"` if not specified and thus matching all names.
-* `"source"` wildcard pattern (rules from POSIX.2, 3.13 with exceptions that `/`
-  are not allowed) that matches the signal's source (`Source`) and thus name of
-  the method this signal is associated with. It is assumed to be `"*"` if not
-  specified and thus matching all names.
-* `"paths"` wildcard pattern (rules from POSIX.2, 3.13 with added support for `**`
-  that matches multiple nodes) that must match the signal's path (`ShvPath`). It
-  is assumed to be `"**"` if not present and thus maching all nodes.
-* `"methods"` an obsolete alias for `"signal"`. It is used only if `"signal"` is
-  not provided. (OBSOLETE use `"signal"`)
-* `"method"` with optional method name (*String*) where default is `""` and
-  matches all methods. Used only if `"signal"` or `"methods"` is not provided.
-  (OBSOLETE use `"methods"`)
-* `"path"` with optional SHV path (*String*) where default is `""` and thus
-  subscribe to all methods of given name in the tree. Used only if `"paths"` is
-  not provided. (OBSOLETE use `"paths"`)
-* `"ttl"` with optional number of seconds for this subscribe to be valid
-  (*Int*). The subscribe is automatically dropped when provided number of
-  seconds elapsed. In case this parameter is not used then subscribe is kept
-  until explicit unsubscribe or client disconnects. The existing subscription is
-  replaced by this one if all parameters except of this one match; the effect is
-  that this filed is set for the existing subscription.
-
-It provides `true` if sunscription was added and `false` if there was already
+It provides `true` if subscription was added and `false` if there was already
 such subscription.
 
 ```
-=> <id:42, method:"subscribe", path:".broker/currentClient">i{1:{"signal":"chng", "paths":"**"}}
-<= <id:42>i{}
+=> <id:42, method:"subscribe", path:".broker/currentClient">i{1:"**:*:chng"}
+<= <id:42>i{2:true}
 ```
 ```
-=> <id:42, method:"subscribe", path:".broker/currentClient">i{1:{"signal":"chng", "paths":"test/device"}}
-<= <id:42>i{}
+=> <id:42, method:"subscribe", path:".broker/currentClient">i{1:["test/device/**:get:chng", 120]}
+<= <id:42>i{2:true}
 ```
 
 ### `.broker/currentClient:unsubscribe`
@@ -107,19 +88,20 @@ Reverts an operation of `.broker/currentClient:subscribe`.
 
 | Parameter | Result |
 |-----------|--------|
-| {...}     | Bool   |
+| String    | Bool   |
 
-The parameter must match parameters used to subscribe with exception of `"ttl"`.
+The parameter must be [resource identifier for signal](../rpcri.md) used for
+subscription creation.
 
-It provides `true` in case subscription was removed or request count modified
-and `false` if it couldn't have been found.
+It provides `true` in case subscription was removed and `false` if it couldn't
+have been found.
 
 ```
-=> <id:42, method:"unsubscribe", path:".broker/currentClient">i{1:{"signal":"chng"}}
+=> <id:42, method:"unsubscribe", path:".broker/currentClient">i{1:"**:*:chng"}
 <= <id:42>i{2:true}
 ```
 ```
-=> <id:42, method:"unsubscribe", path:".broker/currentClient">i{1:{"signal":"chng", "paths":"invalid/**"}}
+=> <id:42, method:"unsubscribe", path:".broker/currentClient">i{1:"invalid/**:*:chng"}
 <= <id:42>i{2:false}
 ```
 
@@ -132,23 +114,16 @@ and `false` if it couldn't have been found.
 This method allows you to list all existing subscriptions for the current
 client.
 
-| Parameter | Result       |
-|-----------|--------------|
-| Null      | [{...}, ...] |
+| Parameter | Result        |
+|-----------|---------------|
+| Null      | [String, ...] |
 
-*Map*s provided in the list will have the following fields:
-
-* `"signal"` that is copied over from original subscription request. It is also
-  used if you subscribed with `"methods"` or `"method"`.
-* `"source"` that is copied over from original subscription request.
-* `"paths"` that is copied over from original subscription request. It is also
-  used if you subscribed with `"path"`.
-* `"ttl"` that is number of seconds until this subscription is dropped. This
-  might not be present if there is no TTL setup for it.
+List of strings is provided where strings are [resource identifiers for
+signals](../rpcri.md) for the existing subscriptions.
 
 ```
 => <id:42, method:"subscriptions", path:".broker/currentClient">i{}
-<= <id:42>i{2:[{"method":"chng"},{"signal":"chng", "paths":"test/device/**", "source":"*", "ref":1}]}
+<= <id:42>i{2:["**:*:chng", "test/device/**:get:chng"]}
 ```
 
 ## Clients
@@ -166,31 +141,30 @@ network.
 
 Information the broker has on the client.
 
-| Parameter | Result                                                                                                                                |
-|-----------|---------------------------------------------------------------------------------------------------------------------------------------|
-| Int       | {"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...} \| Null |
+| Parameter | Result                                                                                                           |
+|-----------|------------------------------------------------------------------------------------------------------------------|
+| Int       | {"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[String, ...], ...} \| Null |
 
 The parameter is client's ID (*Int*). The provided value is *Map* with info
 about the client. The *Null* is provided in case there is no client with this
 ID.
 
-#### ClientInfo
 The *Map* containing at least these fields:
 
 * `"clientId"` with *Int* containing ID assigned to this client.
-* `"userName"` with *String* user name used during the login sequence. This is
-  optional because broker can have clients it established itself and thus won't
+* `"userName"` with *String* user name used during the login sequence. This can
+  be *Null* because broker can have clients it established itself and thus won't
   perform any login.
 * `"mountPoint"` with *String* SHV path where device is mounted. This can be
   *Null* in case this is not a device.
-* `"subscriptions"` is a list of active subscriptions of this client.
+* `"subscriptions"` is a list of subscriptions of this client.
 
 Additional fields are allowed to support more complex brokers but are not
 required nor standardized at the moment.
 
 ```
 => <id:42, method:"clientInfo", path:".broker">i{1:68}
-<= <id:42>i{2:{"clientId:68, "userName":"smith", "subscriptions":[{1:"chng"}]}}
+<= <id:42>i{2:{"clientId:68, "userName":"smith", "mountPoint": "iot/device", "subscriptions":["**:*:chng"]}}
 ```
 ```
 => <id:42, method:"clientInfo", path:".broker">i{1:126}
@@ -205,25 +179,18 @@ required nor standardized at the moment.
 
 Information the broker has on the client that is mounted on the given SHV path.
 
-| Parameter | Result                                                                                                                                |
-|-----------|---------------------------------------------------------------------------------------------------------------------------------------|
-| String    | {"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...} \| Null |
+| Parameter | Result                                                                                                           |
+|-----------|------------------------------------------------------------------------------------------------------------------|
+| String    | {"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[String, ...], ...} \| Null |
 
-The parameter is SHV path (*String*). The provided value is [ClientInfo](#clientinfo) with info
-about the client that is mounted on the given path (or the parent of it). The
-*Null* is provided in case there is no client with such mount point.
-
-The parameter can be either  *Int* and in such case info for client with
-matching ID is provided. Or it can be *String* with SHV path for which client
-mounted on the given path (this includes also all subnodes of the mount point)
-is provided. The *Null* is provided in case there is no client with this ID or
-path is not mounted.
-
-The provided *Map* must contain the same fields as `.broker:clientInfo` does.
+The parameter is SHV path (*String*). The provided value is
+same as [`.broker:clientInfo`](#brokerclientinfo) with info about the client
+that is mounted on the given path (or the parent of it). The *Null* is provided
+in case there is no mount point to which given path would belong to.
 
 ```
-=> <id:42, method:"mountedClientInfo", path:".broker">i{1:"iot/device"}
-<= <id:42>i{2:{"clientId:68, "userName":"smith", "subscriptions":[{1:"chng"}]}}
+=> <id:42, method:"mountedClientInfo", path:".broker">i{1:"iot/device/node"}
+<= <id:42>i{2:{"clientId:68, "userName":"smith", "mountPoint": "iot/device", "subscriptions":["**:*:chng"]}}
 ```
 ```
 => <id:42, method:"mountedClientInfo", path:".broker">i{1:"invalid"}
@@ -239,18 +206,18 @@ The provided *Map* must contain the same fields as `.broker:clientInfo` does.
 Access to the information broker has for the current client. The result is
 client specific.
 
-| Parameter | Result                                                                                                                        |
-|-----------|-------------------------------------------------------------------------------------------------------------------------------|
-| Null      | {"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[i{1:String, 2:String\|Null}, ...], ...} |
+| Parameter | Result                                                                                                   |
+|-----------|----------------------------------------------------------------------------------------------------------|
+| Null      | {"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[String, ...], ...} |
 
-The resulting [ClientInfo](#clientinfo) is same as for `.broker:clientInfo` called with client ID for the
-current client. The difference is that this method must be accessible to the
-current client while `.broker:clientInfo` is accessible only to the privileged
-users.
+The provided value is same as if [`.broker:clientInfo`](#brokerclientinfo) would
+be called with client ID for the current client. The difference is that this
+method must be accessible to the current client while `.broker:clientInfo` is
+accessible only to the privileged users.
 
 ```
 => <id:42, method:"info", path:".broker/currentClient">i{}
-<= <id:42>i{2:{"clientId:68, "userName":"smith", "subscriptions":[{1:"chng"}]}}
+<= <id:42>i{2:{"clientId:68, "userName":"smith", "mountPoint": "iot/device", "subscriptions":[{1:"chng"}]}}
 ```
 
 ### `.broker:clients`
@@ -284,18 +251,19 @@ connected clients.
 |----------|-----------|-------|--------------|
 | `mounts` | `.broker` |       | SuperService |
 
-This method allows you get list of all mount paths of devices connected to the broker. This
-is an administration task.
+This method allows you get list of all mount paths of devices connected to the
+broker. This is an administration task.
 
 | Parameter | Result        |
 |-----------|---------------|
 | Null      | [String, ...] |
 
-The *List* of *Strings*s is provided where strings are mount paths of all currently mounted devices.
+The *List* of *Strings*s is provided where strings are mount points of all
+currently mounted clients.
 
 ```
 => <id:42, method:"mounts", path:".broker">i{}
-<= <id:42>i{2:["shv/device/temp1", "shv/device/temp2", ... ]}
+<= <id:42>i{2:["iot/device", "shv/device/temp1"]}
 ```
 
 ### `.broker:disconnectClient`
@@ -305,11 +273,9 @@ The *List* of *Strings*s is provided where strings are mount paths of all curren
 | `disconnectClient` | `.broker` |       | SuperService |
 
 Forces some specific client to be immediately disconnected from the SHV broker.
-You need to provide client's ID as an argument. Based on the link layer client
-can be immediately informed or it could just stay in the limbo until its
-communication timeouts. If client is established by the broker (it is
-connection to serial console or to some other broker) it is up to the broker
-what should happen, but it is suggested that this would be handled as
+You need to provide client's ID as an argument. If client is established by the
+broker (it is connection to serial console or to some other broker) it is up to
+the broker what should happen, but it is suggested that this would be handled as
 reconnection request.
 
 | Parameter | Result |
