@@ -33,7 +33,7 @@ over (such as String and CString in ChainPack converging to just String in CPON,
 or CPON's HexBlob and Blob converting to ChainPack's Blob).
 hexadecimal numbers 
 
-## Some RpcValue examples in Cpon
+## Some examples in Cpon
 
 Utf8 string with meta-information about its format.
 ```
