@@ -17,7 +17,6 @@ formats are defined:
 | 129 | 81  | 10000001 | UInt      |
 | 130 | 82  | 10000010 | Int       |
 | 131 | 83  | 10000011 | Double    |
-| 132 | 84  | 10000100 | Bool      |
 | 133 | 85  | 10000101 | Blob      |
 | 134 | 86  | 10000110 | String    |
 | 136 | 88  | 10001000 | List      |
@@ -231,7 +230,7 @@ number of data bytes. The data should be sent in little-endian.
 
 ```
 +------+---       ---+---      ---+
-| 0x84 | UInt length | Data bytes |
+| 0x85 | UInt length | Data bytes |
 +------+---       ---+---      ---+
 ```
 
@@ -344,7 +343,7 @@ last pair must be followed by **TERM** (`0xff`) that terminates the **Map**.
 
 ```
 +------+---        ---+---   ---+-- --+---        ---+---   ---+------+
-| 0x88 | String key 1 | Value 1 | ... | String key n | Value n | 0xff |
+| 0x89 | String key 1 | Value 1 | ... | String key n | Value n | 0xff |
 +------+---        ---+---   ---+-- --+---        ---+---   ---+------+
 ```
 
@@ -363,7 +362,7 @@ pair must be followed by **TERM** (`0xff`) that terminates the **IMap**.
 
 ```
 +------+---     ---+---   ---+-- --+---     ---+---   ---+------+
-| 0x88 | Int key 1 | Value 1 | ... | Int key n | Value n | 0xff |
+| 0x8a | Int key 1 | Value 1 | ... | Int key n | Value n | 0xff |
 +------+---     ---+---   ---+-- --+---     ---+---   ---+------+
 ```
 
@@ -378,3 +377,9 @@ Notice that keys are of type **Int** not **UInt**!
 ### MetaMap
 Encoded like **Map** and **IMap** but with keys being both **Int** and
 **String**.
+
+```
++------+---               ---+---   ---+-- --+---               ---+---   ---+------+
+| 0x8b | Int or String key 1 | Value 1 | ... | Int or String key n | Value n | 0xff |
++------+---               ---+---   ---+-- --+---               ---+---   ---+------+
+```
