@@ -10,7 +10,7 @@ retrieval needs to be requested from broker, because broker won't pass them
 automatically and thus knowledge about broker is required for clients wanting to
 receive signals.
 
-The call to `.app:ls("broker")` can be used to identify application as being a
+The call to `:ls(".broker")` can be used to identify application as being a
 broker.
 
 ## Signals filtering
