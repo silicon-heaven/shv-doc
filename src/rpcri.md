@@ -25,15 +25,19 @@ pattern.
 
 The examples of Resource Identifiers for methods and method matching:
 
-| Resource                                                         | `**:*` | `**:get` | `test/**` | `test/**:get:*chng` |
-|------------------------------------------------------------------|--------|-----------|-----------|---------------------|
-| Method `name` on path `.app`                                     | ✔️      | ❌        | ❌        | ❌                  |
-| Method `get` on path `sub/device/track`                          | ✔️      | ✔️         | ❌        | ❌                  |
-| Method `get` on path `test/device/track`                         | ✔️      | ✔️         | ✔️         | ✔️                   |
+| Resource                         | `**:*` | `**:get`  | `test/**:get` | `**:*:*` |
+|----------------------------------|--------|-----------|---------------|----------|
+| Method `.app:name`               | ✔️     | ❌        | ❌            | ❌       |
+| Method `sub/device/track:get`    | ✔️     | ✔️        | ❌            | ❌       |
+| Method `test/device/track:get`   | ✔️     | ✔️        | ✔️            | ❌       |
 
 The examples of Resource Identifiers for signals and signals matching:
 
-| Resource                                                         | `**:*:*` | `**:get:*` | `test/**:get:*chng` | `test/*:ls:lsmod` |
-|------------------------------------------------------------------|----------|------------|---------------------|-------------------|
-| Signal `chng` associated with `get` on path `test/device/track`  | ✔️        | ✔️          | ✔️                   | ❌                |
-| Signal `lschng` associated with `ls` on path `test/device/track` | ✔️        | ❌         | ❌                  | ✔️                 |
+| Resource                             | `**:*:*` | `**:get:*` | `test/**:get:*chng` | `test/*:ls:lsmod` | `test/**:get` |
+|--------------------------------------|----------|------------|---------------------|-------------------|---------------|
+| Signal `test/device/track:get:chng`  | ✔️       | ✔️         | ✔️                  | ❌                | ✔️            |
+| Signal `test/device/track:get:mod`   | ✔️       | ✔️         | ❌                  | ❌                | ✔️            |
+| Signal `test/device/track:ls:lsmod`  | ✔️       | ❌         | ❌                  | ✔️                | ❌            |
+
+Please note that the method RI matches all signals associated with the corresponding method. 
+The right to invoke a method also grants the right to receive any signals of its associated method.
