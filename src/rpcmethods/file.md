@@ -39,13 +39,14 @@ This method provides information about this file. It is required for file nodes.
 
 The result is IMap with these fields:
 
-| Key | Name       | Type             | Description                                                                            |
-|-----|------------|------------------|----------------------------------------------------------------------------------------|
-| 0   | Type       | Int              | Type of the file (at the moment only regular is supported and thus must always be `0`) |
-| 1   | Size       | Int              | Size of the file in bytes                                                              |
-| 2   | PageSize   | Int              | Page size (ideal size and thus alignment for this file efficient access)               |
-| 3   | AccessTime | DateTime \| Null | Optional time of latest data access                                                    |
-| 4   | ModTime    | DateTime \| Null | Optional time of latest data modification                                              |
+| Key | Name       | Type             | Description                                                                                               |
+|-----|------------|------------------|-----------------------------------------------------------------------------------------------------------|
+| 0   | Type       | Int              | Type of the file (at the moment only regular is supported and thus must always be `0`)                    |
+| 1   | Size       | Int              | Size of the file in bytes                                                                                 |
+| 2   | PageSize   | Int              | Page size (ideal size and thus alignment for this file efficient access)                                  |
+| 3   | AccessTime | DateTime \| Null | Optional time of latest data access                                                                       |
+| 4   | ModTime    | DateTime \| Null | Optional time of latest data modification                                                                 |
+| 5   | MaxWrite   | Int \| Null      | Optional maximal size in bytes of a single write that is accepted (this affects `*:write` and `*:append`) |
 
 ```
 => <id:42, method:"stat", path:"test/file">i{}
