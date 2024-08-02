@@ -17,7 +17,9 @@ established needs to be `hello` request. It is called with `null` SHV path
 
 Broker should respond with message containing nonce that can be used to perform
 login. The nonce needs to be an ASCII string with length from 10 to 32
-characters.
+characters. The nonce must be the same in case, of `hello` message retransmit 
+during the login phase. Some clients might send more `hello` message to discover,
+that shvbroker is started and ready, especially on serial port. 
 
 ```
 <= <id:1>i{2:{"nonce":"vOLJaIZOVevrDdDq"}}
