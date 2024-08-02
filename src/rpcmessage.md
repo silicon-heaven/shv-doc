@@ -54,6 +54,12 @@ should be used to get level if this field is not present. *Admin* access level
 should be considered as the base limit if neither `AccessLevel` nor `Access`
 field is present.
 
+`userId` is string containing information about the login names and the
+broker names along the RPC message path through brokers' hierarchy. The format
+is`user-name1:broker-name1;user-name2:broker-name2;...`, for example:
+`john@foo.bar:broker1;broker1-login:broker2`. User name and broker name is delimited by `:`,
+user:broker pairs are delimited by ';'.
+
 `Access` is older approach for the access control. It is assigned to request by
 broker according to user rights. Multiple grants can be specified and separated
 by comma. This is no longer the primary way and is used only for pre-SHV 3.0
