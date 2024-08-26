@@ -116,7 +116,7 @@ client.
 
 | Parameter | Result        |
 |-----------|---------------|
-| Null      | {String: Int, ...} |
+| Null      | {String: Int \| Null, ...} |
 
 Map of strings to int key value pairs is provided where keys are [resource identifiers for
 signals](../rpcri.md) and values are TTL remaining for the existing subscriptions. Zero TTL 
