@@ -144,7 +144,7 @@ Information the broker has on the client.
 
 | Parameter | Result                                                                                                           |
 |-----------|------------------------------------------------------------------------------------------------------------------|
-| Int       | {"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":{String: Int, ... }, ...} \| Null |
+| Int       | {"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":{String: Int \| Null, ... }, ...} \| Null |
 
 The parameter is client's ID (*Int*). The provided value is *Map* with info
 about the client. The *Null* is provided in case there is no client with this
