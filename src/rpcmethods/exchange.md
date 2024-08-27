@@ -52,7 +52,7 @@ assignment should minimize the reuse of the node names as much as possible.
 
 ```
 => <id:42, method:"newExchange", path:"test/sh">i{}
-<= <signal:"lschng", path:"test/sh", source:"ls">i{1:{"a3":true}}
+<= <signal:"lsmod", path:"test/sh", source:"ls">i{1:{"a3":true}}
 <= <id:42>i{2:"a3"}
 ```
 
@@ -202,7 +202,7 @@ this node must be allowed.
 
 ```
 => <id:42, method:"close", path:"test/sh/a3">i{}
-<= <signal:"lschng", path:"test/sh", source:"ls">i{1:{"a3":false}}
+<= <signal:"lsmod", path:"test/sh", source:"ls">i{1:{"a3":false}}
 <= <id:42>i{}
 ```
 
@@ -260,7 +260,7 @@ in reasonable intervals to ensure that connection is not closed due to
 inactivity (suggestion is the half interval of `idleTimeOut`).
 
 The connection can be terminated by calling `*/ASSIGNED:close`. The answerer can
-terminate connection for what ever reason on its own. It will send `*:ls:lschng`
+terminate connection for what ever reason on its own. It will send `*:ls:lsmod`
 signal with but in general caller detects termination by receiving
 `MethodNotFound` error when calling `*/ASSIGNED:exchange` method. There is no
 way to report disconnect reason.
