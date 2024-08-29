@@ -18,11 +18,11 @@ RPC message can have meta-data attribute defined.
 | 9                 | ShvPath              | String           | Path on which method will be called.
 | 10                | Method/Signal        | String           | Name of called RPC method or raised signal.
 | 11                | CallerIds            | List of Int      | Internal attribute filled by broker in request message to distinguish requests with the same request ID, but issued by different clients.
-| 13                | SeqNo                | Int              | Reserved, internal attribute to enable multi-part messages and tunneling. <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
+| 13                | RevCallerIds         | List of Int      | Reserved for SHV v2 broker compatibility
 | 14                | Access               | String           | Access granted by broker for called `shvPath` and `method` to current user. This should be used only for extra access info and for backward compatibility while `AccessLevel` is prefered instead.
 | 16                | UserId               | String           | ID of user calling RPC method.
 | 17                | AccessLevel          | Int              | Access level user has assigned for request or minimal access level needed to allow signal to be received.
-| 18                | Part                 | Bool             | Reserved, it will be used in next API version for multi-part messages   <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
+| 18                | SeqNo                | Int              | Reserved, it will be used in next API version for multi-part messages   <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
 | 19                | Source               | String           | Used for signals to store method name this signal is associated with.
 | 20                | Repeat               | Bool             | Used for signals to informat that signal was emited as a repeat of some older ones (that might not might not have been sent).
 
