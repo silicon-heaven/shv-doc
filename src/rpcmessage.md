@@ -18,7 +18,7 @@ RPC message can have meta-data attribute defined.
 | 9                 | ShvPath              | String           | Path on which method will be called.
 | 10                | Method/Signal        | String           | Name of called RPC method or raised signal.
 | 11                | CallerIds            | List of Int      | Internal attribute filled by broker in request message to distinguish requests with the same request ID, but issued by different clients.
-| 13                | RespCallerIds        | List of Int      | Reserved, internal attribute filled by broker in response message to enable support for multi-part messages and tunneling. <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
+| 13                | SeqNo                | Int              | Reserved, internal attribute to enable multi-part messages and tunneling. <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
 | 14                | Access               | String           | Access granted by broker for called `shvPath` and `method` to current user. This should be used only for extra access info and for backward compatibility while `AccessLevel` is prefered instead.
 | 16                | UserId               | String           | ID of user calling RPC method.
 | 17                | AccessLevel          | Int              | Access level user has assigned for request or minimal access level needed to allow signal to be received.
