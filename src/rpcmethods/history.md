@@ -186,7 +186,8 @@ The call provides list of records. Every record is *IMap* with following fields:
   `"chng"`.
 * `4`(*source*): *String* with signal's associated method name. The default if
   not specified is `"get"`.
-* `5`(*value*): *String* with signal's value (parameter). The default if not
+* `5`(*value*): with signal's value (parameter). The default if not specified is
+  `null`.
   specified is `null`.
 * `6`(*accessLevel*): *Int* with signal's access level. The default if not
   specified is *Read*.
@@ -267,8 +268,7 @@ The rest of the file must contain *List*s with following columns:
 * *signal*: *String* with signal name. The default if not specified is `"chng"`.
 * *source*: *String* with signal's associated method name. The default if not
   specified is `"get"`.
-* *value*: *String* with signal's value (parameter). The default if not
-  specified is `null`.
+* *value*: signal's value (parameter). The default if not specified is `null`.
 * *accessLevel*: *Int* with signal's access level. The default if not specified
   is *Read*.
 * *userId*: *String* with `UserId` carried by signal message. The default if not
