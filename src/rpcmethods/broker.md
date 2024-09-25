@@ -116,10 +116,11 @@ client.
 
 | Parameter | Result        |
 |-----------|---------------|
-| Null      | [String, ...] |
+| Null      | {String: Int \| Null, ...} |
 
-List of strings is provided where strings are [resource identifiers for
-signals](../rpcri.md) for the existing subscriptions.
+Map of strings to int key value pairs is provided where keys are [resource identifiers for
+signals](../rpcri.md) and values are TTL remaining for the existing subscriptions. Null TTL 
+means, that the subscription lasts forever. 
 
 ```
 => <id:42, method:"subscriptions", path:".broker/currentClient">i{}
@@ -143,7 +144,7 @@ Information the broker has on the client.
 
 | Parameter | Result                                                                                                           |
 |-----------|------------------------------------------------------------------------------------------------------------------|
-| Int       | {"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":[String, ...], ...} \| Null |
+| Int       | {"clientId":Int, "userName":String\|Null, "mountPoint":String\|Null, "subscriptions":{String: Int \| Null, ... }, ...} \| Null |
 
 The parameter is client's ID (*Int*). The provided value is *Map* with info
 about the client. The *Null* is provided in case there is no client with this
