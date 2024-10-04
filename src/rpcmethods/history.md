@@ -67,18 +67,22 @@ The parameter is *Map* with the following fields:
   where `"since"` is replaced with date and time of the last provided log. Note
   that this date and time can precede `"since"` and in such case logs returned
   are sorted from newest to the oldest (normally they are sorted from oldest to
-  the newest). The default is the time of request retrieval if not provided.
+  the newest). As a special exception if `"since"` is equal to `"until"` then
+  all logs until that time are considered and returned from newest one (just
+  like if you would set `"until"` to something very small). The default is the
+  time of request retrieval if not provided.
 * `"count"` is optional *Int* as a limitation for the number of records to be at
   most returned. The device on its own can limit number of returned records but
   this can lower that even further (thus minimum is used). This should be used
-  if you for example need to know only latest few records (you would use current
-  date and time as `"since"` and 2018-02-02 as `"until"` and set number of
-  records to `"count"`. The device alone decides limit on number of provided
-  records if this field is not specified. In a special case when there are
-  multiple matching signals recorded with same date and time, then all of them
-  must be provided even when that goes over count limit. Snapshot is not part of
-  this limit and thus you can ask for snapshot only with count set to zero. The
-  default if not specified (or `null`) is unlimited number of records.
+  if you for example need to know only latest few records (you would use default
+  for both `"since"` and `"until"` and set number of recods to `"count"`. The
+  device alone decides limit on number of provided records if this field is not
+  specified. In a special case when there are multiple matching signals recorded
+  with same date and time, then all of them must be provided even when that goes
+  over count limit. Snapshot is not part of this limit and thus you can ask for
+  snapshot only with count set to zero. The default if not specified (or `null`)
+  is unlimited number of records unless `"snapshot"` is set to `true` and in
+  such case it is `0`.
 * `"snapshot"` controls if virtual records should be inserted at the start (at
   `"since"` time) that copy state of the signals. This provides fixed point to
   start when you for example plotting data. These records are virtual and are
