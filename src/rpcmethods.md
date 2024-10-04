@@ -9,4 +9,6 @@ of SHV RPC communication.
 - [Device API](./rpcmethods/device.md)
 - [Broker API](./rpcmethods/broker.md)
 - [Property nodes](./rpcmethods/property.md)
-- [SHV Journal](./rpcmethods/shvjournal.md)
+- [File nodes](./rpcmethods/file.md)
+- [Bytes Exchange nodes](./rpcmethods/exchange.md)
+- [History](./rpcmethods/history.md)

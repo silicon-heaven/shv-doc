@@ -12,6 +12,9 @@ associated with it.
 This method needs to be implemented for every node (that is every valid SHV
 path). It provides a way to list all available methods and signals of the node.
 
+Be aware that for existing nodes the result of this method should be constant.
+There should be no methods added nor removed during the node existence.
+
 | Parameter                 | Result        |
 |---------------------------|---------------|
 | Null \| `false` \| `true` | [i{...}, ...] |
