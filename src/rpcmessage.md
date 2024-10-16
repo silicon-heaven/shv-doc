@@ -148,21 +148,21 @@ RPC Error is `IMap` with following keys defined
 
 Error codes
 
-| Value  | Name                  | Description
-| -----: | -------               | ----------
-| 1      | `InvalidRequest`      | The `RPC Value` sent is not a valid RPC Request object.
-| 2      | `MethodNotFound`      | The method does not exist or is not available or not accessible with given access level.
-| 3      | `InvalidParams`       | Invalid method parameter.
-| 4      | `InternalError`       | Internal RPC error.
-| 5      | `ParseError`          | Invalid `ChainPack` was received.
-| 6      | `MethodCallTimeout`   | Method execution timed out (for example if method implementation needs more time to access some other resources), you should try call later.
-| 7      | `MethodCallCancelled` |
-| 8      | `MethodCallException` | Generic execution exception of the method.
-| 9      | `Unknown`             | Used if error failure can't be determined (use only if absolutely necessary)
-| 10     | `LoginRequired`       | Method call without previous successful login.
-| 11     | `UserIDRequired`      | Method call requires UserID to be present in the request message. Send it again with UserID.
-| 12     | `NotImplemented`      | Can be used if method is valid but not implemented for what ever reason.
-| 32     | `UserCode`            |
+| Value  | Name                          | Description
+| -----: | -------                       | ----------
+| 1      |                               | Reserved for backward compatibility
+| 2      | `MethodNotFound`              | The method does not exist or is not available or not accessible with given access level.
+| 3      | `InvalidParams`               | Invalid method parameter.
+| 4      |                               | Reserved for backward compatibility
+| 5      |                               | Reserved for backward compatibility
+| 6      | `ImplementationReserved1`     | Won't ever be used in the communication and is reserved for implementations usage (such as signaling method timeout)
+| 7      | `ImplementationReserved2`     | Same as `ImplementationReserved1`
+| 8      | `MethodCallException`         | Generic execution exception of the method.
+| 9      | `ImplementationReserved3`     | Same as `ImplementationReserved1`
+| 10     | `LoginRequired`               | Method call without previous successful login.
+| 11     | `UserIDRequired`              | Method call requires UserID to be present in the request message. Send it again with UserID.
+| 12     | `NotImplemented`              | Can be used if method is valid but not implemented for what ever reason.
+| 32+    | `MethodCallExceptionSpecific` | Application specific `MethodCallException`
 
 **Examples**
 
