@@ -88,17 +88,11 @@ The parameter is *Map* with the following fields:
   start when you for example plotting data. These records are virtual and are
   not actually captured signals. This makes sense only for `"since"` being
   before `"until"` and no snapshot can be provided if that is not fulfilled.
-* `"paths"` same meaning as argument for
-  [`.broker/currentClient:subscribe`](./broker.md#brokercurrentclientsubscribe)
-  that is used to filter logs and provide only those matching this path pattern.
-* `"signal"` same meaning as argument for
-  [`.broker/currentClient:subscribe`](./broker.md#brokercurrentclientsubscribe)
-  that is used to filter logs and provide only those matching this signal name
-  pattern.
-* `"source"` same meaning as argument for
-  [`.broker/currentClient:subscribe`](./broker.md#brokercurrentclientsubscribe)
-  that is used to filter logs and provide only those matching this signal source
-  method name pattern.
+* `"ri"` [signal matching RPC RI](../rpcri.md) that is used to filter provided
+  records by the signal source. You should always preferably use as long path
+  for calling `getLog` as possible instead of giving it to this field because
+  access level is deduced by the request message path and with too short path
+  you might be assigned not hight enough access rights to receive records.
 
 The provided value is list of *IMap*s with following fields:
 
