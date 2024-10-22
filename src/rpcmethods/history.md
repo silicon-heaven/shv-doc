@@ -212,8 +212,9 @@ range.
 | Null      | [Int, Int, Int] |
 
 This method provides three integers in a list. The first *Int* is the smallest
-valid record ID, the second *Int* is the biggest valid record ID and the third
-*Int* is the keep record span.
+valid record ID, the second *Int* is the biggest valid record ID plus one (to
+allow case when there are no records to be signaled with same value as the first
+record) and the third *Int* is the keep record span.
 
 The keep record span is range of records where all combinations of SHV path,
 signal name and signal's associated method name in the log are present. That is

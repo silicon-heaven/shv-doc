@@ -106,6 +106,10 @@ Initiate the device's reset. This might not be implemented and in such case
 
 Get the current device's alerts.
 
+The `.device/alerts` node is [property node](./property.md). Its implementation
+is optional and thus if device doesn't raise any alerts then this node should
+not be present.
+
 | Parameter   | Result         |
 |-------------|----------------|
 | Null \| Int | \[i{...},...\] |
