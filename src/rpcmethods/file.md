@@ -21,21 +21,17 @@ provided with various, but not all, types of file node modes. The methods
 |             | `*:crc` / `*:sha1` | `*:read` | `*:write` | `*:truncate` | `*:append` |
 |-------------|--------------------|----------|-----------|--------------|------------|
 | Read only   | ✔️                  | ✔️        | ❌        | ❌           | ❌         |
-| Fixed size  | ✔️                  | ✔️        | ✔️         | ❌          | ❌         |
-| Resizable   | ✔️                  | ✔️        | ✔️         | ✔️          | ✔️         |
-| Append only | ✔️                  | ✔️        | ❌        | ❌           | ✔️         |
+| Fixed size  | ✔️                  | ✔️        | ✔️         | ❌           | ❌         |
+| Resizable   | ✔️                  | ✔️        | ✔️         | ✔️            | ✔️          |
+| Append only | ✔️                  | ✔️        | ❌        | ❌           | ✔️          |
 
 ## `*:stat`
 
-| Name   | SHV Path | Flags  | Access |
-|--------|----------|--------|--------|
-| `stat` | Any      | Getter | Read   |
+| Name   | SHV Path | Flags  | Param Type | Result Type | Access |
+|--------|----------|--------|------------|-------------|--------|
+| `stat` | Any      | Getter |            | `!stat`     | Read   |
 
 This method provides information about this file. It is required for file nodes.
-
-| Parameter | Result |
-|-----------|--------|
-| Null      | i{...} |
 
 The result is IMap with these fields:
 
@@ -55,18 +51,14 @@ The result is IMap with these fields:
 
 ## `*:size`
 
-| Name   | SHV Path | Flags  | Access |
-|--------|----------|--------|--------|
-| `size` | Any      | Getter | Read   |
+| Name   | SHV Path | Flags  | Param Type | Result Type | Access |
+|--------|----------|--------|------------|-------------|--------|
+| `size` | Any      | Getter |            | `i(0,)`     | Read   |
 
 This provides faster access to only file size. Although it is also part of the
 `*:stat` the size of the file is commonly used to quickly identify added data to
 the file and thus it is provided separately as well. This method must be
 implemented together with `*:stat`.
-
-| Parameter | Result |
-|-----------|--------|
-| Null      | Int    |
 
 ```
 => <id:42, method:"size", path:"test/file">i{}
@@ -75,9 +67,9 @@ implemented together with `*:stat`.
 
 ## `*:crc`
 
-| Name  | SHV Path | Flags | Access |
-|-------|----------|-------|--------|
-| `crc` | Any      |       | Read   |
+| Name  | SHV Path | Flags | Param Type                        | Result Type | Access |
+|-------|----------|-------|-----------------------------------|-------------|--------|
+| `crc` | Any      |       | `[i(0,):offset,i(0,)\|n:size]\|n` | `u(>32)`    | Read   |
 
 The validation of the data is common operation that can be done either to verify
 that all went all right or to detect that write might not be required because
@@ -93,14 +85,10 @@ crc calculation ranges).
 CRC32 algorithm to be used is the one used in IEEE 802.3 and [known as plain
 CRC-32](https://reveng.sourceforge.io/crc-catalogue/all.htm#crc.cat.crc-32-iso-hdlc).
 
-| Parameter                  | Result |
-|----------------------------|--------|
-| Null \| [Int, Int \| Null] | UInt   |
-
-You can either pass `Null` and in such case checksum of the whole file will be
-provided, or you can pass list with offset and size (that can be `Null` for the
-all data up to the end of the file) in bytes that identifies range CRC32 should
-be calculate for.
+You can either pass argument `Null` and in such case checksum of the whole file
+will be provided, or you can pass list with offset and size (that can be `Null`
+for the all data up to the end of the file) in bytes that identifies range CRC32
+should be calculate for.
 
 No error must be raised if range specified by parameter is outside of the file.
 Only bytes present in the range are used to calculate CRC32 (this includes case
@@ -118,19 +106,15 @@ with files that are growing.
 
 ## `*:sha1`
 
-| Name   | SHV Path | Flags | Access |
-|--------|----------|-------|--------|
-| `sha1` | Any      |       | Read   |
+| Name   | SHV Path | Flags | Param Type                        | Result Type | Access |
+|--------|----------|-------|-----------------------------------|-------------|--------|
+| `sha1` | Any      |       | `[i(0,):offset,i(0,)\|n:size]\|n` | `b(20)`     | Read   |
 
 The basic CRC32 algorithm, that is required alongside with `*:read`, is
 serviceable but it has higher probability of result collision. If you want to
 use it to not only detect modification of the file but instead identification of
 it, then SHA1 is the better choice. The implementation of this method is
 optional (but when it exists the `*:crc` must exist as well).
-
-| Parameter                  | Result |
-|----------------------------|--------|
-| Null \| [Int, Int \| Null] | Bytes  |
 
 You can either pass `Null` and in such case sha1 of the whole file will be
 provided, or you can pass list with offset and size (that can be `Null` for the
@@ -151,22 +135,18 @@ The result must always be 20 bytes long *Bytes*.
 
 ## `*:read`
 
-| Name   | SHV Path | Flags             | Access |
-|--------|----------|-------------------|--------|
-| `read` | Any      | LARGE_RESULT_HINT | Read   |
+| Name   | SHV Path | Flags             | Param Type                 | Result Type | Access |
+|--------|----------|-------------------|----------------------------|-------------|--------|
+| `read` | Any      | LARGE_RESULT_HINT | `[i(0,):offset,i(0,)size]` | `b`         | Read   |
 
 Method for reading data from file. This method should be implemented only if you
 allow reading of the file.
 
-| Parameter  | Result |
-|------------|--------|
-| [Int, Int] | Bytes  |
-
-The parameter must be a tuple containing `offset` and `size` in bytes 
-that identifies the range to be read. The implementation may 
-return less data than `size`, but it will never return 0 bytes if any data exists 
-at the specified offset. The range can be outside of the file boundaries and in such case
-zero length bytes value is returned.
+The parameter must be a list containing *offset* and *size* in bytes that
+identifies the range to be read. The implementation may return less data than
+*size*, but it will never return 0 bytes if any data exists at the specified
+offset. The range can be outside of the file boundaries and in such case zero
+length blob is returned.
 
 ```
 => <id:42, method:"read", path:"test/file">i{1:[0, 1024]}
@@ -179,16 +159,12 @@ zero length bytes value is returned.
 
 ## `*:write`
 
-| Name    | SHV Path | Flags | Access |
-|---------|----------|-------|--------|
-| `write` | Any      |       | Write  |
+| Name    | SHV Path | Flags | Param Type              | Result Type | Access |
+|---------|----------|-------|-------------------------|-------------|--------|
+| `write` | Any      |       | `[i(0,):offset,b:data]` |             | Write  |
 
 Write is optional method that can be provided if modification of the file over
 SHV RPC is allowed.
-
-| Parameter    | Result |
-|--------------|--------|
-| [Int, Bytes] | Null   |
 
 The parameter must be list with offset in bytes and bytes to be written on this
 offset address.
@@ -203,18 +179,14 @@ extend file boundary if that is possible, or it can result into an error.
 
 ## `*:truncate`
 
-| Name       | SHV Path | Flags | Access |
-|------------|----------|-------|--------|
-| `truncate` | Any      |       | Write  |
+| Name       | SHV Path | Flags | Param Type | Result Type | Access |
+|------------|----------|-------|------------|-------------|--------|
+| `truncate` | Any      |       | `i(0,)`    |             | Write  |
 
 Change the file boundary. This method should be implemented if `*:write` allows
 write outside of the file boundary. It should not be present if that is not
 possible. In other words: presence of this method signals that write outside
 file's boundary is possible alongside with presence of `*:write`.
-
-| Parameter | Result |
-|-----------|--------|
-| Int       | Null   |
 
 The parameter must be requested size of the file.
 
@@ -228,18 +200,14 @@ such as only increase is allowed, or maximal size of the file.
 
 ## `*:append`
 
-| Name     | SHV Path | Flags | Access |
-|----------|----------|-------|--------|
-| `append` | Any      |       | Write  |
+| Name     | SHV Path | Flags | Param Type | Result Type | Access |
+|----------|----------|-------|------------|-------------|--------|
+| `append` | Any      |       | `b`        |             | Write  |
 
 Append is a optional special way to perform write by always appending to the end
 of the file. Append can be provided even if `*:write` is not and other way
 around.  `*:truncate` also doesn't have to be implemented, append is always
 outside file boundary.
-
-| Parameter | Result |
-|-----------|--------|
-| Bytes     | Null   |
 
 The parameter is sequence of bytes to be appended to the file.
 

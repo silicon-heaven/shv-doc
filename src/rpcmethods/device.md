@@ -10,16 +10,12 @@ device.
 
 ## `.device:name`
 
-| Name   | SHV Path      | Flags  | Access |
-|--------|---------------|--------|--------|
-| `name` | `.device`     | Getter | Browse |
+| Name   | SHV Path  | Flags  |Param Type  |Result Type  | Access |
+|--------|-----------|--------|--|--|--------|
+| `name` | `.device` | Getter |  | `s`  | Browse |
 
 This method must provide the device name. This is a specific generic name of the
 device.
-
-| Parameter | Result |
-|-----------|--------|
-| Null      | String |
 
 ```
 => <id:42, method:"name", path:".device">i{}
@@ -28,15 +24,11 @@ device.
 
 ## `.device:version`
 
-| Name      | SHV Path      | Flags  | Access |
-|-----------|---------------|--------|--------|
-| `version` | `.device`     | Getter | Browse |
+| Name      | SHV Path  | Flags  | Param Type | Result Type | Access |
+|-----------|-----------|--------|------------|-------------|--------|
+| `version` | `.device` | Getter |            | `s`         | Browse |
 
 This method must provide version (revision) of the device.
-
-| Parameter | Result |
-|-----------|--------|
-| Null      | String |
 
 ```
 => <id:42, method:"name", path:".device">i{}
@@ -45,17 +37,13 @@ This method must provide version (revision) of the device.
 
 ## `.device:serialNumber`
 
-| Name           | SHV Path      | Flags  | Access |
-|----------------|---------------|--------|--------|
-| `serialNumber` | `.device`     | Getter | Browse |
+| Name           | SHV Path  | Flags  | Param Type | Result Type | Access |
+|----------------|-----------|--------|------------|-------------|--------|
+| `serialNumber` | `.device` | Getter |            | `s\|n`      | Browse |
 
 This method can provide serial number of the device if that is something the
 device has. It is allowed to provide *Null* in case there is no serial number
 assigned to this device.
-
-| Parameter | Result         |
-|-----------|----------------|
-| Null      | String \| Null |
 
 ```
 => <id:42, method:"serialNumber", path:".device">i{}
@@ -64,16 +52,12 @@ assigned to this device.
 
 ## `.device:uptime`
 
-| Name     | SHV Path  | Flags  | Access |
-|----------|-----------|--------|--------|
-| `uptime` | `.device` | Getter | Read   |
+| Name     | SHV Path  | Flags  | Param Type | Result Type | Access |
+|----------|-----------|--------|------------|------------|--------|
+| `uptime` | `.device` | Getter |            | `u\|n`     | Read   |
 
 This provide current device's uptime in seconds. It is allowed to provide *Null*
 in case device doesn't track its uptime.
-
-| Parameter | Result       |
-|-----------|--------------|
-| Null      | UInt \| Null |
 
 ```
 => <id:42, method:"uptime", path:".device">i{}
@@ -82,16 +66,12 @@ in case device doesn't track its uptime.
 
 ## `.device:reset`
 
-| Name    | SHV Path  | Flags | Access  |
-|---------|-----------|-------|---------|
-| `reset` | `.device` |       | Command |
+| Name    | SHV Path  | Flags | Param Type | Result Type | Access  |
+|---------|-----------|-------|------------|-------------|---------|
+| `reset` | `.device` |       |            |             | Command |
 
 Initiate the device's reset. This might not be implemented and in such case
 `NotImplemented` error should be provided.
-
-| Parameter | Result       |
-|-----------|--------------|
-| Null      |  Null |
 
 ```
 => <id:42, method:"reset", path:".device">i{}
@@ -100,9 +80,9 @@ Initiate the device's reset. This might not be implemented and in such case
 
 ## `.device/alerts:get`
 
-| Name  | SHV Path         | Flags  | Access |
-|-------|------------------|--------|--------|
-| `get` | `.device/alerts` | Getter | Read   |
+| Name  | SHV Path         | Flags  | Param Type | Result Type | Access |
+|-------|------------------|--------|------------|-------------|--------|
+| `get` | `.device/alerts` | Getter | `i\|n`     | `[!alert]`  | Read   |
 
 Get the current device's alerts.
 
@@ -110,9 +90,7 @@ The `.device/alerts` node is [property node](./property.md). Its implementation
 is optional and thus if device doesn't raise any alerts then this node should
 not be present.
 
-| Parameter   | Result         |
-|-------------|----------------|
-| Null \| Int | \[i{...},...\] |
+Every alert is *IMap* with following fields:
 
 * `0` (*date*): date and time of the alert creation.
 * `1` (*level*): int with notice level. This is value between 0 and 63 that can
@@ -141,11 +119,11 @@ not be present.
 
 ## `.device/alerts:get:chng`
 
-The alerts change must be signaled with `chng` signal.
+| Name   | Method | SHV Path         | Flags  | Value Type | Access |
+|--------|--------|------------------|--------|-------------|--------|
+| `chng` | `get`  | `.device/alerts` | Getter | `[!alert]`  | Read   |
 
-| Value          |
-|----------------|
-| \[i{...},...\] |
+The alerts change must be signaled with `chng` signal.
 
 ```
 <= <signal:"chng", path:".device/alerts", source:"get">i{1:[]}

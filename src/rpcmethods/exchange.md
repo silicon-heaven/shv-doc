@@ -24,9 +24,9 @@ caller doesn't call `exchange` for `idleTimeOut` (in default 30 seconds).
 
 ## `*:newExchange`
 
-| Name          | SHV Path | Flags | Access          |
-|---------------|----------|-------|-----------------|
-| `newExchange` | Any      |       | Write or higher |
+| Name          | SHV Path | Flags | Param Type | Result Type | Access          |
+|---------------|----------|-------|------------|-------------|-----------------|
+| `newExchange` | Any      |       | `{?}`      | `s`         | Write or higher |
 
 This creates new connection for this bytes exchange node. The
 connections are maintained as sub-nodes of this one.
@@ -34,10 +34,6 @@ connections are maintained as sub-nodes of this one.
 The access level should be at minimum write but it might be increased depending
 on the resource this provides. For example you really do not want to provide
 access to root shell with just write access level.
-
-| Parameter | Result |
-|-----------|--------|
-| {...}     | String |
 
 The parameter is Map with options to be set to the new exchange point. The real
 options depend on the implementation. The minimum supported list is described in
@@ -58,9 +54,9 @@ assignment should minimize the reuse of the node names as much as possible.
 
 ## `*/ASSIGNED:exchange`
 
-| Name       | SHV Path                   | Flags | Access |
-|------------|----------------------------|-------|--------|
-| `exchange` | Bellow Bytes Exchange node |       | Write  |
+| Name       | SHV Path                   | Flags | Param Type   | Result Type  | Access |
+|------------|----------------------------|-------|--------------|--------------|--------|
+| `exchange` | Bellow Bytes Exchange node |       | `!exchangeP` | `!exchangeR` | Write  |
 
 This is the method that is called to exchange bytes.
 
@@ -68,10 +64,6 @@ The access level must be disregarded for this method and instead CallerIds must
 be used to control access. The message must have same CallerIds as the one for
 `*:newExchange` that created this node. Nobody else must be allowed to call this
 method (this is for consistency of exchanged bytes).
-
-| Parameter                 | Result                    |
-|---------------------------|---------------------------|
-| i{0:UInt, 1:UInt: 3:Blob} | i{1:UInt, 2:UInt, 3:Blob} |
 
 The parameter is IMap with following items:
 
@@ -102,6 +94,10 @@ willing to receive and not copy of ReadyToSend from previous result or signal.
 
 ## `*/ASSIGNED:exchange:ready`
 
+| Name    | Method     | SHV Path                   | Flags | Value Type   | Access |
+|---------|------------|----------------------------|-------|--------------|--------|
+| `ready` | `exchange` | Bellow Bytes Exchange node |       | `!exchangeV` | Write  |
+
 The caller is expected to call `*/ASSIGNED:exchange` as soon as it can again to
 send and/or receive more data, but in some cases it might want to just wait for
 data to become available or space available for receive. In such a situation
@@ -111,10 +107,6 @@ either ReadyToReceive or ReadyToSend goes from zero to non-zero value. The
 caller still must poll the exchange method to not get stuck in case signal gets
 lost but in most cases this signal will speed up the return to the data
 exchanging again.
-
-| Value             |
-|-------------------|
-| i{1:UInt, 2:UInt} |
 
 The value is IMap with items ReadyToReceive and ReadyToSend from
 `*/ASSIGNED:exchange` result.
@@ -136,19 +128,15 @@ The more realistic exchange to the one used as an example for
 
 ## `*/ASSIGNED:options`
 
-| Name      | SHV Path                   | Flags  | Access        |
-|-----------|----------------------------|--------|---------------|
-| `options` | Bellow Bytes Exchange node | Getter | Super-service |
+| Name      | SHV Path                   | Flags  | Param Type | Result Type | Access        |
+|-----------|----------------------------|--------|------------|-------------|---------------|
+| `options` | Bellow Bytes Exchange node | Getter |            | `{?}`       | Super-service |
 
 This provide access to the options associated with this connection.
 
 The access level applies only to the callers that do not match CallerIds.
 Request messages with CallerIds matching that for `*:newExchange` that created
 this node must be allowed.
-
-| Parameter | Result |
-|-----------|--------|
-| Null      | {...}  |
 
 The result is Map with at least these fields:
 
@@ -162,9 +150,9 @@ The result is Map with at least these fields:
 
 ## `*/ASSIGNED:setOptions`
 
-| Name         | SHV Path                   | Flags  | Access        |
-|--------------|----------------------------|--------|---------------|
-| `setOptions` | Bellow Bytes Exchange node | Setter | Super-service |
+| Name         | SHV Path                   | Flags  | Param Type | Result Type | Access        |
+|--------------|----------------------------|--------|------------|-------------|---------------|
+| `setOptions` | Bellow Bytes Exchange node | Setter | `{?}`      |             | Super-service |
 
 This allows modification of option associated with this connection. Note that
 not all options might be modifiable and only fields specified in Map are
@@ -175,10 +163,6 @@ The access level applies only to the callers that do not match CallerIds.
 Request messages with CallerIds matching that for `*:newExchange` that created
 this node must be allowed.
 
-| Parameter | Result |
-|-----------|--------|
-| {...}      | Null  |
-
 ```
 => <id:42, method:"setOptions", path:"test/sh/a3">i{1:{"idleTimeOut":60}}
 <= <id:42>i{}
@@ -186,19 +170,15 @@ this node must be allowed.
 
 ## `*/ASSIGNED:close`
 
-| Name    | SHV Path                   | Flags | Access        |
-|---------|----------------------------|-------|---------------|
-| `close` | Bellow Bytes Exchange node |       | Super-service |
+| Name    | SHV Path                   | Flags | Param Type | Result Type | Access        |
+|---------|----------------------------|-------|------------|-------------|---------------|
+| `close` | Bellow Bytes Exchange node |       |            |             | Super-service |
 
 This method allows caller to terminate the connection.
 
 The access level applies only to the callers that do not match CallerIds.
 Request messages with CallerIds matching that for `*:newExchange` that created
 this node must be allowed.
-
-| Parameter | Result |
-|-----------|--------|
-| Null      | Null   |
 
 ```
 => <id:42, method:"close", path:"test/sh/a3">i{}
@@ -208,18 +188,14 @@ this node must be allowed.
 
 ## `*/ASSIGNED:peer`
 
-| Name   | SHV Path                   | Flags  | Access        |
-|--------|----------------------------|--------|---------------|
-| `peer` | Bellow Bytes Exchange node | Getter | Super-service |
+| Name   | SHV Path                   | Flags  | Param Type | Result Type | Access        |
+|--------|----------------------------|--------|------------|-------------|---------------|
+| `peer` | Bellow Bytes Exchange node | Getter |            | `[int]`     | Super-service |
 
 This provide ClientIds from `*:newExchange` that created this sub-node.
 
 This method contrary to others of this node uses normal access level control and
 thus only clients with Super-service access level can call it.
-
-| Parameter | Result     |
-|-----------|------------|
-| Null      | [Int, ...] |
 
 The result is List of Ints.
 

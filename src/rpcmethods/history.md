@@ -39,9 +39,9 @@ but all paths recorded (or to be recorded) in single log must be provided.
 
 ### `.history/**:getLog`
 
-| Name     | SHV Path      | Flags           | Access |
-|----------|---------------|-----------------|--------|
-| `getLog` | `.history/**` | HintLargeResult | Browse |
+| Name     | SHV Path      | Flags           | Param Type | Result Type | Access |
+|----------|---------------|-----------------|------------|-------------|--------|
+| `getLog` | `.history/**` | HintLargeResult | `!getLogP` | `!getLogR`  | Browse |
 
 Queries logs for the recorded signals in given time range.
 
@@ -49,11 +49,6 @@ This method must be available on all nodes in the `.history/**` tree with
 exception of `.app`, `.records` and `.files`. In other words this must be
 provided only if aggregated log access is provided and in such case it is
 required.
-
-
-| Parameter | Result        |
-|-----------|---------------|
-| {...}     | [i{...}, ...] |
 
 The parameter is *Map* with the following fields:
 
@@ -145,15 +140,11 @@ storage such as database or cyclic buffer.
 
 #### `.history/**/.records/*:fetch`
 
-| Name    | SHV Path                 | Flags           | Access  |
-|---------|--------------------------|-----------------|---------|
-| `fetch` | `.history/**/.records/*` | HintLargeResult | Service |
+| Name    | SHV Path                 | Flags           | Param Type                   | Result Type       | Access  |
+|---------|--------------------------|-----------------|------------------------------|-------------------|---------|
+| `fetch` | `.history/**/.records/*` | HintLargeResult | `[i:offset,i(0,):count]` | `!historyRecords` | Service |
 
 This allows you to fetch records from log.
-
-| Parameter  | Result       |
-|------------|--------------|
-| [Int, Int] | [{...}, ...] |
 
 Parameter is tuple of first record ID to be provided and number of records (thus
 last record returned is `parameter[0] + parameter[1] - 1`).
@@ -200,16 +191,12 @@ Fetch that is outside of the valid record ID range must not provide error.
 
 #### `.history/**/.records/*:span`
 
-| Name   | SHV Path                 | Flags  | Access  |
-|--------|--------------------------|--------|---------|
-| `span` | `.history/**/.records/*` | Getter | Service |
+| Name   | SHV Path                 | Flags  | Param Type | Result Type                         | Access  |
+|--------|--------------------------|--------|------------|-------------------------------------|---------|
+| `span` | `.history/**/.records/*` | Getter |            | `[i:smallest,i:biggest,i(1,):span]` | Service |
 
 This allows fetch of boundaries for the record IDs and also the keep record
 range.
-
-| Parameter | Result          |
-|-----------|-----------------|
-| Null      | [Int, Int, Int] |
 
 This method provides three integers in a list. The first *Int* is the smallest
 valid record ID, the second *Int* is the biggest valid record ID plus one (to
@@ -277,36 +264,28 @@ The rest of the file must contain *List*s with following columns:
 
 ### `.history/**/.records/*:sync` and `.history/**/.files/*:sync`
 
-| Name       | SHV Path                                           | Flags | Access       |
-|------------|----------------------------------------------------|-------|--------------|
-| `lastSync` | `.history/**/.records/*` or `.history/**/.files/*` |       | SuperService |
+| Name       | SHV Path                                           | Flags | Param Type | Result Type | Access       |
+|------------|----------------------------------------------------|-------|------------|-------------|--------------|
+| `lastSync` | `.history/**/.records/*` or `.history/**/.files/*` |       |            |             | SuperService |
 
 Trigger the synchronization manually right now.
 
 This can't be implemented for `.history/.records/*` and `.history/.files/*`
 because those are logs not synchronized but collected.
 
-| Parameter | Result |
-|-----------|--------|
-| Null      | Null   |
-
 This method triggers synchronization or does nothing if synchronization is
 already in the progress.
 
 ### `.history/**/.records/*:lastSync` and `.history/**/.files/*:lastSync`
 
-| Name       | SHV Path                                           | Flags  | Access  |
-|------------|----------------------------------------------------|--------|---------|
-| `lastSync` | `.history/**/.records/*` or `.history/**/.files/*` | Getter | Service |
+| Name       | SHV Path                                           | Flags  | Param Type | Result Type | Access  |
+|------------|----------------------------------------------------|--------|------------|-------------|---------|
+| `lastSync` | `.history/**/.records/*` or `.history/**/.files/*` | Getter |            | `t\|n`      | Service |
 
 This provides information when last synchronization was performed.
 
 This can't be implemented for `.history/.records/*` and `.history/.files/*`
 because those are logs not synchronized but collected.
-
-| Parameter | Result           |
-|-----------|------------------|
-| Null      | DateTime \| Null |
 
 The provided value is either *DateTime* that must be when last synchronization
 was performed and *Null* if synchronization is in progress right now.
