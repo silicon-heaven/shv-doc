@@ -7,17 +7,13 @@ than just a few requests.
 
 ## `.app:shvVersionMajor`
 
-| Name              | SHV Path | Flags  | Access |
-|-------------------|----------|--------|--------|
-| `shvVersionMajor` | `.app`   | Getter | Browse |
+| Name              | SHV Path | Flags  | Param Type | Result Type | Access |
+|-------------------|----------|--------|------------|-------------|--------|
+| `shvVersionMajor` | `.app`   | Getter |            | `i`         | Browse |
 
 This method provides information about implemented SHV standard. Major version
 number signal major changes in the standard and thus you are most likely
 interested just in this number.
-
-| Parameter | Result |
-|-----------|--------|
-| Null      | Int    |
 
 ```
 => <id:42, method:"shvVersionMajor", path:".app">i{}
@@ -26,17 +22,13 @@ interested just in this number.
 
 ## `.app:shvVersionMinor`
 
-| Name              | SHV Path | Flags  | Access |
-|-------------------|----------|--------|--------|
-| `shvVersionMinor` | `.app`   | Getter | Browse |
+| Name              | SHV Path | Flags  | Param Type | Result Type | Access |
+|-------------------|----------|--------|------------|-------------|--------|
+| `shvVersionMinor` | `.app`   | Getter |            | `i`         | Browse |
 
 This method provides information about implemented SHV standard. Minor version
 number signals new features added and thus if you wish to check for support of
 these additions you can use this number.
-
-| Parameter | Result |
-|-----------|--------|
-| Null      | Int    |
 
 ```
 => <id:42, method:"shvVersionMinor", path:".app">i{}
@@ -45,16 +37,12 @@ these additions you can use this number.
 
 ## `.app:name`
 
-| Name   | SHV Path | Flags  | Access |
-|--------|----------|--------|--------|
-| `name` | `.app`   | Getter | Browse |
+| Name   | SHV Path | Flags  | Param Type | Result Type | Access |
+|--------|----------|--------|------------|-------------|--------|
+| `name` | `.app`   | Getter |            | `s`         | Browse |
 
 This method must provide the name of the application, or at least the SHV
 implementation used in the application.
-
-| Parameter | Result |
-|-----------|--------|
-| Null      | String |
 
 ```
 => <id:42, method:"name", path:".app">i{}
@@ -63,17 +51,13 @@ implementation used in the application.
 
 ## `.app:version`
 
-| Name      | SHV Path | Flags  | Access |
-|-----------|----------|--------|--------|
-| `version` | `.app`   | Getter | Browse |
+| Name      | SHV Path | Flags  | Param Type | Result Type | Access |
+|-----------|----------|--------|------------|-------------|--------|
+| `version` | `.app`   | Getter |            | `s`         | Browse |
 
 This method must provide the application version, or at least the SHV
 implementation used in the application (must be consistent with information in
 `.app:appName`).
-
-| Parameter | Result |
-|-----------|--------|
-| Null      | String |
 
 ```
 => <id:42, method:"version", path:".app">i{}
@@ -82,17 +66,13 @@ implementation used in the application (must be consistent with information in
 
 ## `.app:ping`
 
-| Name   | SHV Path | Flags | Access |
-|--------|----------|-------|--------|
-| `ping` | `.app`   |       | Browse |
+| Name   | SHV Path | Flags | Param Type | Result Type | Access |
+|--------|----------|-------|------------|-------------|--------|
+| `ping` | `.app`   |       |            |             | Browse |
 
 This method should reliably do nothing and should always be successful. It is
 used to check the connection (if message can be passed to and from client) as
 well as to keep connection in case of SHV Broker.
-
-| Parameter | Result |
-|-----------|--------|
-| Null      | Null   |
 
 ```
 => <id:42, method:"ping", path:".app">i{}
@@ -101,9 +81,9 @@ well as to keep connection in case of SHV Broker.
 
 ## `.app:date`
 
-| Name   | SHV Path | Flags | Access |
-|--------|----------|-------|--------|
-| `date` | `.app`   |       | Browse |
+| Name   | SHV Path | Flags | Param Type | Result Type | Access |
+|--------|----------|-------|------------|-------------|--------|
+| `date` | `.app`   |       |            | `t`         | Browse |
 
 This is an optional method that provides access to the date and time this
 application is using (that includes time zone). Applications running on systems
@@ -119,10 +99,6 @@ should be avoided.
 Note that there is unspecified overhead of SHV RPC network in up to seconds for
 transferring messages and thus precision of comparison with local time must
 consider this.
-
-| Parameter | Result   |
-|-----------|----------|
-| Null      | DateTime |
 
 ```
 => <id:42, method:"date", path:".app">i{}
