@@ -144,7 +144,7 @@ thus would be packed as `0x2a`.
 
 ```
 +--------------+
-| 0x40 + Value |
+| 0x00 + Value |
 +--------------+
 Value ∈ <0, 63>
 ```
