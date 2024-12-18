@@ -10,6 +10,21 @@ and advanced data interpretation for the results.
 The format is chosen to be compact and machine readable but still readable and
 writable by human.
 
+The general rules are:
+
+* The characters `[]{}():,|` are reserved and can't be used in `KEY` and `UNIT`.
+* No white characters are allowed between types (the only exception is `UNIT`
+  where they are interpreted as part of the unit text).
+* Numerical constants are decimal (hex nor bin are supported) with optional
+  leading `-`. The leading `+` is not allowed. Integer numbers can also be
+  prefixed with either `^` or `>` (must be used after `-`). The `^` symbol can
+  be used if you need power of two number (`-^8` is `-256`). The `>` synbol can
+  be used if you need power of two minus one (`->8` is `-255`). These extensions
+  are provided as these numbers are common numerical limits in computers.
+* Some numerical constants are decimal point numbers. These do not support `^`
+  and `>` prefixes and use decimal point (`.`, not comma). They can start with
+  `.` (the leading zero can be left out).
+
 
 ## Null
 
@@ -36,16 +51,10 @@ i           iUNIT
 i(MIN,MAX)  i(MIN,MAX)UNIT
 ```
 
-The *Int* type that can optionally have range specified. As a special exception
-the values prefixed with `^` are interpreted as powers of two and `>` are
-interpreted as power of two minus one (this is provided to easily specify limits
-for standard integer ranges). One of the limits can also be unspecified and in
-such case it is not applied.
+The *Int* type that can optionally have range specified as numerical constants.
+Any of the limits can also be unspecified and in such case it is not applied.
 
-Type specifier can be followed by unit specification. This can be any text that
-can be used by interpreting and data visualizing tools. This text can't contain
-`:,]}|` characters, those are used to detect end of the unit. In addition the
-first character also can't be `([{`.
+Type specifier can be followed by unit specification (`UNIT`).
 
 Examples:
 
@@ -63,10 +72,11 @@ u(MAX)      u(MAX)UNIT
 u(MIN,MAX)  u(MIN,MAX)UNIT
 ```
 
-The *UInt* type that can optionally have range or maximal value specified.
-Please see the Integer documentation as the same applies for the unsigned
-integers. The only difference is, as always, that minimum value is zero and thus
-it makes sense to also introduce variant where only maximum is being specified.
+The *UInt* type that can optionally have range or maximal value specified as
+numerical constant (but only positive numbers are accepted). Any of the limits
+can also be unspecified and in such case it is not applied.
+
+Type specifier can be followed by unit specification (`UNIT`).
 
 ⚠️ The usage of unsigned integers is discouraged because it introduces simple to
 miss type mismatches and in most cases can be safely replaced by integer with
@@ -97,9 +107,7 @@ Examples:
 f  fUNIT
 ```
 
-The *Double* type. It can be followed by unit specification. The `UNIT` can be
-added where the same rules are applied as for Integer (please see section for
-Integer).
+The *Double* type. It can be followed by unit specification (`UNIT`).
 
 Examples:
 
@@ -114,20 +122,21 @@ d(MIN,MAX,PRECISSION)  d(MIN,MAX,PRECISSION)UNIT
 ```
 
 The *Decimal* type that can optionally have range or range and precision
-specified. The precision is number of decimal points expected. The negative
-number can be also used.
+specified as decimal point numerical constants. The precision is number of
+decimal points expected. The negative number can be also used for the
+precission. Any of the limits can be unspecified and in such case it is not
+applied.
 
-Type specifier can be followed by unit specification. This is the same as for
-Integer and thus it is documented there. Please see Integer section for the
-`UNIT` reference.
+Type specifier can be followed by unit specification (`UNIT`).
 
 Examples:
 
 * `d(0.3,0.8)` Decimal that must be in range of <0.3, 0.8>.
 * `d(0,100,2)%` Decimal in percents that can be only from zero to 100 with
-  precision of `0.01`.
+  precision of `0.01`. The unit is `%`.
 * `d(1000,2000,-2)` Decimal that can be from one thousands to two thousands in
   steps of hundred.
+* `d(,,2)` Decimal that can be any number but only with precission of `0.01`.
 
 ## String
 
@@ -137,7 +146,8 @@ s(LEN)
 s(MIN,MAX)
 ```
 
-The *String* type with optional length limitation.
+The *String* type with optional length limitation specified as numerical
+constants. One of the limits can be left out and in such case it is not applied.
 
 Examples:
 
@@ -152,7 +162,8 @@ x(LEN)
 x(MIN,MAX)
 ```
 
-The *Blob* type with optional size limitation.
+The *Blob* type with optional length limitation specified as numerical
+constants. One of the limits can be left out and in such case it is not applied.
 
 Examples:
 
@@ -171,16 +182,19 @@ The *DateTime* type.
 
 ```
 [TYPE]
+[TYPE](LEN)
 [TYPE](MIN,MAX)
 ```
 
 The *List* type. This list can have only items of specified type (`TYPE`) and
-number of them can be limited.
+number of them can be limited. The limits can be unspecified and in such case
+they are not applied.
 
 Examples:
 
-* `[i(0,100)]` List of integers between 0 and 100.
-* `[?](1,4)` List that can contain anything as far as it is from 1 to 4 items.
+* `[i(0,100)](2)` List of integers between 0 and 100 with exactly two items.
+* `[?](1,4)` List that can contain anything as far as it has from 1 to 4 items.
+* `[s](1,)` List that can contain strings with minimum of at least one.
 
 ## Tuple
 
@@ -189,11 +203,12 @@ Examples:
 ```
 
 The *List* type with fixed length and defined types per its items. You can
-specify any number of types in the list. The `KEY` is the alias for the item.
+specify any number of types in the list (but at least one must be specified).
+The `KEY` is the alias for the item.
 
-Any value that allow *Null* (such as `i|n`) can be left out if all further items
-are *Null* as well. For example `[i|n:1,d|n:2]` accepts `[42,1.8]` as well as
-`[42]` or even `[]`. Note that `[null,1.8]` and its variations is also accepted.
+Any value that allows *Null* (such as `i|n`) can be left out if all further
+items are *Null* as well. For example `[i|n:foo,d|n:faa]` accepts `[42,1.8]` as
+well as `[42]` or `[]` or even `[null,1.8]`.
 
 Notice that syntax is pretty much the same as for *List* type in the previous
 section. The difference is that for *Tuple* the `KEY` must be provided and
@@ -201,7 +216,7 @@ multiple items can be specified.
 
 Examples:
 
-* `[i:id,s:name,lastLogin:t|n]` First item must be integer, second item string
+* `[i:id,s:name,t|n:lastLogin]` First item must be integer, second item string
   and third is optional and if present must contain date and time. Thus list can
   have two or three fields in this case.
 
@@ -405,3 +420,39 @@ descriptions.
   ```
   [i{i[normal:1,keep,timeJump,timeAbig]:type,t:timestamp,s|n:path,s|n:signal,s|n:source,?:value,i(0,63):accessLevel,s|n:userId,b|n:repeat,i|n:timeJump:60}]
   ```
+
+## Grammar representation
+
+```
+type             = bool | integer | unsigned integer | enum | double | decimal | string | blob | date time | list | tuple | imap | struct | map | keystruct | bitfield | one of | standard;
+
+bool             = "b";
+integer          = "i", ["(", [number], ",", [number], ")"], [unit];
+unsigned integer = "u", ["(", [positive number], ",", [positive number], ")"], [unit];
+enum             = "i", "[", enum item, {",", enum item}, "]"
+double           = "f", [unit];
+decimal          = "d", ["(", [decimal number], ",", [decimal number], [",", decimal number], ")"], [unit];
+string           = "s", ["(", [number], [",", number], ")"];
+blob             = "b", ["(", [number], [",", number], ")"];
+date time        = "t";
+list             = "[", type, "]", ["(", [number], [",", [number]], ")"];
+tuple            = "[", key item, {",", key item}, "]";
+imap             = "i", "{", type, "}";
+struct           = "i", "{", ikey item, {",", ikey item}, "}";
+map              = "{", type, "}";
+keystruct        = "{", key item, {",", key item}, "}";
+bitfield         = "u", "[", ikey item, {",", ikey item}, "]";
+one of           = type - oneof, "|", type;
+standard         = "!", text;
+
+unit             = text;
+enum item        = text, [":", number];
+key item         = type, ":", text;
+ikey item        = type, ":", text, [":", number];
+decimal number   = ["-"], ({digit} | [digit] , [".", {digit}]);
+number           = "0" | ["^" | "<"], ["-"], digit - "0", {digit};
+positive number  = "0" | ["^" | "<"], digit - "0", {digit};
+digit            = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
+text             = character, {character};
+character        = ? UTF-8 character ? - ("[" | "]" | "{" | "}" | "(" | ")" | ":" | "," | "|");
+```
