@@ -10,6 +10,14 @@ and advanced data interpretation for the results.
 The format is chosen to be compact and machine readable but still readable and
 writable by human.
 
+The general rules are:
+
+* The characters `[]{}():,|` are reserved and can't be used in `KEY` and `UNIT`.
+* No white characters are allowed between types (the only exception is `UNIT`
+  where they are interpreted as part of the unit text).
+* Numerical constants are decimal (hex nor bin are supported) with optional
+  leading `-`. The leading `+` is not allowed. The deciaml point can be used.
+
 
 ## Null
 
@@ -405,3 +413,37 @@ descriptions.
   ```
   [i{i[normal:1,keep,timeJump,timeAbig]:type,t:timestamp,s|n:path,s|n:signal,s|n:source,?:value,i:accessLevel,s|n:userId,b|n:repeat,i:timeJump:60}]
   ```
+
+## Grammar representation
+
+```
+type             = bool | integer | unsigned integer | enum | double | decimal | string | blob | date time | list | tuple | imap | struct | map | keystruct | bitfield| one of;
+
+bool             = "b";
+integer          = "i", ["(", [number], ",", [number], ")"], unit;
+unsigned integer = "u", ["(", [number], ",", [number], ")"], unit;
+enum             = "i", "[", enum item, {",", enum item}, "]"
+double           = "f", unit;
+decimal          = "d", ["(", [decimal number], ",", [decimal number], [",", decimal number], ")"] unit;
+string           = "s", ["(", [number], [",", number], ")"];
+blob             = "b", ["(", [number], [",", number], ")"];
+date time        = "t";
+list             = "[", type, "]", ["(", [number], ",", [number], ")"];
+tuple            = "[", key item, {",", key item}, "]";
+imap             = "i", "{", type, "}";
+struct           = "i", "{", ikey item, {",", ikey item}, "}";
+map              = "{", type, "}";
+keystruct        = "{", key item, {",", key item}, "}";
+bitfield         = "u", "[", ikey item, {",", ikey item}, "]";
+one of           = type - oneof, "|", type;
+
+unit             = [text];
+enum item        = text, [":", number];
+key item         = type, ":", text;
+ikey item        = type, ":", text, [":", number];
+decimal number   = ["-"], ({digit} | [digit] , [".", {digit}]);
+number           = "0" | ["-"], digit - "0", {digit};
+text             = char, {char};
+character        = ? UTF-8 character ? - ("[" | "]" | "{" | "}" | "(" | ")" | ":" | "," | "|");
+digit            = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
+```
