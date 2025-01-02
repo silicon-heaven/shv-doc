@@ -163,10 +163,10 @@ allow reading of the file.
 | [Int, Int] | Bytes  |
 
 The parameter must be a tuple containing `offset` and `size` in bytes 
-that identifies the range to be read. The range can extend outside of the file boundaries; 
-in such a case, a zero-length byte value is provided. The implementation may 
+that identifies the range to be read. The implementation may 
 return less data than `size`, but it will never return 0 bytes if any data exists 
-at the specified offset.
+at the specified offset. The range can be outside of the file boundaries and in such case
+zero length bytes value is returned.
 
 ```
 => <id:42, method:"read", path:"test/file">i{1:[0, 1024]}
