@@ -108,11 +108,11 @@ client.
 
 Map of strings to int key value pairs is provided where keys are [resource
 identifiers for signals](../rpcri.md) and values are TTL remaining for the
-existing subscriptions. Null TTL means, that the subscription lasts forever. 
+existing subscriptions. *Null* TTL means, that the subscription lasts forever. 
 
 ```
 => <id:42, method:"subscriptions", path:".broker/currentClient">i{}
-<= <id:42>i{2:["**:*:chng", "test/device/**:get:chng"]}
+<= <id:42>i{2:{"**:*:chng":null, "test/device/**:get:chng":739}}
 ```
 
 ## Clients
@@ -136,20 +136,21 @@ ID.
 
 The *Map* containing at least these fields:
 
-* `"clientId"` with *Int* containing ID assigned to this client.
-* `"userName"` with *String* user name used during the login sequence. This can
-  be *Null* because broker can have clients it established itself and thus won't
-  perform any login.
-* `"mountPoint"` with *String* SHV path where device is mounted. This can be
-  *Null* in case this is not a device.
-* `"subscriptions"` is a list of subscriptions of this client.
+* `"clientId"` (`i`) with *Int* containing ID assigned to this client.
+* `"userName"` (`s|n`) with *String* user name used during the login sequence.
+  This can be *Null* because broker can have clients it established itself and
+  thus won't perform any login.
+* `"mountPoint"` (`s|n`) with *String* SHV path where device is mounted. This
+  can be *Null* in case this is not a device.
+* `"subscriptions"` (`{i|n}`) is a *Map* of subscriptions of this client. It is
+  same as `.broker/currentClient:subscriptions` provides.
 
 Additional fields are allowed to support more complex brokers but are not
 required nor standardized at the moment.
 
 ```
 => <id:42, method:"clientInfo", path:".broker">i{1:68}
-<= <id:42>i{2:{"clientId:68, "userName":"smith", "mountPoint": "iot/device", "subscriptions":["**:*:chng"]}}
+<= <id:42>i{2:{"clientId:68, "userName":"smith", "mountPoint": "iot/device", "subscriptions":{"**:*:chng":null}}}
 ```
 ```
 => <id:42, method:"clientInfo", path:".broker">i{1:126}
@@ -171,7 +172,7 @@ in case there is no mount point to which given path would belong to.
 
 ```
 => <id:42, method:"mountedClientInfo", path:".broker">i{1:"iot/device/node"}
-<= <id:42>i{2:{"clientId:68, "userName":"smith", "mountPoint": "iot/device", "subscriptions":["**:*:chng"]}}
+<= <id:42>i{2:{"clientId:68, "userName":"smith", "mountPoint": "iot/device", "subscriptions":{"**:*:chng":null}}}
 ```
 ```
 => <id:42, method:"mountedClientInfo", path:".broker">i{1:"invalid"}
