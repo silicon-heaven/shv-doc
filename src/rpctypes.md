@@ -377,9 +377,17 @@ descriptions.
 * `!alert` is result of [`.device/alerts:get`
   method](./rpcmethods/device.md#devicealertsget) and value of
   [`.device/alerts:get:chng`
-  signal](./rpcmethods/device.md#devicealertsgetchng).
+  signal](./rpcmethods/device.md#devicealertsgetchng). Its expanded form is:
   ```
   i{t:date,i(0,63):level,s:id,?:info}
+  ```
+* `!clientInfo` is result of [`.broker:clientInfo`
+  method](./rpcmethods/broker.md#brokerclientinfo), [`.broker:mountedClientInfo`
+  method](./rpcmethods/broker.md#brokermountedclientinfo), and ,
+  [`.broker/currentClient:info`
+  method](./rpcmethods/broker.md#brokercurrentclientinfo). Its expanded form is:
+  ```
+  i{i:clientId:1,s|n:userName,s|n:mountPoint,{i|n}|n:subscriptions,{?}:extra:63}
   ```
 * `!stat` is result of [`*:stat` method](./rpcmethods/file.md#stat). Its
   expanded form is:

@@ -124,26 +124,28 @@ network.
 
 ### `.broker:clientInfo`
 
-| Name         | SHV Path  | Flags | Param Type | Result Type | Access       |
-|--------------|-----------|-------|------------|-------------|--------------|
-| `clientInfo` | `.broker` |       | `i`        | `{?}\|n`    | SuperService |
+| Name         | SHV Path  | Flags | Param Type | Result Type      | Access       |
+|--------------|-----------|-------|------------|------------------|--------------|
+| `clientInfo` | `.broker` |       | `i`        | `!clientInfo\|n` | SuperService |
 
 Information the broker has on the client.
 
-The parameter is client's ID (*Int*). The provided value is *Map* with info
+The parameter is client's ID (*Int*). The provided value is *IMap* with info
 about the client. The *Null* is provided in case there is no client with this
 ID.
 
-The *Map* containing at least these fields:
+The *IMap* containing these fields:
 
-* `"clientId"` (`i`) with *Int* containing ID assigned to this client.
-* `"userName"` (`s|n`) with *String* user name used during the login sequence.
-  This can be *Null* because broker can have clients it established itself and
-  thus won't perform any login.
-* `"mountPoint"` (`s|n`) with *String* SHV path where device is mounted. This
-  can be *Null* in case this is not a device.
-* `"subscriptions"` (`{i|n}`) is a *Map* of subscriptions of this client. It is
-  same as `.broker/currentClient:subscriptions` provides.
+* `1` (*clientId*): with *Int* containing ID assigned to this client.
+* `2` (*userName*): with *String* user name used during the login sequence. This
+  can be *Null* because broker can have clients it established itself and thus
+  won't perform any login.
+* `3` (*mountPoint*): with *String* SHV path where device is mounted. This can be
+  *Null* in case this is not a device.
+* `4` (*subscriptions*): is a *Map* of subscriptions of this client. It is same
+  as `.broker/currentClient:subscriptions` provides.
+* `63` (*extra*): extra *Map* that can contain any additional info that is
+  broker implementation specific.
 
 Additional fields are allowed to support more complex brokers but are not
 required nor standardized at the moment.
@@ -159,9 +161,9 @@ required nor standardized at the moment.
 
 ### `.broker:mountedClientInfo`
 
-| Name                | SHV Path  | Flags | Param Type | Result Type | Access       |
-|---------------------|-----------|-------|------------|-------------|--------------|
-| `mountedClientInfo` | `.broker` |       | `s`        | `{?}\|n`    | SuperService |
+| Name                | SHV Path  | Flags | Param Type | Result Type      | Access       |
+|---------------------|-----------|-------|------------|------------------|--------------|
+| `mountedClientInfo` | `.broker` |       | `s`        | `!clientInfo\|n` | SuperService |
 
 Information the broker has on the client that is mounted on the given SHV path.
 
@@ -181,9 +183,9 @@ in case there is no mount point to which given path would belong to.
 
 ### `.broker/currentClient:info`
 
-| Name   | SHV Path                | Flags  | Param Type | Result Type | Access |
-|--------|-------------------------|--------|------------|-------------|--------|
-| `info` | `.broker/currentClient` | Getter |            | `{?}\|n`    | Browse |
+| Name   | SHV Path                | Flags  | Param Type | Result Type   | Access |
+|--------|-------------------------|--------|------------|---------------|--------|
+| `info` | `.broker/currentClient` | Getter |            | `!clientInfo` | Browse |
 
 Access to the information broker has for the current client. The result is
 client specific.
