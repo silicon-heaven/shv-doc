@@ -25,7 +25,7 @@ formats are defined:
 | 139 | 8b  | 10001011 | MetaMap   |
 | 140 | 8c  | 10001100 | Decimal   |
 | 141 | 8d  | 10001101 | DateTime  |
-| 142 | 8e  | 10001110 | CString   |
+| 142 | 8e  | 10001110 | Unused    |
 | 143 | 8f  | 10001111 | BlobChain |
 | 253 | fd  | 11111101 | FALSE     |
 | 254 | fe  | 11111110 | TRUE      |
@@ -265,22 +265,6 @@ sent in little-endian.
 Example:
 ```
 "fpowf":  10001010|00000101|01100110|01110000|01101111|01110111|01100110
-```
-
-### CString
-UTF-8 string stream that is terminated with `\0` (thus full size is not
-immediately known when read from stream). The string itself can't contain `\0`
-byte inside because there is no escaping of it available.
-
-```
-+------+--------------+----+
-| 0x8e | UTF-8 data | `\0` |
-+------+--------------+----+
-```
-
-Example:
-```
-"fpowf":  10001110|00000101|01100110|01110000|01101111|01110111|01100110|00000000
 ```
 
 ### DateTime
