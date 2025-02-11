@@ -27,11 +27,9 @@ containers and thus more complex representations can be constructed.
 | `IMap`       | Mapping from `Int` keys to RPC Values
 | `MetaMap`    | Mapping from `String` or `Int` keys to RPC Values. MetaMap must be associated with some other type and stores additional information for it.
 
-Conversion of all data types between CPON and ChainPack is mostly without any
-information lost with exception of exact encoding that is not possible to cary
-over (such as String and CString in ChainPack converging to just String in CPON,
-or CPON's HexBlob and Blob converting to ChainPack's Blob).
-hexadecimal numbers 
+Conversion of all data types between CPON and ChainPack is mostly without any information lost with exception of exact
+encoding that is not possible to carry over (such as String and CString in ChainPack converging to just String in CPON,
+CPON's HexBlob and Blob converting to ChainPack's Blob, or hexadecimal encoding of numbers in CPON).
 
 ## Some examples in Cpon
 
