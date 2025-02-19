@@ -1,88 +1,257 @@
 # Login sequence
 
-The login sequence needs to be performed every time a new client is connected to
-the broker. It ensures that client gets correct access rights assigned and that
-devices get to be mounted in the correct location in the broker's nodes tree.
-Sometimes the authentication can be optional (such as when connecting over local
-socket or if client certificate is used) but login sequence is required anyway
-to introduce the client to the broker.
+The login sequence needs to be performed every time a new client connects to the
+broker. It ensures that the client gets correct access rights assigned, and that
+devices get to be mounted in the correct location in the broker's node tree.
+Sometimes, authentication can be optional (such as when connecting over a local
+socket, or if a client certificate is used), but the login sequence is required
+anyway to introduce the client to the broker.
 
-The first method to be sent by the client after connection to the broker is
-established needs to be `hello` request. It is called with `null` SHV path
-(which means it can be left out in the message's meta) and no parameters.
+There are a few methods that can be called before the login sequence is
+completed. All of them are called with a `null` SHV path (which means it can be
+left out in the requests's meta).
 
+> All the methods described here are not to be reported by `dir` and no other
+> method can be called before the login sequence is completed.
+
+To complete the login sequence, the client needs to send a successful `:login`
+request.
+
+## `:login` param
+The param for a `:login` request is a *Map*. It needs to contain the `"login"`
+field if authentication is required and can optionally contain the `"options"`
+field.
+```cpon
+{
+    "login": {...},
+    "options": {...}
+}
 ```
-=> <id:1, method:"hello">i{}
+
+Some login types require the client to send additional requests before `:login`.
+The client can send any number of these requests. If the client chooses the send
+these requests, it can ultimately choose a different login type than the one
+associated with these requests. After a successful login, calling these methods
+is disallowed.
+
+Brokers do not have to support all login types (e.g. brokers that do not require
+any authentication).
+
+### `"login":`
+The `"login"` field is a *Map*. It must contain at least the `"type"` field
+which is a *String* that identifies the login type, and it can have only one of
+these values:
+
+* `"PLAIN"` for *plain* text password login (discouraged use)
+* `"SHA1"` for *SHA1* login
+* `"OAUTH2"` for *OAuth2* login
+* `"TOKEN"` for *token* login
+
+Other fields are specific to the login types which are defined in detail below.
+
+#### `"PLAIN"` login type
+This login type uses a username/password combination, where the password is in
+plain text. This login type is highly discouraged in favor of the other login
+types.
+
+These fields are required for the `"login"` field when using this login type:
+* `"user"`: *String* username
+* `"password"`: *String* password in plain text
+* `"type"`: `"PLAIN"`
+
+#### `"SHA1"` login type
+This login type uses a username/password combination where the password is a
+SHA1 hash. The client must send a `:hello` request first.
+```cpon
+=> <"id": 1, "method": "hello">i{}
 ```
 
-Broker should respond with message containing nonce that can be used to perform
-login. The nonce needs to be an ASCII string with length from 10 to 32
-characters. The nonce must be the same in case, of `hello` message retransmit 
-during the login phase. Some clients might send more `hello` message to discover,
-that shvbroker is started and ready, especially on serial port. 
-
-```
-<= <id:1>i{2:{"nonce":"vOLJaIZOVevrDdDq"}}
+Broker should respond with a *Map* containing a *String* `"nonce"` field that
+can be used to perform login. The *nonce* needs to be an ASCII string with a
+length between 10 and 32 characters. The *nonce* must be the same in case of a
+`:hello` message retransmit during the login phase.
+```cpon
+<= <"id": 1>i{2: {"nonce": "vOLJaIZOVevrDdDq"}}
 ```
 
-The next message sent by the client needs to be `login` request. This message is
-*Map* and needs to contain `"login"` if login is required and can contain
-`"options"`.
+> Some clients might send more `:hello` requests to discover if the broker is
+> started and ready, especially on serial port.
 
-There are two types of the logins you can use. It can be either *plain* login or
-*sha1*. The difference is only the way you send the password in the message. The
-*plain* login just sends password as it is in *String*. The *sha1* login hashes
-the provided user's password, adds the result as suffix to the nonce from `hello`
-and hashes the result again. SHA1 hash is represented in HEX format. The
-complete password deduction is: `SHA1(nonce + SHA1(password))`. The SHA1 login
-is highly encouraged and plain login is highly discouraged, even the low end
-CPUs should be able to calculate SHA1 hash and thus perform the SHA1 login. The
-`"login"` *map* needs to contain these fields:
+The client hashes the user's password, adds the result as a suffix to the
+*nonce* from `:hello`, and hashes the result again. The complete password
+deduction is: `SHA1(nonce + SHA1(password))`. Supporting SHA1 login is highly
+encouraged, as even low end CPUs should be able to calculate SHA1 hashes and
+thus perform the SHA1 login.
 
-* `"user"` with username as *String*
-* `"password"` with either plain text password or SHA1 password (as described in
-  the paragraph above) as *String*
-* `"type"` that identifies password format, and thus it can have only one of
-  these values:
-  * `"PLAIN"` for *plain* text password (discouraged use)
-  * `"SHA1"` for SHA1 login
+These fields are required for the `"login"` field when using this login type:
+* `"user"`: *String* username
+* `"password"`: *String* password as an SHA1 hash in HEX format
+* `"type"`: `"SHA1"`
 
-The `"options"` needs to be a map of options for the broker. Broker will ignore
-any unknown options. A different broker implementations can support a different
-set of options, but minimal needed supported options are these:
+#### `"OAUTH2"` login type
+This login type uses the *OAuth2 Authorization Code Grant* flow to implement
+authentication. The client must send an `:oauth2` request first. The broker
+should respond with a *Map* whose fields are the names of supported *OAuth2*
+providers identifiers and values are the generated URLs that the client should
+point its *User-Agent* to, to complete the authentication mechanism.
+```cpon
+<= <"id": 1>i{
+    2: {
+        "azure": "https://...",
+        "google": "https://..."
+    }
+}
+```
 
-* `"device"` with *map* containing device specific options. At least these
+After the client completes the authentication mechanism and the *Authorization
+Server* redirects the *User-Agent* back from the authorization page, the client
+should sent the redirect URL as is, as well as the chosen provider to the broker
+in the `:login` request. Notably, it should contain all the URL query params
+like `code` and `state`. The broker CAN use `state` in the generated URL to
+associate an *OAuth2* `:login` request to a previous `:oauth2` request.
+
+These fields are required for the `"login"` field when using this login type:
+* `"redirectUrl"`: the unparsed raw URL the Authorization Server redirected the
+  User-Agent to
+* `"providerId"`: the provider ID specified in the `:oauth2` response
+* `"type"`: `"OAUTH2"`
+
+> *User-Agent*, and *Authorization Server* are used here as defined by the
+> *OAuth2* spec. "Client" refers to the client that is trying to login to the
+> broker. In the *OAuth2* spec, *Client* would be the broker. The SHV client
+> would be called the *Resource Owner* instead.
+
+#### `"TOKEN"` login type
+This login type uses a token to authenticate.
+
+SHV defines these standard token types (support is optional):
+* *session token*: a token previously generated by the broker using the
+  `"session"` field in the login options. This token can be used to implement
+  persistent login (i.e. allowing user-facing clients to enter a password just
+  once). The token should only be valid for a set amount of time. Every broker
+  implementation defines it own rules for the expiration duration and the
+  extension of it.
+
+> The *session token* is especially useful with the `"OAUTH2"` login type, but
+> it can be used with any login type.
+
+> The format of a token is implementation defined. The broker can generate tokens
+> in other implementation specific ways. It is the responsibility of the broker to
+> differentiate multiple token types.
+
+These fields are required for the `"login"` field when using this login type:
+* `"token"`: a *String* containing the token.
+* `"type"`: `"TOKEN"`
+
+### `"options":`
+The `"options"` field is a *Map* of options for the broker. Broker will ignore
+any unknown options. Different broker implementations can support different sets
+of options, but they must support at least these options:
+
+* `"device"`: a *Map* containing device-specific options. At least these
   options need to be supported:
-  * `"deviceId"` with *String* value that identifies the device. This should be
-    used by the broker to automatically assign mount point based on its internal
-    rules.
-  * `"mountPoint"` with *String* value that specifies path where the device's
-    tree should be mounted in the broker. This should overwrite any mount point
-    assigned by broker based on `"deviceId"`, but it can be disregarded if user
-    doesn't have access rights for the SHV path specified.
-* `"idleWatchDogTimeOut"` specifies number of seconds without message receive
-  before broker will consider the connection to be dead and disconnects it. The
-  default timeout by the broker should be 180 seconds. By increasing this
-  timeout you can reduce the periodic dummy messages sent, but it is suggested to
-  keep it in reasonable range because open but dead connection can consume
-  unnecessary resources on the broker.
+  * `"deviceId"`: a *String* value that identifies the device. This should be
+    used by the broker to automatically assign a mount point based on its
+    internal rules.
+  * `"mountPoint"`: a *String* value that specifies the path where the broker
+    should broker mount the device tree in its own tree. This should override
+    any mount point assigned by the broker based on `"deviceId"`, but it can be
+    disregarded if the user doesn't have access rights for the specified
+    mountpoint.
+* `"idleWatchDogTimeOut"`: an *Int* value specifying the number of seconds
+  without receiving a message before the broker considers the connection to be
+  dead and disconnects it. The default timeout by the broker should be 180
+  seconds. By increasing this timeout you can reduce the amount of periodic
+  dummy messages sent, but it is suggested to keep it in a reasonable range,
+  because open but dead connections can unnecessarily consume resources on the
+  broker.
 
+Optionally, the broker can support these options:
+* `"session"`: a *Bool* specifying whether the broker should create a persistent
+  *session token* that the client can use to login with. The *session token*
+  will be returned in the response for `:login`.
+
+## Example `:login` param
+```cpon
+=> <"id":2, "method":"login">i{
+    1: {
+        "login":{
+            "password": "3d613ce0c3b59a36811e4acbad533ee771afa9f3",
+            "user": "iot",
+            "type": "SHA1"
+        },
+        "options": {
+            "device": {
+                "deviceId": "bfsview_test",
+                "mountPoint": "test/bfsview"
+            },
+            "idleWatchDogTimeOut": 180
+        }
+    }
+}
 ```
-=> <id:2, method:"login">i{1:{"login":{"password":"3d613ce0c3b59a36811e4acbad533ee771afa9f3","user":"iot","type":"SHA1"}}, "options":{"device":{"deviceId":"bfsview_test", "mountPoint":"test/bfsview"}, "idleWatchDogTimeOut":180}}}
+
+```cpon
+=> <"id":2, "method":"login">i{
+    1: {
+        "login":{
+            "redirectUrl": "https://...",
+            "type": "OAUTH2"
+        },
+        "options": {
+            "session": true
+        }
+    }
+}
 ```
 
-The broker will respond with *Null* (some older broker implementation can
-respond with some value for backward compatibility reasons). From now on you can
-send any requests and receive any messages you have rights on as logged user
-from the broker.
+## `:login` response
+The response to `:login` can be:
+* *Null*
+* a *String* value with a *session token*, if it was requested in the `:login`
+  options. If the `:login` request was of type `"TOKEN"`, and the client
+  requested a *session token*, the token returned will be the same one the one
+  used in the `:login` request.
 
+> Note: some older broker implementation can respond with some other value for
+> backward compatibility reasons. This value should be ignored by the client.
+
+In case of a `:login` error you can attempt the login again without needing to
+disconnect or sending required login type specific methods again. Be aware that
+broker should impose a delay of 60 seconds on subsequent login attempts for
+security reasons.
+
+After sending a successful `:login` request you can send requests and receive
+messages to which you have rights to as a logged user.
+
+## Example `:login` response
+```cpon
+<= <"id": 2>i{}
 ```
-<= <id:2>i{}
+
+```cpon
+<= <"id": 2>i{2: {"sessionToken": "..."}}
 ```
 
-In case of a login error you can attempt the login again without need to
-disconnect or sending `hello` again. Be aware that broker should impose delay of
-60 seconds on subsequent login attempts for security reasons.
+## Additional methods
+The client can optionally send these requests before completing the login
+sequence.
 
-> Note that `hello` and `login` methods are not to be reported by `dir` and no
-> other method can be called before login sequence is completed.
+### `:loginTypes`
+The `:loginTypes` method is used to query the broker about supported login
+types. The response is a *List* of *String* values of the supported login types.
+The login types string are the same as the ones used in the `:login` request.
+```cpon
+=> <"id": 1, "method": "loginTypes">i{}
+```
+```cpon
+<= <"id": 1>i{
+    2: ["PLAIN", "SHA1", "OAUTH2", "TOKEN"]
+}
+```
+
+### `:revokeToken`
+The `:revokeToken` method is used to request the broker to invalidate a token
+specified in the param as *String*. If the token is a *session token*, the
+broker **MUST** deny further login attempts with this token. Otherwise, the
+effect of this method is implementation specific.
