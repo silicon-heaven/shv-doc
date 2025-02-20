@@ -93,7 +93,10 @@ This login type uses the *OAuth2 Authorization Code Grant* flow to implement
 authentication. The client must send an `:oauth2` request first. The broker
 should respond with a *Map* whose fields are the names of supported *OAuth2*
 providers identifiers and values are the generated URLs that the client should
-point its *User-Agent* to, to complete the authentication mechanism.
+point its *User-Agent* to, to complete the authentication mechanism. It is the
+client's responsibility to add a `redirect_uri` query param to the URL if
+needed.
+
 ```cpon
 <= <"id": 1>i{
     2: {
