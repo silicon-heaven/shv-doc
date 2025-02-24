@@ -186,16 +186,28 @@ messages to which you have rights to as a logged user.
 The client can optionally send these requests before completing the login
 sequence.
 
-### `:loginTypes`
-The `:loginTypes` method is used to query the broker about supported login
-types. The response is a *List* of *String* values of the supported login types.
-The login types string are the same as the ones used in the `:login` request.
+### `:workflows`
+The `:workflows` method is used to query the broker about supported login
+workflows. The result is a *List* of values of the supported login workflows.
+There are three standardized values:
+* `"PLAIN"` - indicates that the broker supports plain text login
+* `"SHA1"` - indicates that the broker supports SHA1 login
+* `"TOKEN"` - indicates that the broker supports login via tokens
+
+The broker can define its own implementation specific workflows. The format of
+workflows value is implementation defined.
 ```cpon
-=> <"id": 1, "method": "loginTypes">i{}
+=> <"id": 1, "method": "workflows">i{}
 ```
 ```cpon
 <= <"id": 1>i{
-    2: ["PLAIN", "SHA1", "OAUTH2", "TOKEN"]
+    2: ["PLAIN", "SHA1", "TOKEN", {
+        "type": "oauth2-azure",
+        // Implementation defined information
+        "clientId": "...",
+        "authorizeUrl": "...",
+        "tokenUrl": "...",
+    }]
 }
 ```
 
