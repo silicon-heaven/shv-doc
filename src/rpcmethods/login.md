@@ -44,7 +44,6 @@ these values:
 
 * `"PLAIN"` for *plain* text password login (discouraged use)
 * `"SHA1"` for *SHA1* login
-* `"OAUTH2"` for *OAuth2* login
 * `"TOKEN"` for *token* login
 
 Other fields are specific to the login types which are defined in detail below.
@@ -88,42 +87,6 @@ These fields are required for the `"login"` field when using this login type:
 * `"password"`: *String* password as an SHA1 hash in HEX format
 * `"type"`: `"SHA1"`
 
-#### `"OAUTH2"` login type
-This login type uses the *OAuth2 Authorization Code Grant* flow to implement
-authentication. The client must send an `:oauth2` request first. The broker
-should respond with a *Map* whose fields are the names of supported *OAuth2*
-providers identifiers and values are the generated URLs that the client should
-point its *User-Agent* to, to complete the authentication mechanism. It is the
-client's responsibility to add a `redirect_uri` query param to the URL if
-needed.
-
-```cpon
-<= <"id": 1>i{
-    2: {
-        "azure": "https://...",
-        "google": "https://..."
-    }
-}
-```
-
-After the client completes the authentication mechanism and the *Authorization
-Server* redirects the *User-Agent* back from the authorization page, the client
-should sent the redirect URL as is, as well as the chosen provider to the broker
-in the `:login` request. Notably, it should contain all the URL query params
-like `code` and `state`. The broker CAN use `state` in the generated URL to
-associate an *OAuth2* `:login` request to a previous `:oauth2` request.
-
-These fields are required for the `"login"` field when using this login type:
-* `"redirectUrl"`: the unparsed raw URL the Authorization Server redirected the
-  User-Agent to
-* `"providerId"`: the provider ID specified in the `:oauth2` response
-* `"type"`: `"OAUTH2"`
-
-> *User-Agent*, and *Authorization Server* are used here as defined by the
-> *OAuth2* spec. "Client" refers to the client that is trying to login to the
-> broker. In the *OAuth2* spec, *Client* would be the broker. The SHV client
-> would be called the *Resource Owner* instead.
-
 #### `"TOKEN"` login type
 This login type uses a token to authenticate.
 
@@ -134,9 +97,6 @@ SHV defines these standard token types (support is optional):
   once). The token should only be valid for a set amount of time. Every broker
   implementation defines it own rules for the expiration duration and the
   extension of it.
-
-> The *session token* is especially useful with the `"OAUTH2"` login type, but
-> it can be used with any login type.
 
 > The format of a token is implementation defined. The broker can generate tokens
 > in other implementation specific ways. It is the responsibility of the broker to
@@ -189,20 +149,6 @@ Optionally, the broker can support these options:
                 "mountPoint": "test/bfsview"
             },
             "idleWatchDogTimeOut": 180
-        }
-    }
-}
-```
-
-```cpon
-=> <"id":2, "method":"login">i{
-    1: {
-        "login":{
-            "redirectUrl": "https://...",
-            "type": "OAUTH2"
-        },
-        "options": {
-            "session": true
         }
     }
 }
