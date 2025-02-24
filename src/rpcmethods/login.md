@@ -98,9 +98,9 @@ SHV defines these standard token types (support is optional):
   implementation defines it own rules for the expiration duration and the
   extension of it.
 
-> The format of a token is implementation defined. The broker can generate tokens
-> in other implementation specific ways. It is the responsibility of the broker to
-> differentiate multiple token types.
+> The format of a token is implementation defined. The broker can generate
+> tokens in other implementation specific ways (e.g. *OAuth2*). It is the
+> responsibility of the broker to differentiate multiple token types.
 
 These fields are required for the `"login"` field when using this login type:
 * `"token"`: a *String* containing the token.
