@@ -145,8 +145,7 @@ Optionally, the broker can support these options:
         },
         "options": {
             "device": {
-                "deviceId": "bfsview_test",
-                "mountPoint": "test/bfsview"
+                "deviceId": "historyprovider",
             },
             "idleWatchDogTimeOut": 180
         }
