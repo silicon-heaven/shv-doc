@@ -67,8 +67,8 @@ SHA1 hash. The client must send a `:hello` request first.
 
 Broker should respond with a *Map* containing a *String* `"nonce"` field that
 can be used to perform login. The *nonce* needs to be an ASCII string with a
-length between 10 and 32 characters. The *nonce* must be the same in case of a
-`:hello` message retransmit during the login phase.
+length between 10 and 32 characters. The *nonce* must be the same for all
+`:hello` requests during the login phase.
 ```cpon
 <= <"id": 1>i{2: {"nonce": "vOLJaIZOVevrDdDq"}}
 ```
