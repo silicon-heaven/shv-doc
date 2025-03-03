@@ -29,7 +29,7 @@ field.
 ```
 
 Some login types require the client to send additional requests before `:login`.
-The client can send any number of these requests. If the client chooses the send
+The client can send any number of these requests. If the client chooses to send
 these requests, it can ultimately choose a different login type than the one
 associated with these requests. After a successful login, calling these methods
 is disallowed.
