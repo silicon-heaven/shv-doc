@@ -192,8 +192,8 @@ There are three standardized values:
 * `"SHA1"` - indicates that the broker supports SHA1 login
 * `"TOKEN"` - indicates that the broker supports login via tokens
 
-The broker can define its own implementation specific workflows. The format of
-workflows value is implementation defined.
+The broker can define its own implementation specific workflows. The format of a
+workflow value and its relationship with login types are implementation defined.
 ```cpon
 => <"id": 1, "method": "workflows">i{}
 ```
