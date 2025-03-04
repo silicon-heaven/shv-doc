@@ -157,9 +157,8 @@ Optionally, the broker can support these options:
 The response to `:login` can be:
 * *Null*
 * a *String* value with a *session token*, if it was requested in the `:login`
-  options. If the `:login` request was of type `"TOKEN"`, and the client
-  requested a *session token*, the token returned will be the same one the one
-  used in the `:login` request.
+  options. If a *session token* was used to log in, it is
+  implementation-defined, if the new *session token* is the same or different.
 
 > Note: some older broker implementation can respond with some other value for
 > backward compatibility reasons. This value should be ignored by the client.
