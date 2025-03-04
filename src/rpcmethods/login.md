@@ -177,7 +177,7 @@ messages to which you have rights to as a logged user.
 ```
 
 ```cpon
-<= <"id": 2>i{2: {"sessionToken": "..."}}
+<= <"id": 2>i{2: "..."}}
 ```
 
 ## Additional methods
