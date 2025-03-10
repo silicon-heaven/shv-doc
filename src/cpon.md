@@ -35,13 +35,12 @@ Tools generating CPON should prefer format `[-]0xh.hhhp[+|-]dd`, thus
 significant is normalized hexadecimal number and exponent is decimal.
 
 ### Decimal
-Represented in scientific notation (both `E` and `e` can be used) from
-significant and exponent **Int** number, or as decimal number with decimal point
-(`.`) (e.g.  `123.45`, `1.2345e2`, `12345E-0x2`).
+Represented as decimal numbers with decimal point (`.`) or in scientific E
+notation (both `E` and `e` can be used) (e.g. `123.45`, `1.2345e2`, `12345E-2`).
 
-Tools generating CPON should prefer scientific notation with `e` where both
-significant and exponent is decimal and optionally representation with decimal
-point if number of inserted zeroes would be small enough.
+Tools generating CPON should prefer scientific notation with `e`  and optionally
+representation with decimal point if number of inserted zeroes would be small
+enough.
 
 ### Blob
 Represented as **String** with `b` prefix where values from `0x00` to `0x1f` and
