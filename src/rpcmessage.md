@@ -133,8 +133,10 @@ Keys
 
 | Key       | Required   | Note
 | --------- | ---------- | -----
-| `Result`  | yes        | Required in case of successful method call result, any [RPC Value](rpcvalue.md) is allowed.
+| `Result`  |            | Any [RPC Value](rpcvalue.md) is allowed. Result is considered to be `Null` if `Result` key is missing.
 | `Error`   | yes        | Required in case of method call exception, see [RPC error](#rpc-error) for more details.
+
+RpcResponse is invalid when both keys (`Result` and `Error`) are present.
 
 ### RPC Error
 
