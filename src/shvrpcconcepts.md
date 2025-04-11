@@ -16,16 +16,16 @@ Together they facilitate two types of communication:
 
 Remote procedure calls are always confirmed, while signals are never confirmed.
 
-[Request](rpcmessage.md#rpcrequest) - message used to call some method. Such
+[Request](rpcmessage.md#request) - message used to call some method. Such
 messages are required to exactly identify such method and can optionally carry
 parameter for it. They also must specify request ID that is later used to pair
 response message with request.
 
-[Response](rpcmessage.md#rpcresponse) - message sent by side that received
-some request. This message copies request ID from request message to allow
+[Response](rpcmessage.md#response) - message sent by side that received
+some Request. This message copies request ID from request message to allow
 calling peer to identify it as the response for that specific request.
 
-[Signal](rpcmessage.md#rpcsignal) - spontaneous message sent without prior
+[Signal](rpcmessage.md#signal) - spontaneous message sent without prior
 request and thus without request ID. Optionally it can carry a parameter.
 
 ## SHV RPC network design
@@ -68,20 +68,20 @@ multiple clients. To connected clients it behaves like a mountable client with
 exception that some SHV paths are not handled directly by it but rather
 propagated to some other client. The message propagation depends on its type.
 
-[Request](rpcmessage.md#rpcrequest) - Broker looks up the correct mounted client
-it should forward message to based on the SHV path. It handles request itself if
+[Request](rpcmessage.md#request) - Broker looks up the correct mounted client it
+should forward message to based on the SHV path. It handles request itself if
 there is no such client. If mounted client is located, broker removes client's
 mount point from request's SHV path, it appends client ID of caller to
 `CallerIds`, and limits access level based on its configuration. The message is
 then sent to the located client. Broker doesn't remember this request because
 all the request state is contained in request meta-data.
 
-[Response](rpcmessage.md#rpcresponse) is returned to the correct client based on
+[Response](rpcmessage.md#response) are returned to the correct client based on
 the `CallerIds` contained in request. Note, that client must copy `RequestId`
-and `CallerIds` (with its client ID removed) from request to response meta-data,
+and `CallerIds` (with its client ID removed) from Request to Response meta-data,
 if it should be delivered back to caller.
 
-[Signal](rpcmessage.md#rpcsignal) - Signals are propagated based on the
+[Signal](rpcmessage.md#signal) - Signals are propagated based on the
 subscriptions clients made beforehand. All clients are checked for the
 subscription and if message matches some and client has hight enough access
 level, then it is propagated to that client. The SHV path of the message is
@@ -137,3 +137,34 @@ the RPC message's meta table with empty string value. Brokers on the way extend
 this value by their user's identification (appended after comma). The device
 thus gets full range of all users used to access it. Devices can signal the need
 for this field with `UserIDRequired` error.
+
+### Unreliability of the message exchange
+
+The [RPC transport layer](./rpctransportlayer.md) as defined doesn't not require
+reliable message delivery. Thus it must be expected that any message can be lost
+or dropped without any of the peers detecting that. That has a few impacts on
+the overall RPC usage.
+
+Signals can't be relied upon. They can be lost even if they are sent and thus
+waiting for signal should be always accompanied with polling to prevent waiting
+to get stuck.
+
+Method call and thus exchange of request and response messages can be inflicted
+by message lost as well. The method caller should always expected that request
+should be sent again after a reasonable timeout, because either request itself
+could have been lost or the response might have been.
+
+Because of this method calls must be idempotent! Do not create methods
+implementing toggle.
+
+The special situation is when method call evaluation could take not a trivial
+amount of time. In such case the caller might send multiple Request attempts
+before Response is received. Based on the implementation it could be hard to
+prevent from starting the call again and thus it is desirable to inform about
+Request retrieval as soon as possible. For this purpose there is a dedicated
+Response that informs about delayed Response. This specific Delay Response
+provides hint about progress of the call and thus can be sent multiple times
+before the Response with either Result or Error is sent. The caller is also
+provided with Abort Request that can be used to abort the running call as well
+as to query for the running call existence. During the all this communication
+the same request ID must be used.
