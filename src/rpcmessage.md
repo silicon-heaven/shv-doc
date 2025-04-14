@@ -25,7 +25,6 @@ RPC message can have meta-data attribute defined.
 | 18                | SeqNo                | Int              | Reserved, it will be used in next API version for multi-part messages   <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
 | 19                | Source               | String           | Used for signals to store method name this signal is associated with.
 | 20                | Repeat               | Bool             | Used for signals to informat that signal was emited as a repeat of some older ones (that might not might not have been sent).
-| 21                | Part                 | Bool             | Reserved, it will be used in next API version for multi-part messages   <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
 
 Second part of RPC message is `IMap` with following possible keys.
 
