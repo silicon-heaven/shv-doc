@@ -372,7 +372,7 @@ descriptions.
 * `!dir` is one of results of [`*:dir` method](./rpcmethods/discovery.md#dir).
   Its expanded form is:
   ```
-  i{s:name:1,u[b:isGetter:1,b:isSetter,b:largeResult,b:notIndempotent,b:userIDRequired]|n:flags,s|n:paramType,s|n:resultType,i(0,63):accessLevel,{s|n}:signals,{?}:extra:63}|b
+  i{s:name:1,u[b:isGetter:1,b:isSetter,b:largeResult,b:notIndempotent,b:userIDRequired,b:isUpdatable]|n:flags,s|n:paramType,s|n:resultType,i(0,63):accessLevel,{s|n}:signals,{?}:extra:63}|b
   ```
 * `!alert` is result of [`.device/alerts:get`
   method](./rpcmethods/device.md#devicealertsget) and value of

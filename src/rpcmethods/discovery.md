@@ -33,23 +33,29 @@ The method info in *IMap* must contain these fields:
   * `1` (`1 << 0`) no longer used and reserved for compatibility reasons. In the
     past it signaled that name is not callable. New implementations should
     ignore method descriptions with this bit set.
-  * `2` (*IsGetter*, `1 << 1`) specifies that method is a getter. This method
+  * `2` (*isGetter*, `1 << 1`) specifies that method is a getter. This method
     must be callable without side effects without any parameter.
-  * `4` (*IsSetter*, `1 << 2`) specifies that method is a setter. This method
-    must be callable that accepts parameter and provides no value. They are
-    commonly paired with getter.
-  * `8` (*LargeResult*, `1 << 3`) specifies that provided value in response is
+  * `4` (*isSetter*, `1 << 2`) specifies that method is a setter. The usage of
+    this flag is deprecated and should no longer be used.
+  * `8` (*largeResult*, `1 << 3`) specifies that provided value in response is
     going to be large. This exists to signal that by calling this method you can
     block the connection for considerable amount of time.
-  * `16` (*NotIdempotent*, `1 << 4`) specifies that method is not idempotent.
+  * `16` (*notIdempotent*, `1 << 4`) specifies that method is not idempotent.
     Such method can't be simply called but instead needs to be called first
     without parameter to get unique submit ID that needs to be used in argument
     for real call. This unique submit ID prevents from same request being
     handled multiple times because first execution will invalidate the submit ID
     and thus prevents re-execution.
-  * `32` (*UserIDRequired*, `1 << 5`) specifies that method requires UserID to
+  * `32` (*userIDRequired*, `1 << 5`) specifies that method requires UserID to
     be called. Calling this method without it should result in `UserIDRequired`
     error.
+  * `64` (*isUpdatable*, `1 << 6`) specifies that value received as parameter
+    will be extended by some already present values. This extension is defined
+    for compound types (List, Map, IMap) as addition of fields not present in
+    the parameter. Non-compound types do not allow items omission and thus this
+    flag has no meaning with them. The usage is expected on setters with known
+    associated getter such as in case of [property
+    nodes](./rpcmethods/property.md).
 * `3` (*paramType*): defines parameter type for the requests. Type is a *String*
   that must adhere to [type description definition](../rpctypes.md). It can be
   missing or have value *Null* instead of *String* if method takes no parameter

@@ -150,9 +150,9 @@ The result is Map with at least these fields:
 
 ## `*/ASSIGNED:setOptions`
 
-| Name         | SHV Path                   | Flags  | Param Type | Result Type | Access        |
-|--------------|----------------------------|--------|------------|-------------|---------------|
-| `setOptions` | Bellow Bytes Exchange node | Setter | `{?}`      |             | Super-service |
+| Name         | SHV Path                   | Flags       | Param Type | Result Type | Access        |
+|--------------|----------------------------|-------------|------------|-------------|---------------|
+| `setOptions` | Bellow Bytes Exchange node | isUpdatable | `{?}`      |             | Super-service |
 
 This allows modification of option associated with this connection. Note that
 not all options might be modifiable and only fields specified in Map are

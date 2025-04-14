@@ -66,9 +66,9 @@ associated with the SHV path.
 
 ## `*:set`
 
-| Name  | SHV Path | Flags  | Param Type | Result Type | Access |
-|-------|----------|--------|------------|-------------|--------|
-| `set` | Any      | Setter | `?`        |             | Write  |
+| Name  | SHV Path | Flags              | Param Type | Result Type | Access |
+|-------|----------|--------------------|------------|-------------|--------|
+| `set` | Any      | null / isUpdatable | `?`        |             | Write  |
 
 This method is used for changing the value associated with SHV path. By
 providing this method alongside with `*:get` you are making the read-write
