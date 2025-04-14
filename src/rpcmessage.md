@@ -138,9 +138,11 @@ Keys (only one can be used in the single message):
 
 | Key name  | Required   | Note
 | --------- | ---------- | -----
-| `Result`  | no         | Used in case of successful method call result, any [RPC Value](rpcvalue.md) is allowed. It is the default if no other key is used.
+| `Result`  |            | Used in case of successful method call result, any [RPC Value](rpcvalue.md) is allowed. Result is considered to be `Null` if `Result` key is missing.
 | `Error`   | yes        | Required in case of method call exception, see [RPC error](#rpc-error) for more details.
 | `Delay`   | yes        | Required in case nor `Result` or `Error` can't be generated immediately. The value is [Double](./rpcvalue.md) from 0 to 1.
+
+RpcResponse is invalid when both keys (`Result` and `Error`) are present.
 
 ### RPC Error
 
