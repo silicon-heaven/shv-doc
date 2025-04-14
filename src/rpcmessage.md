@@ -25,7 +25,6 @@ RPC message can have meta-data attribute defined.
 | 18                | SeqNo                | Int              | Reserved, it will be used in next API version for multi-part messages   <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
 | 19                | Source               | String           | Used for signals to store method name this signal is associated with.
 | 20                | Repeat               | Bool             | Used for signals to informat that signal was emited as a repeat of some older ones (that might not might not have been sent).
-| 21                | Part                 | Bool             | Reserved, it will be used in next API version for multi-part messages   <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
 
 Second part of RPC message is `IMap` with following possible keys.
 
@@ -35,6 +34,8 @@ Second part of RPC message is `IMap` with following possible keys.
 | 1    | Params     | Optional method parameters, any [RPC Value](rpcvalue.md) is allowed.
 | 2    | Result     | Successful method call result, any [RPC Value](rpcvalue.md) is allowed.
 | 3    | Error      | Method call exception, see [RPC error](#rpc-error) for more details
+| 4    | Delay      | Method call result delay, [Double](rpcvalue.md) is allowed.
+| 5    | Abort      | Method call abort (`true`) or state query (`false`), [Bool](rpcvalue.md) is allowed.
 
 `RequestId` can be any unique number assigned by side that sends request
 initially. It is used to pair up requests with their responses. The common
@@ -88,7 +89,7 @@ Methods invoked using this request needs to be idempotent, because RPC
 transport layers do not ensure deliverability. You might also want to try to
 send request again when you receive no response because of this.
 
-Attributes
+Attributes:
 
 | Attribute      | Required | Broker propagation                                            | Note                                                            |
 |----------------|----------|---------------------------------------------------------------|-----------------------------------------------------------------|
@@ -96,45 +97,50 @@ Attributes
 | `RequestId`    | yes      | copied                                                        |                                                                 |
 | `ShvPath`      | yes      | matched prefix removed                                        |                                                                 |
 | `Method`       | yes      | copied                                                        |                                                                 |
-| `RevCallerIds` | no       | broker's reverse path identifier can be removed from the list | If tunneling or multi-part message is needed                    |
 | `CallerIds`    | no       | broker's path identifier can be added to the list             | Added and modified by brokers                                   |
+| `RevCallerIds` | no       | broker's reverse path identifier can be removed from the list | If tunneling or multi-part message is needed                    |
 | `Access`       | no       | set and modified                                              | Must be kept in sync with `AccessLevel` or not specified at all |
 | `AccessLevel`  | no       | set and modified                                              | Broker always only reduces the already present value            |
 | `UserId`       | no       | appended if present                                           | Append to non-zero string with comma                            |
 
-Keys
+Keys (only one can be used in the single message):
 
-| Key       | Required   | Note
+| Key name  | Required   | Note
 | --------- | ---------- | -----
 | `Params`  | no         | Any valid [RPC Value](rpcvalue.md)
+| `Abort`   | yes        | [Bool](./rpcvalue.md) where `true` forces abort and `false` only immediate Reponse (thus it can be `Delay`).
 
 **Examples**
 
-RPC call invocation, method `switchLeft` on 
-path `test/pme/849V` with request ID `56` and parameter `true`. 
+RPC call invocation, method `switchLeft` on path `test/pme/849V` with request ID
+`56` and parameter `true`. 
 ```
 <1:1,8:56,9:"test/pme/849V",10:"switchLeft">i{1:true}
 ```
 
 ## Response
 
-Response to [Request](rpcrequest.md)
+Response to [Request](#request). The response should be generated as soon
+as possible. If some work has to be performed before full response can be
+generated then [Response Delay](#responsedelay) can be sent in reasonable
+intervals, until Result or Error is prepared.
 
-Attributes
+Attributes:
 
-| Attribute      | Required | Broker propagation                                                | Note                                                          |
-|----------------|----------|-------------------------------------------------------------------|---------------------------------------------------------------|
-| `MetaTypeId`   | yes      | copied                                                            |                                                               |
-| `RequestId`    | yes      | copied                                                            |                                                               |
+| Attribute      | Required | Broker propagation                                                | Note                                                       |
+|----------------|----------|-------------------------------------------------------------------|------------------------------------------------------------|
+| `MetaTypeId`   | yes      | copied                                                            |                                                            |
+| `RequestId`    | yes      | copied                                                            |                                                            |
+| `CallerIds`    | no       | broker's path identifier must be removed from the list            | Sender must copy original value form *Request* if present. |
 | `RevCallerIds` | no       | broker's reverse path identifier can be removed added to the list | Sender must copy original value form *Request* if present. |
-| `CallerIds`    | no       | broker's path identifier can be removed from the list             | Sender must copy original value form *Request* if present. |
 
-Keys
+Keys (only one can be used in the single message):
 
-| Key       | Required   | Note
+| Key name  | Required   | Note
 | --------- | ---------- | -----
-| `Result`  | yes        | Required in case of successful method call result, any [RPC Value](rpcvalue.md) is allowed.
+| `Result`  | no         | Used in case of successful method call result, any [RPC Value](rpcvalue.md) is allowed. It is the default if no other key is used.
 | `Error`   | yes        | Required in case of method call exception, see [RPC error](#rpc-error) for more details.
+| `Delay`   | yes        | Required in case nor `Result` or `Error` can't be generated immediately. The value is [Double](./rpcvalue.md) from 0 to 1.
 
 ### RPC Error
 
@@ -144,9 +150,9 @@ RPC Error is `IMap` with following keys defined
 | ---: | ---------- | ---------- | -------
 | 1    | `Code`     | yes        | Error code
 | 2    | `Message`  | no         | Error message string
-| 3    | `Data`     | no         | Arbitrary payload, can be used for example for exception localization aditional info.
+| 3    | `Data`     | no         | Arbitrary payload, can be used for example for exception localization additional info.
 
-Error codes
+Error codes:
 
 | Value  | Name                          | Description
 | -----: | -------                       | ----------
@@ -162,6 +168,8 @@ Error codes
 | 10     | `LoginRequired`               | Method call without previous successful login.
 | 11     | `UserIDRequired`              | Method call requires UserID to be present in the request message. Send it again with UserID.
 | 12     | `NotImplemented`              | Can be used if method is valid but not implemented for what ever reason.
+| 13     | `TryAgainLater`               | Used in cases when request can't be handled now but might be in the future.
+| 14     | `RequestInvalid`              | Used exclusively for `Abort` request. It doesn't specify if invalidation is caused by `Abort` just that there is no such request
 | 32+    | `MethodCallExceptionSpecific` | Application specific `MethodCallException`
 
 **Examples**
@@ -180,7 +188,7 @@ Exception when unknown method is called
 Spontaneous message sent without prior request and thus without `RequestId`. 
 It is used mainly notify clients that some technological value had changed without need to poll.
 
-Attributes
+Attributes:
 
 | Attribute     | Required | Broker propagation                     | Note                                                                             |
 |---------------|----------|----------------------------------------|----------------------------------------------------------------------------------|
@@ -192,7 +200,7 @@ Attributes
 | `UserId`      | no       | copied                                 |                                                                                  |
 | `Repeat`      | no       | copied                                 | If not specified `false` is assumed                                              |
 
-Keys
+Keys:
 
 | Key       | Required   | Note
 | --------- | ---------- | -----
