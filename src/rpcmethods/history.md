@@ -90,7 +90,8 @@ A special case occurs when `Since` == `Until`. In this scenario, only a snapshot
 at the `Since` timestamp is returned. The snapshot includes a list of records
 representing the state of every value under the getLog SHV path at that specific
 point in time. This feature is primarily used to retrieve the entire device
-state as it existed at the given moment.
+state as it existed at the given moment. Also `Count` parameter is ignored in
+this case, whole snapshot is returned regardless of its record count.
 
 ### `.history/**/.records/*`
 
