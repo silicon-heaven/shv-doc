@@ -78,15 +78,19 @@ The provided records should be sorted according to the `TimeStamp` field `1`
 either in ascending order if `Since` < `Until` or descending order 
 if `Until` < `Since`.
 
-There is a special case when `Since` == `Until`. Only snapshot at `Since` is
-returned then.
-
 The method itself has only `Browse` access level but it must filter provided
 logs based on their access level and thus user with low access level might not
 see all that is provided. Note that it is not possible to decrease access level
 of the user for some part of the SHV tree because he could always ask the upper
 node where his access level is high enough and logs would be provided.
 
+#### Snapshot
+
+A special case occurs when `Since` == `Until`. In this scenario, only a snapshot
+at the `Since` timestamp is returned. The snapshot includes a list of records
+representing the state of every value under the getLog SHV path at that specific
+point in time. This feature is primarily used to retrieve the entire device
+state as it existed at the given moment.
 
 ### `.history/**/.records/*`
 
