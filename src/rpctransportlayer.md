@@ -34,3 +34,4 @@ message transport layer as required by SHV RPC. This includes the following:
 
 - [Stream transport layers](./rpctransportlayer/stream.md)
 - [CAN Bus](./rpctransportlayer/can.md)
+- [WebSockets](./rpctransportlayer/websockets.md)
