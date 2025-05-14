@@ -414,7 +414,7 @@ descriptions.
   [`.history/**:getLog` method](./rpcmethods/history.md#historygetlog). Its
   expanded form is:
   ```
-  {t|n:since,t|n:until,i(0,)|n:count,b|n:snapshot,s|n:ri}
+  {t|n:since,t|n:until,i(0,)|n:count,s|n:ri}
   ```
 * `!getLogR` is result of
   [`.history/**:getLog` method](./rpcmethods/history.md#historygetlog). Its
