@@ -10,21 +10,21 @@ There are three kinds of RPC messages defined:
 
 RPC message can have meta-data attribute defined.
 
-| Attribute number  | Attribute name       | Type             | Description
-| ----------------: | -------------------- | ---------------- | ------------
-| 1                 | MetaTypeId           | Int              | Always equal to `1` in case of RPC message
-| 2                 | MetaTypeNameSpaceId  | Int              | Always equal to `0` in case of RPC message, may be omitted.
-| 8                 | RequestId            | Int              | Every RPC request must have unique number per client. Matching RPC response will have the same number.
-| 9                 | ShvPath              | String           | Path on which method will be called.
-| 10                | Method/Signal        | String           | Name of called RPC method or raised signal.
-| 11                | CallerIds            | List of Int      | Internal attribute filled by broker in request message to distinguish requests with the same request ID, but issued by different clients.
-| 13                | RevCallerIds         | List of Int      | Reserved for SHV v2 broker compatibility
-| 14                | Access               | String           | Access granted by broker for called `shvPath` and `method` to current user. This should be used only for extra access info and for backward compatibility while `AccessLevel` is prefered instead.
-| 16                | UserId               | String           | ID of user calling RPC method.
-| 17                | AccessLevel          | Int              | Access level user has assigned for request or minimal access level needed to allow signal to be received.
-| 18                | SeqNo                | Int              | Reserved, it will be used in next API version for multi-part messages   <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
-| 19                | Source               | String           | Used for signals to store method name this signal is associated with.
-| 20                | Repeat               | Bool             | Used for signals to informat that signal was emited as a repeat of some older ones (that might not might not have been sent).
+| Attribute number  | Attribute name       | Type               | Description
+| ----------------: | -------------------- | ----------------   | ------------
+| 1                 | MetaTypeId           | Int                | Always equal to `1` in case of RPC message
+| 2                 | MetaTypeNameSpaceId  | Int                | Always equal to `0` in case of RPC message, may be omitted.
+| 8                 | RequestId            | Int                | Every RPC request must have unique number per client. Matching RPC response will have the same number.
+| 9                 | ShvPath              | String             | Path on which method will be called.
+| 10                | Method/Signal        | String             | Name of called RPC method or raised signal.
+| 11                | CallerIds            | List of Int or Int | Internal attribute filled by broker in request message to distinguish requests with the same request ID, but issued by different clients.
+| 13                | RevCallerIds         | List of Int or Int | Reserved for SHV v2 broker compatibility
+| 14                | Access               | String             | Access granted by broker for called `shvPath` and `method` to current user. This should be used only for extra access info and for backward compatibility while `AccessLevel` is prefered instead.
+| 16                | UserId               | String             | ID of user calling RPC method.
+| 17                | AccessLevel          | Int                | Access level user has assigned for request or minimal access level needed to allow signal to be received.
+| 18                | SeqNo                | Int                | Reserved, it will be used in next API version for multi-part messages   <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
+| 19                | Source               | String             | Used for signals to store method name this signal is associated with.
+| 20                | Repeat               | Bool               | Used for signals to informat that signal was emited as a repeat of some older ones (that might not might not have been sent).
 
 Second part of RPC message is `IMap` with following possible keys.
 
