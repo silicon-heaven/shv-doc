@@ -54,8 +54,7 @@ The method info in *IMap* must contain these fields:
     for compound types (List, Map, IMap) as addition of fields not present in
     the parameter. Non-compound types do not allow items omission and thus this
     flag has no meaning with them. The usage is expected on setters with known
-    associated getter such as in case of [property
-    nodes](./rpcmethods/property.md).
+    associated getter such as in case of [property nodes](./property.md).
 * `3` (*paramType*): defines parameter type for the requests. Type is a *String*
   that must adhere to [type description definition](../rpctypes.md). It can be
   missing or have value *Null* instead of *String* if method takes no parameter

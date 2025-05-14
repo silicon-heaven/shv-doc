@@ -31,7 +31,7 @@ Second part of RPC message is `IMap` with following possible keys.
 
 | Key  | Key name   | Description
 | ---: | ---------- | ------------
-| 1    | Params     | Optional method parameters, any [RPC Value](rpcvalue.md) is allowed.
+| 1    | Param      | Optional method parameter, any [RPC Value](rpcvalue.md) is allowed.
 | 2    | Result     | Successful method call result, any [RPC Value](rpcvalue.md) is allowed.
 | 3    | Error      | Method call exception, see [RPC error](#rpc-error) for more details
 | 4    | Delay      | Method call result delay, [Double](rpcvalue.md) is allowed.

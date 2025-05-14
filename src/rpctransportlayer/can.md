@@ -110,7 +110,7 @@ signals are not intended for any specific device and are just submitted on the
 bus with special destination device address `0xff`.
 
 The only allowed SHV RPC message type for destination device address `0xff` is
-[RpcSignal](./rpcmessage.md#rpcsignal). Other message types received with this
+[RpcSignal](../rpcmessage.md#rpcsignal). Other message types received with this
 destination device address must be ignored and devices should not send them.
 
 Handling of the broadcast signals is up to the application it receives it.
