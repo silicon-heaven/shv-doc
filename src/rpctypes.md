@@ -414,13 +414,13 @@ descriptions.
   [`.history/**:getLog` method](./rpcmethods/history.md#historygetlog). Its
   expanded form is:
   ```
-  {t|n:since,t|n:until,i(0,)|n:count,s|n:ri}
+  {t|n:since:1,t|n:until,i(0,)|n:count,s|n:ri}
   ```
 * `!getLogR` is result of
   [`.history/**:getLog` method](./rpcmethods/history.md#historygetlog). Its
   expanded form is:
   ```
-  [i{t:timestamp:1,i(0,)|n:ref,s|n:path,s|n:signal,s|n:source,?:value,s|n:userId,b|n:repeat}]
+  [i{t|n:timestamp:1,i(0,)|n:ref,s|n:path,s|n:signal,s|n:source,?:value,s|n:userId,b|n:repeat}]
   ```
 * `!historyRecords` is result of
   [`.history/**/.records/*:fetch`
