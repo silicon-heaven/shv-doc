@@ -372,7 +372,7 @@ descriptions.
 * `!dir` is one of results of [`*:dir` method](./rpcmethods/discovery.md#dir).
   Its expanded form is:
   ```
-  i{s:name:1,u[b:isGetter:1,b:isSetter,b:largeResult,b:notIndempotent,b:userIDRequired,b:isUpdatable]|n:flags,s|n:paramType,s|n:resultType,i(0,63):accessLevel,{s|n}:signals,{?}:extra:63}|b
+  i{s:name:1,u[b:isGetter:1,b:isSetter,b:largeResult,b:notIndempotent,b:userIDRequired,b:isUpdatable]|n:flags,s|n:paramType,s|n:resultType,i(0,63):accessLevel,{s|n}:signals,{?}:extra:63}
   ```
 * `!alert` is result of [`.device/alerts:get`
   method](./rpcmethods/device.md#devicealertsget) and value of
@@ -414,13 +414,13 @@ descriptions.
   [`.history/**:getLog` method](./rpcmethods/history.md#historygetlog). Its
   expanded form is:
   ```
-  {t|n:since,t|n:until,i(0,)|n:count,s|n:ri}
+  {t|n:since:1,t|n:until,i(0,)|n:count,s|n:ri}
   ```
 * `!getLogR` is result of
   [`.history/**:getLog` method](./rpcmethods/history.md#historygetlog). Its
   expanded form is:
   ```
-  [i{t:timestamp:1,i(0,)|n:ref,s|n:path,s|n:signal,s|n:source,?:value,s|n:userId,b|n:repeat}]
+  [i{t|n:timestamp:1,i(0,)|n:ref,s|n:path,s|n:signal,s|n:source,?:value,s|n:userId,b|n:repeat}]
   ```
 * `!historyRecords` is result of
   [`.history/**/.records/*:fetch`

@@ -6,6 +6,8 @@ src = "src"
 title = "SHV RPC Documentation"
 
 [preprocessor.pagetoc]
+
 [output.html]
 additional-css = ["theme/pagetoc.css"]
 additional-js  = ["theme/pagetoc.js"]
+[output.linkcheck]
