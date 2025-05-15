@@ -21,6 +21,7 @@
 - [RPC Transport layers](./rpctransportlayer.md)
   - [Stream transport layers](./rpctransportlayer/stream.md)
   - [CAN Bus](./rpctransportlayer/can.md)
+  - [WebSockets](./rpctransportlayer/websockets.md)
 - [RPC URL](./rpcurl.md)
 - [Implementations](./implementations.md)
 - [Tools](./tools.md)
