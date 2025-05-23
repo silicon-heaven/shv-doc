@@ -197,7 +197,7 @@ The file nodes must implement these methods: `.history/**/.files/*/*.log3:stat`,
 `.history/**/.files/*/*.log3:sha1`.
 
 The content of the file logs is line separated CPON where initial line is
-expected to have *Map* while rest should be *List*s.
+expected to have *Map* while rest should be *iMap*s.
 
 The first line in the log file is *Map* with these fields:
 * `"logVersion"` that right now should be set to `3.0` and thus must be
@@ -211,23 +211,27 @@ The first line in the log file is *Map* with these fields:
 Notice that the first line is the only way to record time jump and thus when
 time jump is detected you should always open a new log file.
 
-The rest of the file must contain *List*s with following columns:
-* *time*: *DateTime* of system when record was created or *Null* for anchor
-  logs at the start of the file. File log must start with anchor logs of all
-  latest recorded values from the previous log. This is to provide full
+The rest of the file must contain records. Every record is *IMap* with
+following fields:
+* `1` (*time*): *DateTime* of system when record was created or *Null* for
+  anchor logs at the start of the file. File log must start with anchor logs
+  of all latest recorded values from the previous log. This is to provide full
   information in a single log file.
-* *path*: *String* with SHV path to the node relative to the `.history`'s parent.
-  The default if not specified is `""`.
-* *signal*: *String* with signal name. The default if not specified is `"chng"`.
-* *source*: *String* with signal's associated method name. The default if not
-  specified is `"get"`.
-* *value*: signal's value (parameter). The default if not specified is `null`.
-* *accessLevel*: *Int* with signal's access level. The default if not specified
-  is *Read*.
-* *userId*: *String* with `UserId` carried by signal message. The default if not
-  present is `null` and thus there was no user's ID in the message.
-* *repeat*: *Bool* with `Repeat` carried by signal message. The default if not
-  present is `false`.
+* `2` (*path*): *String* with SHV path to the node relative to the
+  `.history`'s parent. The default if not specified is `""`.
+* `3` (*signal*): *String* with signal name. The default if not specified
+  is `"chng"`.
+* `4` (*source*): *String* with signal's associated method name. The default
+  if not specified is `"get"`.
+* `5` (*value*): signal's value (parameter). The default if not specified
+  is `null`.
+* `6` (*accessLevel*): *Int* with signal's access level. The default if not
+  specified is *Read*.
+* `7` (*userId*): *String* with `UserId` carried by signal message. The
+  default if not present is `null` and thus there was no user's ID in the
+  message.
+* `8` (*repeat*): *Bool* with `Repeat` carried by signal message. The
+  default if not present is `false`.
 
 ### `.history/**/.records/*:sync` and `.history/**/.files/*:sync`
 
