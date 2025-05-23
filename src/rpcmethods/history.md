@@ -55,7 +55,7 @@ The parameter is an *IMap* containing the following fields:
 | Key | Name  | Type           |                        |
 | --- | ----- | -------------- | ---------------------- |
 | 1   | Since | DateTime\|Null | Defines the starting point for log retrieval. Records with a timestamp exactly matching this value are excluded, allowing seamless continuation from the last retrieved record. *Default:* The time at which the request is received. |
-| 2   | Until | DateTime\|Null | Defines the end point for log retrieval. Records with timestamp greater than `Until` will be excluded from result. If the volume of logs is too high, the device may return fewer records and stop before reaching this timestamp. To ensure full retrieval, issue a follow-up request using the timestamp of the last returned record as the new `Since`. If `Until` precedes `Since`, logs are returned in **reverse order** (newest to oldest). *Default:* The time at which the request is received. |
+| 2   | Until | DateTime\|Null | Specifies the end point for log retrieval. Only records with a timestamp within the range `(Since, Until>` will be returned. If `Until` comes before `Since`, the interval becomes `<Until, Since)`. In such cases, logs records are returned in **reverse order** (from newest to oldest). If there are too many log records matching specified interval, the device may return fewer records and stop before reaching `Until` timestamp. To retrieve all logs, send a follow-up request using the timestamp of the last returned record as the new `Since`. *Default:* The time at which the request is received. |
 | 3   | Count | Int\|Null      | Limits the maximum number of records returned. Device can provides number of records it decides on but sometimes it is desirable to lower this limit, for example to single record, and this option allows that. If multiple logs have the same timestamp, all must be included even if this exceeds the limit.  *Default:* Unlimited. The snapshot is returned always complete regardless `Count` value specified. |
 | 4   | Ri    | [RPC Resource Identifier](../rpcri.md)\|Null | Filters the results to include only signals matching specified RI. Filter must be relative to `getLog` shv path. It is strongly recommended to call `getLog` using the most specific path possible instead of relying on the `Ri` field, as access permissions are determined by the request path. Using a shorter path may result in insufficient access rights. *Default:* Null, filter is off. |
 
@@ -92,21 +92,24 @@ node where his access level is high enough and logs would be provided.
 
 Queries logs for the recorded signals at given point in time.
 
-This method must be available on all nodes in the `.history/**` tree where `getLog` is available.
-
-The snapshot includes a list of records
-representing the state of every value under the getLog SHV path at that specific
-point in time. This feature is primarily used to retrieve the entire device
-state as it existed at the given moment.
-`TimeStamp` of snapshot records contains time of snapshot value recent change.
+This method must be available on all nodes in the `.history/**` tree where
+`getLog` is available.
 
 The parameter is an *IMap* containing the following fields:
 
 | Key | Name  | Type           |                        |
 | --- | ----- | -------------- | ---------------------- |
-| 1   | Since | DateTime       | Defines point in time for log retrieval. |
-| 4   | Ri    | [RPC Resource Identifier](../rpcri.md)\|Null | See `getLogP`. |
+| 1   | Time  | DateTime       | Defines point in time for log retrieval. |
+| 2   | Ri    | [RPC Resource Identifier](../rpcri.md)\|Null | See `getLogP`. |
 
+The provided value is of the same type as `getLog` returns. The only difference
+is that `TimeStamp` is optional depending on ability of device to provide this
+value.
+
+The snapshot includes a list of records representing the state of every value
+under the getLog SHV path at `Time`. This feature is primarily used to retrieve
+the entire device state as it existed at the given moment. `TimeStamp` of
+snapshot records contains time of record value recent change.
 
 ### `.history/**/.records/*`
 
