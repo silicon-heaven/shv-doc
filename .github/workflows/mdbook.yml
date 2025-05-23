@@ -29,8 +29,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      MDBOOK_VERSION: 0.4.43
+      MDBOOK_VERSION: 0.4.49
       MDBOOK_PAGETOC_VERSION: 0.2.0
+      MDBOOK_LINKCHECK_VERSION: 0.7.7
     steps:
       - uses: actions/checkout@v4.2.2
       - name: Install mdBook
@@ -39,6 +40,7 @@ jobs:
           rustup update
           cargo install --version '${{env.MDBOOK_VERSION}}' mdbook
           cargo install --version '${{env.MDBOOK_PAGETOC_VERSION}}' mdbook-pagetoc
+          cargo install --version '${{env.MDBOOK_LINKCHECK_VERSION}}' mdbook-linkcheck 
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5.0.0

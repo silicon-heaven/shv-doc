@@ -163,8 +163,8 @@ before Response is received. Based on the implementation it could be hard to
 prevent from starting the call again and thus it is desirable to inform about
 Request retrieval as soon as possible. For this purpose there is a dedicated
 Response that informs about delayed Response. This specific Delay Response
-provides hint about progress of the call and thus can be sent multiple times
-before the Response with either Result or Error is sent. The caller is also
-provided with Abort Request that can be used to abort the running call as well
-as to query for the running call existence. During the all this communication
-the same request ID must be used.
+provides hint about progress of the call and can be sent multiple times before
+the Response with either Result or Error is sent. The caller can also use Abort
+Request that can be used to abort the running call or to query for the running
+call existence. During the all of this communication the same request ID must be
+used.
