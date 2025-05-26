@@ -40,7 +40,7 @@ authority = host [":" port]
 The default `host` is `localhost` and `port` is `3755`. Any non-empty `path` is
 invalid as it has no meaning in IP.
 
-This uses TCP/IP with [Block transport layer](rpctransportlayer.md#stream).
+This uses TCP/IP with [Block transport layer](rpctransportlayer.md#block).
 
 
 ## TCP/IP serial protocol
@@ -82,7 +82,8 @@ The additional supported options are:
   should be verified or not. The default, if not specifies, is `true`. Setting
   `false` forces client to accept any certificate as valid.
 
-This uses TLS TCP/IP with [Block transport layer](rpctransportlayer.md#stream).
+This uses TLS TCP/IP with [Block transport
+layer](rpctransportlayer/stream.md#block).
 
 
 ## TCP/IP serial protocol with SSL
@@ -96,7 +97,8 @@ This is variant of TCP/IP protocol with SSL. It is same except of used transport
 layer. Please refer to the previous section for more info. The only difference
 is the default `port` that is `3766`.
 
-This uses TLS TCP/IP with [Serial transport layer](rpctransportlayer.md#serial).
+This uses TLS TCP/IP with [Serial transport
+layer](rpctransportlayer/stream.md#serial).
 
 
 ## Unix/Local domain socket
@@ -109,7 +111,7 @@ There is no default path and thus empty `path` is considered invalid. Any
 non-empty `authority` is also considered as invalid because it has no meaning.
 
 This uses Unix sockets for local interprocess communication with [Block
-transport layer](rpctransportlayer.md#stream).
+transport layer](rpctransportlayer/stream.md#block).
 
 
 ## Unix/Local domain socket serial protocol
@@ -122,7 +124,7 @@ This is variant of Unix/Local domain socket. It is same except of used transport
 layer. Please refer to the previous section for more info.
 
 This uses Unix sockets for local interprocess communication with [Serial
-transport layer](rpctransportlayer.md#serial).
+transport layer](rpctransportlayer/stream.md#serial).
 
 
 ## Serial / RS232
@@ -144,7 +146,7 @@ configurable and are expected to be: eight bits per word, no parity, single stop
 bit, enabled hardware flow control, disabled software flow control.
 
 This uses serial console or terminal like interface as bidirectional stream
-channel with [Serial transport layer](rpctransportlayer.md#serial).
+channel with [Serial transport layer](rpctransportlayer/stream.md#serial).
 
 ## WebSocket
 
@@ -154,6 +156,8 @@ authority = host [":" port]
 ```
 
 The default `host` is `localhost` and `port` is `8755`.
+
+This uses [WebSockets transport layer](rpctransportlayer/websockets.md)
 
 ## WebSocket over SSL
 
@@ -176,3 +180,5 @@ The default `host` is `localhost` and `port` is `8766`.
 * `verify`: can be used with either `true` or `false` to control if server
   should be verified or not. The default, if not specifies, is `true`. Setting
   `false` forces client to accept any certificate as valid.
+
+This uses [WebSockets transport layer](rpctransportlayer/websockets.md)
