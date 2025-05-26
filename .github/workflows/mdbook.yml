@@ -8,7 +8,9 @@ on:
   # Runs on pushes targeting the default branch
   push:
     branches: ["master"]
-
+  pull_request:
+    branches: [ "master" ]
+    
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -49,7 +51,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3.0.1
         with:
-          path: ./book
+          path: ./book/html
 
   # Deployment job
   deploy:
@@ -61,4 +63,6 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4.0.5
+        uses: actions/deploy-pages@v4
+
+
