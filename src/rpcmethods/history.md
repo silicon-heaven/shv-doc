@@ -64,7 +64,7 @@ The provided value is list of *IMap*s with following fields:
 
 | Key | Name      | Type     |                     |
 | --- | --------- | -------- | ------------------- |
-| 1   | TimeStamp | DateTime | Timestamp of the record. This field is not required in snapshot records, because snapshot records have exactly time of `Since`. |
+| 1   | TimeStamp | DateTime | Timestamp of the record. |
 | 2   | Ref       | Int      | It provides a way to reference the previous record to use it as the default for `Path`, `Signal` and `Source` (instead of the documented defaults). It is *Int* where `0` is record right before this one in the list. The offset must always be to the most closest record that specifies desired default. This simplifies parsing because there is no need to remember every single received record but only the latest unique ones. It is up to the implementation if this is used or not. Simple implementations can choose to generate bigger messages and not use this field at all. |
 | 3   | Path      | String   | SHV path to the node relative to the path `getLog` was called on. *Default:* empty path `""`. |
 | 4   | Signal    | String   | Signal name. *Default:* `chng`. |
@@ -88,7 +88,7 @@ node where his access level is high enough and logs would be provided.
 
 | Name     | SHV Path      | Flags           | Param Type | Result Type | Access |
 |----------|---------------|-----------------|------------|-------------|--------|
-| `getSnapshot` | `.history/**` | HintLargeResult | `!getSnapshotP` | `!getLogR`  | Browse |
+| `getSnapshot` | `.history/**` | HintLargeResult | `!getSnapshotP` | `!getSnapshotR`  | Browse |
 
 Queries logs for the recorded signals at given point in time.
 
@@ -102,14 +102,21 @@ The parameter is an *IMap* containing the following fields:
 | 1   | Time  | DateTime       | Defines point in time for log retrieval. |
 | 2   | Ri    | [RPC Resource Identifier](../rpcri.md)\|Null | See `getLogP`. |
 
-The provided value is of the same type as `getLog` returns. The only difference
-is that `TimeStamp` is optional depending on ability of device to provide this
-value.
+`!getSnapshotR` is defined as list of *IMap*s with following fields:
+
+| Key | Name      | Type     |                     |
+| --- | --------- | -------- | ------------------- |
+| 1   | TimeStamp | DateTime | Timestamp of the record. This field is optional depending on ability of device to provide it. |
+| 3   | Path      | String   | SHV path to the node relative to the path `getLog` was called on. *Default:* empty path `""`. |
+| 4   | Signal    | String   | Signal name. *Default:* `chng`. |
+| 5   | Source    | DateTime | Signal's associated method name.  *Default:* `get`. |
+| 6   | Value     | RpcValue | Signal's value (parameter). |
+| 7   | UserId    | String   | `UserId` carried by signal message. *Default:* `null`. |
+| 8   | Repeat    | Bool     | `Repeat` carried by signal message. *Default:* `False`. |
 
 The snapshot includes a list of records representing the state of every value
 under the getLog SHV path at `Time`. This feature is primarily used to retrieve
-the entire device state as it existed at the given moment. `TimeStamp` of
-snapshot records contains time of record value recent change.
+the entire device state as it existed at the given moment. 
 
 ### `.history/**/.records/*`
 
