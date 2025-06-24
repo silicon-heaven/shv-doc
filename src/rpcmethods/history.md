@@ -99,7 +99,7 @@ The parameter is an *IMap* containing the following fields:
 
 | Key | Name  | Type           |                        |
 | --- | ----- | -------------- | ---------------------- |
-| 1   | Time  | DateTime       | Defines point in time for log retrieval. |
+| 1   | Time  | DateTime\|Null | Defines point in time for log retrieval. *Default:* The time at which the request is received. |
 | 2   | Ri    | [RPC Resource Identifier](../rpcri.md)\|Null | See `getLogP`. |
 
 `!getSnapshotR` is defined as list of *IMap*s with following fields:
