@@ -69,7 +69,7 @@ The provided value is list of *IMap*s with following fields:
 | 3   | Path      | String   | SHV path to the node relative to the path `getLog` was called on. *Default:* empty path `""`. |
 | 4   | Signal    | String   | Signal name. *Default:* `chng`. |
 | 5   | Source    | DateTime | Signal's associated method name.  *Default:* `get`. |
-| 6   | Value     | RpcValue | Signal's value (parameter). |
+| 6   | Value     | Any      | Signal's value (parameter). |
 | 7   | UserId    | String   | `UserId` carried by signal message. *Default:* `null`. |
 | 8   | Repeat    | Bool     | `Repeat` carried by signal message. *Default:* `False`. |
 
@@ -110,7 +110,7 @@ The parameter is an *IMap* containing the following fields:
 | 3   | Path      | String   | SHV path to the node relative to the path `getLog` was called on. *Default:* empty path `""`. |
 | 4   | Signal    | String   | Signal name. *Default:* `chng`. |
 | 5   | Source    | DateTime | Signal's associated method name.  *Default:* `get`. |
-| 6   | Value     | RpcValue | Signal's value (parameter). |
+| 6   | Value     | Any      | Signal's value (parameter). |
 | 7   | UserId    | String   | `UserId` carried by signal message. *Default:* `null`. |
 | 8   | Repeat    | Bool     | `Repeat` carried by signal message. *Default:* `False`. |
 
