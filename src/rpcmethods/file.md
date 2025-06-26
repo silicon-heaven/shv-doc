@@ -43,6 +43,7 @@ The result is IMap with these fields:
 | 3   | AccessTime | DateTime \| Null | Optional time of latest data access                                                                       |
 | 4   | ModTime    | DateTime \| Null | Optional time of latest data modification                                                                 |
 | 5   | MaxWrite   | Int \| Null      | Optional maximal size in bytes of a single write that is accepted (this affects `*:write` and `*:append`) |
+| 6   | MaxRead    | Int \| Null      | Optional maximal size in bytes of a single read that the device can return.                               |
 
 ```
 => <id:42, method:"stat", path:"test/file">i{}
