@@ -25,6 +25,28 @@ provided with various, but not all, types of file node modes. The methods
 | Resizable   | ✔️                  | ✔️        | ✔️         | ✔️            | ✔️          |
 | Append only | ✔️                  | ✔️        | ❌        | ❌           | ✔️          |
 
+## File types
+
+File node provides support for two types of file. A regular file is a standard
+file that can support all methods listed above. MTD layer provides a direct
+access to a raw flash. This imposes requiremts on the implementations, notably
+the page has to be erased before write. This means the MTD file node can only
+support writes in a sequential order within one erase page (refer to
+`EraseSize` in `*:stat` method), otherwise the written data may be
+corrupted. The implementation is allowed to return error if non sequential
+write is performed, but this is not required. It is also expected that
+`*:truncate` and `*:append` methods are not available.
+
+Direct access to raw flash may or may not provide control whether the bytes
+were really written. Good client's behavior would be to check
+CRC32 after writes are finished to check whether the data were written
+correctly.
+
+| Key | Name          | Note                                  |
+|-----|---------------|---------------------------------------|
+| 0   | Regular file  |                                       |
+| 1   | MTD layer     | Only sequential writes are supported  |
+
 ## `*:stat`
 
 | Name   | SHV Path | Flags  | Param Type | Result Type | Access |
@@ -37,13 +59,14 @@ The result is IMap with these fields:
 
 | Key | Name       | Type             | Description                                                                                               |
 |-----|------------|------------------|-----------------------------------------------------------------------------------------------------------|
-| 0   | Type       | Int              | Type of the file (at the moment only regular is supported and thus must always be `0`)                    |
+| 0   | Type       | Int              | Type of the file (see file types)                                                                         |
 | 1   | Size       | Int              | Size of the file in bytes                                                                                 |
 | 2   | PageSize   | Int              | Page size (ideal size and thus alignment for this file efficient access)                                  |
 | 3   | AccessTime | DateTime \| Null | Optional time of latest data access                                                                       |
 | 4   | ModTime    | DateTime \| Null | Optional time of latest data modification                                                                 |
 | 5   | MaxWrite   | Int \| Null      | Optional maximal size in bytes of a single write that is accepted (this affects `*:write` and `*:append`) |
 | 6   | MaxRead    | Int \| Null      | Optional maximal size in bytes of a single read that the device can return.                               |
+| 7   | EraseSize  | Int \| Null      | Optional size of erase page (this is used only for MTD file types)                                        |
 
 ```
 => <id:42, method:"stat", path:"test/file">i{}
