@@ -422,6 +422,18 @@ descriptions.
   ```
   [i{t|n:timestamp:1,i(0,)|n:ref,s|n:path,s|n:signal,s|n:source,?:value,s|n:userId,b|n:repeat}]
   ```
+* `!getSnapshotP` is parameter for
+  [`.history/**:getSnapshot` method](./rpcmethods/history.md#historygetsnapshot). Its
+  expanded form is:
+  ```
+  {t|n:time:1,s|n:ri}
+  ```
+* `!getSnapshotR` is result of
+  [`.history/**:getSnapshot` method](./rpcmethods/history.md#historygetsnapshot). Its
+  expanded form is:
+  ```
+  [i{t:timestamp:1,s|n:path:3,s|n:signal,s|n:source,?:value,s|n:userId,b|n:repeat}]
+  ```
 * `!historyRecords` is result of
   [`.history/**/.records/*:fetch`
   method](./rpcmethods/history.md#historyrecordsfetch). Its expanded form is:
