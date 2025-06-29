@@ -55,7 +55,7 @@ The parameter is an *IMap* containing the following fields:
 | Key | Name  | Type           |                        |
 | --- | ----- | -------------- | ---------------------- |
 | 1   | Since | DateTime\|Null | Defines the starting point for log retrieval. Records with a timestamp exactly matching this value are excluded, allowing seamless continuation from the last retrieved record. *Default:* The time at which the request is received. |
-| 2   | Until | DateTime\|Null | Defines the end point for log retrieval. If the volume of logs is too high, the device may return fewer records and stop before reaching this timestamp. To ensure full retrieval, issue a follow-up request using the timestamp of the last returned record as the new `Since`. If `Until` precedes `Since`, logs are returned in **reverse order** (newest to oldest). If `Since` equals `Until`, only snapshot in `Since` is returned. *Default:* The time at which the request is received. |
+| 2   | Until | DateTime\|Null | Specifies the end point for log retrieval. Only records with a timestamp within the range `(Since, Until>` will be returned. If `Until` comes before `Since`, the interval becomes `<Until, Since)`. In such cases, logs records are returned in **reverse order** (from newest to oldest). If there are too many log records matching specified interval, the device may return fewer records and stop before reaching `Until` timestamp. To retrieve all logs, send a follow-up request using the timestamp of the last returned record as the new `Since`. *Default:* The time at which the request is received. |
 | 3   | Count | Int\|Null      | Limits the maximum number of records returned. Device can provides number of records it decides on but sometimes it is desirable to lower this limit, for example to single record, and this option allows that. If multiple logs have the same timestamp, all must be included even if this exceeds the limit.  *Default:* Unlimited. The snapshot is returned always complete regardless `Count` value specified. |
 | 4   | Ri    | [RPC Resource Identifier](../rpcri.md)\|Null | Filters the results to include only signals matching specified RI. Filter must be relative to `getLog` shv path. It is strongly recommended to call `getLog` using the most specific path possible instead of relying on the `Ri` field, as access permissions are determined by the request path. Using a shorter path may result in insufficient access rights. *Default:* Null, filter is off. |
 
@@ -64,12 +64,12 @@ The provided value is list of *IMap*s with following fields:
 
 | Key | Name      | Type     |                     |
 | --- | --------- | -------- | ------------------- |
-| 1   | TimeStamp | DateTime | Timestamp of the record. This field is not required in snapshot records, because snapshot records have exactly time of `Since`. |
+| 1   | TimeStamp | DateTime | Timestamp of the record. |
 | 2   | Ref       | Int      | It provides a way to reference the previous record to use it as the default for `Path`, `Signal` and `Source` (instead of the documented defaults). It is *Int* where `0` is record right before this one in the list. The offset must always be to the most closest record that specifies desired default. This simplifies parsing because there is no need to remember every single received record but only the latest unique ones. It is up to the implementation if this is used or not. Simple implementations can choose to generate bigger messages and not use this field at all. |
 | 3   | Path      | String   | SHV path to the node relative to the path `getLog` was called on. *Default:* empty path `""`. |
 | 4   | Signal    | String   | Signal name. *Default:* `chng`. |
 | 5   | Source    | DateTime | Signal's associated method name.  *Default:* `get`. |
-| 6   | Value     | RpcValue | Signal's value (parameter). |
+| 6   | Value     | Any      | Signal's value (parameter). |
 | 7   | UserId    | String   | `UserId` carried by signal message. *Default:* `null`. |
 | 8   | Repeat    | Bool     | `Repeat` carried by signal message. *Default:* `False`. |
 
@@ -84,14 +84,39 @@ see all that is provided. Note that it is not possible to decrease access level
 of the user for some part of the SHV tree because he could always ask the upper
 node where his access level is high enough and logs would be provided.
 
-#### Snapshot
+### `.history/**:getSnapshot`
 
-A special case occurs when `Since` == `Until`. In this scenario, only a snapshot
-at the `Since` timestamp is returned. The snapshot includes a list of records
-representing the state of every value under the getLog SHV path at that specific
-point in time. This feature is primarily used to retrieve the entire device
-state as it existed at the given moment. Also `Count` parameter is ignored in
-this case, whole snapshot is returned regardless of its record count.
+| Name     | SHV Path      | Flags           | Param Type | Result Type | Access |
+|----------|---------------|-----------------|------------|-------------|--------|
+| `getSnapshot` | `.history/**` | HintLargeResult | `!getSnapshotP` | `!getSnapshotR`  | Browse |
+
+Queries logs for the recorded signals at given point in time.
+
+This method must be available on all nodes in the `.history/**` tree where
+`getLog` is available.
+
+The parameter is an *IMap* containing the following fields:
+
+| Key | Name  | Type           |                        |
+| --- | ----- | -------------- | ---------------------- |
+| 1   | Time  | DateTime\|Null | Defines point in time for log retrieval. *Default:* The time at which the request is received. |
+| 2   | Ri    | [RPC Resource Identifier](../rpcri.md)\|Null | See `getLogP`. |
+
+`!getSnapshotR` is defined as list of *IMap*s with following fields:
+
+| Key | Name      | Type     |                     |
+| --- | --------- | -------- | ------------------- |
+| 1   | TimeStamp | DateTime | Timestamp of the record. This field is optional depending on ability of device to provide it. |
+| 3   | Path      | String   | SHV path to the node relative to the path `getLog` was called on. *Default:* empty path `""`. |
+| 4   | Signal    | String   | Signal name. *Default:* `chng`. |
+| 5   | Source    | DateTime | Signal's associated method name.  *Default:* `get`. |
+| 6   | Value     | Any      | Signal's value (parameter). |
+| 7   | UserId    | String   | `UserId` carried by signal message. *Default:* `null`. |
+| 8   | Repeat    | Bool     | `Repeat` carried by signal message. *Default:* `False`. |
+
+The snapshot includes a list of records representing the state of every value
+under the getLog SHV path at `Time`. This feature is primarily used to retrieve
+the entire device state as it existed at the given moment. 
 
 ### `.history/**/.records/*`
 
