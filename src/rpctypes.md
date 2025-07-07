@@ -438,7 +438,7 @@ descriptions.
   [`.history/**/.records/*:fetch`
   method](./rpcmethods/history.md#historyrecordsfetch). Its expanded form is:
   ```
-  [i{i[normal:1,keep,timeJump,timeAbig]:type,t:timestamp,s|n:path,s|n:signal,s|n:source,?:value,i(0,63):accessLevel,s|n:userId,b|n:repeat,i|n:timeJump:60}]
+  [i{i[normal:1,keep,timeJump,timeAbig]:type,t:timestamp,s|n:path,s|n:signal,s|n:source,?:value,i(0,63)|n:accessLevel,s|n:userId,b|n:repeat,i(0,)|n:id,i(0,)|n:ref,i|n:timeJump:60}]
   ```
 
 ## Grammar representation
