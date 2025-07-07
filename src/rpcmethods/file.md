@@ -135,9 +135,9 @@ The result must always be 20 bytes long *Bytes*.
 
 ## `*:read`
 
-| Name   | SHV Path | Flags             | Param Type                 | Result Type | Access |
-|--------|----------|-------------------|----------------------------|-------------|--------|
-| `read` | Any      | LARGE_RESULT_HINT | `[i(0,):offset,i(0,)size]` | `b`         | Read   |
+| Name   | SHV Path | Flags             | Param Type                  | Result Type | Access |
+|--------|----------|-------------------|-----------------------------|-------------|--------|
+| `read` | Any      | LARGE_RESULT_HINT | `[i(0,):offset,i(0,):size]` | `b`         | Read   |
 
 Method for reading data from file. This method should be implemented only if you
 allow reading of the file.
