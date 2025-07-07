@@ -62,16 +62,16 @@ The parameter is an *IMap* containing the following fields:
 
 The provided value is list of *IMap*s with following fields:
 
-| Key | Name      | Type     |                     |
-| --- | --------- | -------- | ------------------- |
-| 1   | TimeStamp | DateTime | Timestamp of the record. |
-| 2   | Ref       | Int      | It provides a way to reference the previous record to use it as the default for `Path`, `Signal` and `Source` (instead of the documented defaults). It is *Int* where `0` is record right before this one in the list. The offset must always be to the most closest record that specifies desired default. This simplifies parsing because there is no need to remember every single received record but only the latest unique ones. It is up to the implementation if this is used or not. Simple implementations can choose to generate bigger messages and not use this field at all. |
-| 3   | Path      | String   | SHV path to the node relative to the path `getLog` was called on. *Default:* empty path `""`. |
-| 4   | Signal    | String   | Signal name. *Default:* `chng`. |
-| 5   | Source    | DateTime | Signal's associated method name.  *Default:* `get`. |
-| 6   | Value     | Any      | Signal's value (parameter). |
-| 7   | UserId    | String   | `UserId` carried by signal message. *Default:* `null`. |
-| 8   | Repeat    | Bool     | `Repeat` carried by signal message. *Default:* `False`. |
+| Key | Name      | Type     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| --- | --------- | -------- | -------------------                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| 1   | TimeStamp | DateTime | Timestamp of the record.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| 2   | Ref       | Int      | It provides a way to reference the previous record to use it as the value for `Path`, `Signal` and `Source`. It is *Int* where `0` is record right before this one in the list. The offset must always be to the most closest record that specifies desired values. This simplifies parsing because there is no need to remember every single received record but only the latest unique ones. It is up to the implementation if this is used or not. Simple implementations can choose to generate bigger messages and not use this field at all. |
+| 3   | Path      | String   | SHV path to the node relative to the path `getLog` was called on. *Default:* empty path `""`.                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| 4   | Signal    | String   | Signal name. *Default:* `chng`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| 5   | Source    | DateTime | Signal's associated method name.  *Default:* `get`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| 6   | Value     | Any      | Signal's value (parameter).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| 7   | UserId    | String   | `UserId` carried by signal message. *Default:* `null`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| 8   | Repeat    | Bool     | `Repeat` carried by signal message. *Default:* `False`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 
   
 The provided records should be sorted according to the `TimeStamp` field `1`
@@ -139,9 +139,15 @@ storage such as database or cyclic buffer.
 This allows you to fetch records from log.
 
 Parameter is tuple of first record ID to be provided and number of records (thus
-last record returned is `parameter[0] + parameter[1] - 1`).
+last record possibly returned is `parameter[0] + parameter[1] - 1`).
 
-The call provides list of records. Every record is *IMap* with following fields:
+The call provides list of records. The number of records is at maximum requested
+number but less amount of records can be returned either due to device
+limitations or ID holes (IDs without any associated records). To ensure that all
+records in the requested range are fetched you should take *id* of the last
+provided record use it as offset.
+
+Every record is *IMap* with following fields:
 * `0`(*type*): *Int* signaling record type:
   * `1`(*normal*) for normal records.
   * `2`(*keep*) for keep records. These are normal records repeated with newer
@@ -176,8 +182,18 @@ The call provides list of records. Every record is *IMap* with following fields:
   if not present is `null` and thus there was no user's ID in the message.
 * `8`(*repeat*): *Bool* with `Repeat` carried by signal message. The default
   if not present is `false`.
+* `9` (*id*): *Int* with record's ID. This ID is unique for this record and
+  fetch will always provide this record unmodified for this ID. The default if
+  not provided is the *id* of previous provided record plus one. The default of
+  the first record is the *offset* parameter.
+* `10` (*ref*): *Int* with reference to the previous record with matching
+  *type*, *path*, *signal*, *source*, and *accessLevel* fields. These fields
+  are thus exclusive with this one. This field should be used to reduce the
+  size of the message. The value `0` is the record right before this one in the
+  list, `1` is the one before it and so on. The offset must always be the most
+  closes record that specifies desired values.
 * `60`(*timeJump*): *Int* with number of seconds of time skip. This is used with
-  key `0` being `3`.
+  *type* being `3` (*timeJump*).
 
 Fetch that is outside of the valid record ID range must not provide error.
 
