@@ -25,6 +25,8 @@ URL = scheme ":" ["//" [username "@"] authority] [path] ["?" options]
 * `user`: Alternative way to set user name that overrides user in URL. The
   default user name if neither is used is local user's name or the platform
   specific alternative.
+* `token`: The plain text token used to perform login. The token replaces usage
+  of user name and password (`password` and `shapass`).
 * `devid`: Identify to the other side as device with this ID.
 * `devmount`: Identify to the other side as device and request mount to
   the given location.
