@@ -392,7 +392,7 @@ descriptions.
 * `!stat` is result of [`*:stat` method](./rpcmethods/file.md#stat). Its
   expanded form is:
   ```
-  i{i:type,i:size,i:pageSize,t|n:accessTime,t|n:modTime,i|n:maxWrite}
+  i{i:type,i:size,i:pageSize,t|n:accessTime,t|n:modTime,i|n:maxWrite,i|n:maxRead,i|n:eraseSize}
   ```
 * `!exchangeP` is parameter for [`*/ASSIGNED:exchange`
   method](./rpcmethods/exchange.md#ASSIGNEDexchange). Its expanded form is:
