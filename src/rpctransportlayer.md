@@ -9,6 +9,7 @@ layer that guarantees the following functionalities can be used for SHV RPC:
 * Communication needs to be point-to-point, or transport layer needs to emulate
   that.
 * Messages can be of any size
+* The last byte of a message longer than 8 bytes is not null byte
 
 Exchanged messages have `data` always start with a single byte identifying the
 format of the subsequent bytes in the message (if any):
