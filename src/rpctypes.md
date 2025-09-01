@@ -372,7 +372,7 @@ descriptions.
 * `!dir` is one of results of [`*:dir` method](./rpcmethods/discovery.md#dir).
   Its expanded form is:
   ```
-  i{s:name:1,u[b:isGetter:1,b:isSetter,b:largeResult,b:notIndempotent,b:userIDRequired,b:isUpdatable]|n:flags,s|n:paramType,s|n:resultType,i(0,63):accessLevel,{s|n}:signals,{?}:extra:63}|b
+  i{s:name:1,u[b:isGetter:1,b:isSetter,b:largeResult,b:notIndempotent,b:userIDRequired,b:isUpdatable]|n:flags,s|n:paramType,s|n:resultType,i(0,63):accessLevel,{s|n}:signals,{?}:extra:63}
   ```
 * `!alert` is result of [`.device/alerts:get`
   method](./rpcmethods/device.md#devicealertsget) and value of
@@ -392,7 +392,7 @@ descriptions.
 * `!stat` is result of [`*:stat` method](./rpcmethods/file.md#stat). Its
   expanded form is:
   ```
-  i{i:type,i:size,i:pageSize,t|n:accessTime,t|n:modTime,i|n:maxWrite}
+  i{i:type,i:size,i:pageSize,t|n:accessTime,t|n:modTime,i|n:maxWrite,i|n:maxRead,i|n:eraseSize}
   ```
 * `!exchangeP` is parameter for [`*/ASSIGNED:exchange`
   method](./rpcmethods/exchange.md#ASSIGNEDexchange). Its expanded form is:
@@ -420,7 +420,19 @@ descriptions.
   [`.history/**:getLog` method](./rpcmethods/history.md#historygetlog). Its
   expanded form is:
   ```
-  [i{t:timestamp:1,i(0,)|n:ref,s|n:path,s|n:signal,s|n:source,?:value,s|n:userId,b|n:repeat}]
+  [i{t|n:timestamp:1,i(0,)|n:ref,s|n:path,s|n:signal,s|n:source,?:value,s|n:userId,b|n:repeat}]
+  ```
+* `!getSnapshotP` is parameter for
+  [`.history/**:getSnapshot` method](./rpcmethods/history.md#historygetsnapshot). Its
+  expanded form is:
+  ```
+  {t|n:time:1,s|n:ri}
+  ```
+* `!getSnapshotR` is result of
+  [`.history/**:getSnapshot` method](./rpcmethods/history.md#historygetsnapshot). Its
+  expanded form is:
+  ```
+  [i{t:timestamp:1,s|n:path:3,s|n:signal,s|n:source,?:value,s|n:userId,b|n:repeat}]
   ```
 * `!getSnapshotP` is parameter for
   [`.history/**:getSnapshot` method](./rpcmethods/history.md#historygetsnapshot). Its
@@ -438,7 +450,7 @@ descriptions.
   [`.history/**/.records/*:fetch`
   method](./rpcmethods/history.md#historyrecordsfetch). Its expanded form is:
   ```
-  [i{i[normal:1,keep,timeJump,timeAbig]:type,t:timestamp,s|n:path,s|n:signal,s|n:source,?:value,i(0,63):accessLevel,s|n:userId,b|n:repeat,i|n:timeJump:60}]
+  [i{i[normal:1,keep,timeJump,timeAbig]:type,t:timestamp,s|n:path,s|n:signal,s|n:source,?:value,i(0,63)|n:accessLevel,s|n:userId,b|n:repeat,i(0,)|n:id,i(0,)|n:ref,i|n:timeJump:60}]
   ```
 
 ## Grammar representation
