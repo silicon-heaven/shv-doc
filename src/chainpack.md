@@ -195,7 +195,7 @@ Examples:
 4503599627370496u 0x10000000000000 ... len:  9  dump:  10000001|11110011|00010000|00000000|00000000|00000000|00000000|00000000|00000000
 ```
 
-### Double 
+### Double
 Double-precision floating-point as defined in IEEE 754-2008 in little-endian.
 
 ```
@@ -211,9 +211,9 @@ schema*) where first is the mantisa and second is exponent (`mantisa *
 (also use as **TERM**) to encode special values.
 
 ```
-+------+---       ---+---         ---+
++------+-------------+--------------+
 | 0x8c | Int mantisa | Int exponent |
-+------+---       ---+---         ---+
++------+-------------+--------------+
 ```
 
 The special values when exponent is `0xff`:
@@ -229,9 +229,9 @@ Blob is sent with **UInt** (without *packing schema*) prefixed that specifies
 number of data bytes. The data should be sent in little-endian.
 
 ```
-+------+---       ---+---      ---+
++------+-------------+------------+
 | 0x85 | UInt length | Data bytes |
-+------+---       ---+---      ---+
++------+-------------+------------+
 ```
 
 Example:
@@ -246,9 +246,9 @@ known size upfront. Data are sent in blocks with their **UInt** (without
 length.
 
 ```
-+------+---       ---+---      ---+-- --+---+
++------+-------------+------------+-----+---+
 | 0x8f | UInt length | Data bytes | ... | 0 |
-+------+---       ---+---      ---+-- --+---+
++------+-------------+------------+-----+---+
 ```
 
 ### String
@@ -273,9 +273,9 @@ immediately known when read from stream). The string itself can't contain `\0`
 byte inside because there is no escaping of it available.
 
 ```
-+------+--------------+----+
++------+------------+------+
 | 0x8e | UTF-8 data | `\0` |
-+------+--------------+----+
++------+------------+------+
 ```
 
 Example:
@@ -325,9 +325,9 @@ This is sequence of other RPC values. It starts with *packing schema* and is
 terminate with **TERM** (`0xff`).
 
 ```
-+------+---   ---+-- --+---   ---+------+
++------+---------+-----+---------+------+
 | 0x88 | Value 1 | ... | Value n | 0xff |
-+------+---   ---+-- --+---   ---+------+
++------+---------+-----+---------+------+
 ```
 
 Example:
@@ -342,9 +342,9 @@ pairs. The order of pairs is not guaranteed and should not be relied upon. The
 last pair must be followed by **TERM** (`0xff`) that terminates the **Map**.
 
 ```
-+------+---        ---+---   ---+-- --+---        ---+---   ---+------+
++------+--------------+---------+-----+--------------+---------+------+
 | 0x89 | String key 1 | Value 1 | ... | String key n | Value n | 0xff |
-+------+---        ---+---   ---+-- --+---        ---+---   ---+------+
++------+--------------+---------+-----+--------------+---------+------+
 ```
 
 Example:
@@ -361,9 +361,9 @@ The order of pairs is not guaranteed and should not be relied upon. The last
 pair must be followed by **TERM** (`0xff`) that terminates the **IMap**.
 
 ```
-+------+---     ---+---   ---+-- --+---     ---+---   ---+------+
++------+-----------+---------+-----+-----------+---------+------+
 | 0x8a | Int key 1 | Value 1 | ... | Int key n | Value n | 0xff |
-+------+---     ---+---   ---+-- --+---     ---+---   ---+------+
++------+-----------+---------+-----+-----------+---------+------+
 ```
 
 Example:
@@ -379,7 +379,7 @@ Encoded like **Map** and **IMap** but with keys being both **Int** and
 **String**.
 
 ```
-+------+---               ---+---   ---+-- --+---               ---+---   ---+------+
++------+---------------------+---------+-----+---------------------+---------+------+
 | 0x8b | Int or String key 1 | Value 1 | ... | Int or String key n | Value n | 0xff |
-+------+---               ---+---   ---+-- --+---               ---+---   ---+------+
++------+---------------------+---------+-----+---------------------+---------+------+
 ```
