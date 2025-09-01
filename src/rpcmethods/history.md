@@ -72,10 +72,10 @@ The provided value is list of *IMap*s with following fields:
 | 6   | Value     | Any      | Signal's value (parameter).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | 7   | UserId    | String   | `UserId` carried by signal message. *Default:* `null`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | 8   | Repeat    | Bool     | `Repeat` carried by signal message. *Default:* `False`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| 9   | Provisional | Bool     | `True` when this entry comes from a [provisional](#provisional-entries) (a.k.a. dirty) log. *Default:* `False`. |
 
-  
 The provided records should be sorted according to the `TimeStamp` field `1`
-either in ascending order if `Since` < `Until` or descending order 
+either in ascending order if `Since` < `Until` or descending order
 if `Until` < `Since`.
 
 The method itself has only `Browse` access level but it must filter provided
@@ -84,7 +84,26 @@ see all that is provided. Note that it is not possible to decrease access level
 of the user for some part of the SHV tree because he could always ask the upper
 node where his access level is high enough and logs would be provided.
 
+#### Provisional entries
+
+The `Provisional` flag of a log entry indicates that it was generated
+from a real-time notification rather than retrieved from the device's logs.
+
+Provisional entries are designed to handle scenarios where, for example, a device
+is currently offline and its recent logs cannot be retrieved, or when there is a
+significant delay between an event occurring and the corresponding log entry becoming
+available through the device's sync API.
+
+Additionally, this approach reduces the need for frequent synchronization calls,
+especially during periods with a high volume of requests up to the current time.
+
+When a future log synchronization occurs, provisional entries are replaced by the
+corresponding entries from the actual logs, which could also result in a change
+to the timestamp of those entries.
+
 ### `.history/**:getSnapshot`
+
+#### Snapshot
 
 | Name     | SHV Path      | Flags           | Param Type | Result Type | Access |
 |----------|---------------|-----------------|------------|-------------|--------|
@@ -116,7 +135,7 @@ The parameter is an *IMap* containing the following fields:
 
 The snapshot includes a list of records representing the state of every value
 under the getLog SHV path at `Time`. This feature is primarily used to retrieve
-the entire device state as it existed at the given moment. 
+the entire device state as it existed at the given moment.
 
 ### `.history/**/.records/*`
 
