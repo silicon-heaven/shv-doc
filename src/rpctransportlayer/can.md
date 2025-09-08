@@ -3,11 +3,11 @@
 | ❗ This document is in DRAFT stage |
 |------------------------------------|
 
-The communication over CAN (Control Area Network) bus. Compared to other
-transport layers that are point-to-point this is bus and thus it must not only
-provide message transfer but also a connection tracking.
+The communication over CAN-FD (Control Area Network) bus. Compared to other
+transport layers, that are point-to-point, this is bus and thus it must not only
+provide message transfer but also a connection tracking and multiplexing.
 
-CAN has the following abilities:
+CAN-FD has the following abilities:
 * Delivery of the CAN frames is not ensured (it can be lost)
 * Single CAN frame can be transmitted multiple times
 * CAN frames are delivered in order based on CAN ID priority and never out of
@@ -17,13 +17,11 @@ CAN has the following abilities:
 * CAN frames correctness is ensured with CRC32
 * Flow control is handled by CAN overload frame
 
-CAN supports few different types of the frames:
-* Data frames: regular frames used to transfer data
-* Remote frames: frame that caries no data and data length (`0x0` - `0xf`) is
-  just informative. SHV RPC uses these as following signal frames:
-  * Message abort frame with data length `0x0`
-  * Device advertisement frame with data length `0x1`
-  * Device discover frame with data length `0x2`
+CAN(-FD) supports different types of the frames:
+* Data frames: regular frames used to transfer data in blocks of 0, 1, 2, 3, 4,
+  5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64 bytes.
+* Remote request frames: frame that caries no data and data length (`0x0` -
+  `0xf`) is just informative.
 
 CAN bus is designed for control applications but SHV RPC is rather configuration
 and management interface and thus the design here prioritizes fair queueing over
@@ -34,134 +32,249 @@ CAN bus has limited bandwidth and thus it is not desirable in most cases to emit
 all signals device has (contrary to standard SHV RPC device design). The SHV
 native way to introduce filtering is to use RPC Broker and thus it is highly
 suggested that devices on CAN bus should expose RPC Broker to it.
-##
+
 ### CAN ID
+
+CAN implements collision avoidance scheme where all devices want to transmit
+their ID (and other bits) during arbitration phase and the one with lowest ID
+wins the time slot so it can send its data (not ultimately true if extended ID
+is used, but SHV uses 11 bits only).
 
 CAN ID can be either 29 bits or 11 bits. SHV RPC uses exclusively only 11 bits
 ID.
 
 ```
-+-------------+-----------+---------+--------------------+
-| NotLast [1] | First [1] | QoS [1] | Device address [8] |
-+-------------+-----------+---------+--------------------+
++------------+------------+-----------+------------------+
+| SHVCAN [1] | Unused [1] | First [1] | Peer address [8] |
++------------+------------+-----------+------------------+
 ```
 
-* `NotLast` is `0` when no subsequent CAN frame will follow this one and `1`
-  otherwise. This prioritizes message termination on the bus.
-* `First` is `1` when this is initial CAN frame and `0` otherwise. This penalizes
-  start of the new message and thus prefers SHV RPC message finish.
-* `QoS` should be flipped on every SHV RPC message sent. It ensures that devices
-  with high CAN ID (low priority) get chance to transmit their messages. It is
-  allowed that device that is quiet for considerable amount of time to set it to
-  any state (commonly beneficial for that device).
-* `Device address` this must be unique address of the device transmitting CAN
-  frame or bitwise not of it when `QoS` is `1`. The addresses `0x0` and `0xff`
-  are reserved. The bit flipping of the device address based on the `QoS`
-  ensures that high priority CAN IDs in QoS `1` are low priority ones in the QoS
-  `0` and vice versa, thus devices should get somewhat equal chance to transmit
-  their messages.
+* `SHVCAN` is always `1` for SHV. This allows bus to be shared with some other
+  traffic that is not SHV defined.
+* `Unused` is always `1` at the moment. It is reserved for the future expansion.
+* `First` should be set to `1` for the first frame of the message and `0`
+  otherwise.
+* `Peer address` is an unique address of the peer. Thus every peer on the bus
+  must have an unique address if it wants to participate in SHV communication.
 
 _Note: The advantage of using only 11 bits is with CAN-FD where initial
 arbitration runs in slower speed and by not using 29 bits it will be shorter and
 thus communication faster._
 
-### First data byte
-
-The first data byte in the CAN frame has special meaning.
-
-For CAN frames with `First` bit set (`1`) in CAN ID the first byte must be
-destination device address. This identifies the device this SHV RPC message is
-intended for. 
-
-For CAN frames with `First` bit unset (`0`) in CAN ID the first byte must be
-sequence number that starts with `0x0` for the second CAN frame (third is `0x1`
-and so on). If sequence number reaches `0xff` then it just simply wraps around
-to `0x0`.
-
-The complete and valid SHV RPC message thus starts with CAN frame with `First`
-set, continues with CAN frames where `First` is not set and `NotLast` is set and
-first data byte is sequence, and terminates by CAN frame where `NotLast` is not
-set. The consistency of the message (that no CAN frame is lost) is ensured with
-counter in first data byte.
-
-Transport error is detected if CAN frame with `First` not set in CAN ID is
-received with byte having number in first data byte out of order (while ignoring
-frames with same number as the last received CAN frame from that specific
-device). Such SHV RPC message is silently dropped and error is ignored as
-subsequent messages can be consistent again without any action.
-
-The message can be terminated by CAN RTR frame (Remote transmission request)
-with both `NotLast` and `First` unset and data length set to `0x0`.
-
 ### Connection
 
-Connection between devices is automatically established with first message being
-exchanged. There can be only one connection channel between two devices. To
-disengage it the `ResetSession` message can be sent (that is regular CAN frame
-with `NotLast` not set and `First` set in CAN ID and data containing only byte
-with destination device address and one `00` byte).
+Every frame has address of the peer sending the frame in its CAN ID. For the
+destination peer the first byte of data is used. Thus data frame of zero length
+is invalid in this protocol.
 
-### Broadcast
+The connection is established by first message. It is required to use
+[**ResetSession**](../rpctransportlayer.md) message to ensure that even if
+previous connection wasn't terminated that the state is reset (the implicit
+connection creation doesn't provide full connection tracking functionality).
 
-Due to the CAN bus bandwidth limitations it is suggested to expose SHV RPC
-Broker instead of just plain device, but sometimes it is beneficial to not add
-the signal filtering and instead to automatically broadcast signals. Such
-signals are not intended for any specific device and are just submitted on the
-bus with special destination device address `0xff`.
+The connection is terminated by special last frame that contains only
+destination peer (thus frame of data size 1).
 
-The only allowed SHV RPC message type for destination device address `0xff` is
-[RpcSignal](../rpcmessage.md#rpcsignal). Other message types received with this
-destination device address must be ignored and devices should not send them.
+### Fragmentation
 
-Handling of the broadcast signals is up to the application it receives it.
-SHV RPC Brokers will propagate them further if given device is mounted and
-subscribed.
+SHV RPC Message has to be fragmented to multiple frames if it is longer than one
+frame can carry. This means that multiple frames have to be associated in some
+way to detect if unbroken sequence was received. This is ensured by counter in
+second data byte. With first byte allocated for the destination and second byte
+for the counter the fragment can contain from 1 to 62 bytes of message data.
 
-One concrete example when this is beneficial is for date and time
-synchronization device. Such device can send signals with precise time to let
-other devices to synchronize with it.
+The second data byte also serves as last frame signalization. The most
+significant bit in this byte is set for last frame and unset otherwise. Thus
+only seven bits are actually used as counter. The last frame is the frame
+containing last bytes of the message but due to limited CAN-FD frame sizing the
+frame might be stuffed by `0x00` at the end, these bytes should be removed by
+SHV CAN-FD implementation (that is why last byte of the SHV RPC Message can't be
+null byte), but only if the complete message is longer than 8 bytes.
 
-### SHV Device discovery
+The first frame is identified by `First` bit in the CAN ID. The counter can be
+of any value (between `0x00` and `0x7f`) for this frame. The only requirement is
+that it is not the same as for the previously used first frame (see the next
+chapter about flow control for the reasoning). The counter must be increased by
+one for every subsequent frame where value `0x7f` wraps to `0x00`. The message
+receiving peer must verify sequence of the counter to verify if all frames were
+received. The retrieval of message is aborted if counter sequence is broken (be
+aware that receiving the same message multiple times in the row can occur and is
+valid). Such message is just lost and no error should be reported for that. This
+behavior can be also used for message abort (intentional sequence breaking).
 
-SHV devices on CAN bus must be possible to discover to not only be able to
-dynamically mount them to SHV RPC Broker but also to actively diagnose the CAN
-bus.
+### Flow Control
 
-Once device is ready to receive messages on CAN bus it should send CAN RTR frame
-(Remote transmission request) with data length set to `0x1` (the CAN ID should
-have `NotLast` not set and `First` set which applies to all CAN RTR frames).
-This ensures that it gets discovered as soon as possible.
+The throughput of CAN-FD is typically low enough that even low-end devices
+should be able to process all incoming data without issue. However, problems may
+arise when multiple connections are forwarded to a backend that doesn't support
+multiplexing (such as [stream transport](./stream.md)), which is often the case
+with RPC brokers. To address this, SHV CAN-FD includes a simple flow control
+mechanism.
 
-Device that wants to perform discovery can send CAN RTR frame (Remote
-transmission request) with data length set to `0x2`. Device that receives this
-CAN frame must respond with CAN RTR frame with data length set to `0x1`.
+A peer is allowed to send the first data frame of a message, but before it can
+continue sending the rest of the message, and the first data frame of the next
+message, it must receive an acknowledgment. This acknowledgment is a message
+containing only the destination byte and a copy of the second byte from the
+original first data frame. Notably, only the first frame of each message is
+acknowledged; subsequent data frames as well as next first data frame are sent
+without further confirmation.
 
-### Address collision resolution
+Peer can send first frame without any previous acknowledgment after startup.
+After that it has to wait for acknowledgment to give other peer time to handle
+the other messages. The message can be aborted before acknowledgment by sending
+a different first frame (this is also the same pattern that appears on device
+reset).
 
-The standard deployment should prevent address collisions by allocating them for
-the whole bus before deployment, but there is also a use case for on site ad hoc
-connection and in such situation it is unclear what address should be chosen.
-The device should select random unallocated address but that won't prevent
-collision, only minimize them.
+The peer is allowed to resend first frame if no acknowledgment is received in
+reasonable amount of time to cover case when destination peer restarted or frame
+got lost.
 
-All CAN devices (that includes SHV clients) must listen for others using their
-address and must send CAN RTR (Remote transmission request) frame with size set
-to `0x3` when they receive CAN frame they did not send. CAN devices with same
-dynamic address receiving this RTR frame must choose a different one.
+### Address Discovery
 
-The best practice is to choose address from upper range (close to 255) and
-initially send dummy CAN RTR frame with size set to `0xf`. Do this in 200ms
-intervals five times. The communication with other CAN devices can start if no
-CAN RTR frame with size `0x3` is received in the meantime.
+It is beneficial to be able to discover peers on the CAN Bus. This is done by
+remote request frames. For discovery we differentiate between two different
+peers, those accepting new connections and those that do not.
 
-### CAN RTR frames index
+The discovery is triggered by remote request frame with data length `0x5`,
+`0x6`, or `0x7`. Peers that are accepting new connections must respond with
+remote request frame with data length `0x1` on discovery requests `0x5` and
+`0x7`. Peers that are **not** accepting new connections must respond with remote
+request frame with data length `0x2` on discovery requests `0x6` and `0x7`.
 
-This is full list of all different CAN RTR frames used in the protocol:
+The CAN ID used for the remote request frames are not considered as first frames
+(to prioritize this type of traffic). The address used is always the peer's own
+address.
 
-| Data length field | Usage                        |
-|-------------------|------------------------------|
-| 0x0               | SHV message termination      |
-| 0x1               | Device presence announcement |
-| 0x2               | Device discovery request     |
-| 0x3               | Address collision notice     |
-| 0xf               | Dummy frame with no effect   |
+For real time discovery it is desirable that any new peer that starts accepting
+connections sends remote request frame with data length `0x1` without any
+previous discovery request.
+
+### Dynamic Address
+
+The SHV CAN-FD relies on every peer on the bus to have an unique address but
+there is only 256 of them and when unknown network is being accessed (or even
+probed) some address has to be used without knowledge of the free ones. For that
+purpose a dynamic address acquisition is provided. Addresses from `0x00` to
+`0x7f` can be assigned statically but addresses from `0x80` to `0xff` have to be
+always dynamically acquired. This ensures that dynamically acquired address is
+not statically assigned to the peer that is currently offline.
+
+The dynamic acquisition happens by random selection. The peer will select
+randomly address in the dynamic range and sends eight subsequent remote request
+frames with data length `0x0` and CAN ID with First set to `0`. These remote
+request frames have to be transmitted on the CAN bus without receiving either
+concurrent address acquisition or address announce with same source.
+
+Peers with address acquired with dynamic acquisition have to listen for remote
+request frames with data length `0x0` and send their respective address announce
+remote request frame to prevent address collision.
+
+### Reference
+
+Be aware that only addresses between `0x00` and `0x7f` can be assigned
+statically!
+
+The frame exchange sending a message:
+
+```
+sender                  receiver            sender                     receiver
+------                  --------            ------                     --------
+   |                        |                 |                           |
+   | First data frame       |                 | First and last data frame |
+   |----------------------->|                 |-------------------------->|
+   |                        |                 |                           |
+   | Acknowledgment frame   |                 | Acknowledgment frame      |
+   |<-----------------------|                 |<--------------------------|
+   |                        |                             ...
+   | Subsequent data frames |                 | First data frame          |
+   |----------------------->|                 |-------------------------->|
+   |----------------------->|                             ...
+   |                        |
+   | Last data frame        |           
+   |----------------------->|           
+            ...
+   | First data frame       |           
+   |------------------ ---->|           
+            ...
+```
+
+The first data frame has format (where `Source` and `Destination` are addresses
+of the peers communication):
+
+```
+CAN ID (bits)            Frame data (bytes)
++---+---+---+--------+   +-------------+---------+------------
+| 1 | 1 | 1 | Source |   | Destination | Counter | Data ...
++---+---+---+--------+   +-------------+---------+------------
+```
+
+The acknowledgment frame has format (where `Source` and `Destination` have the
+same meaning as for the first data frame and `Counter` is its copy):
+
+```
+CAN ID (bits)                 Frame data (bytes)
++---+---+---+-------------+   +--------+---------+
+| 1 | 1 | 0 | Destination |   | Source | Counter |
++---+---+---+-------------+   +--------+---------+
+```
+
+The subsequent data frames have format (where `Source` and `Destination` have
+the same meaning as for the first data frame and `Counter` increases by one for
+every subsequent frame):
+
+```
+CAN ID (bits)            Frame data (bytes)
++---+---+---+--------+   +-------------+---------+------------
+| 1 | 1 | 0 | Source |   | Destination | Counter | Data ...
++---+---+---+--------+   +-------------+---------+------------
+```
+
+The last data frame has format (where `Source` and `Destination` have the same
+meaning as for the first data frame and `Counter` increased by one relative to
+the last subsequent frame or the first frame if there were no subsequent
+frames):
+
+```
+CAN ID (bits)            Frame data (bytes)
++---+---+---+--------+   +-------------+----------------+------------
+| 1 | 1 | 0 | Source |   | Destination | 0x80 + Counter | Data ...
++---+---+---+--------+   +-------------+----------------+------------
+```
+
+The first frame that is also at the same time the first frame (the message fits
+to the 62 bytes):
+
+```
+CAN ID (bits)            Frame data (bytes)
++---+---+---+--------+   +-------------+----------------+------------
+| 1 | 1 | 1 | Source |   | Destination | 0x80 + Counter | Data ...
++---+---+---+--------+   +-------------+----------------+------------
+```
+
+The connection terminate frame (the `Source` and `Destination` can be flipped if
+termination/disconnect is performed by other side):
+
+```
+CAN ID (bits)            Frame data (bytes)
++---+---+---+--------+   +-------------+
+| 1 | 1 | 1 | Source |   | Destination |
++---+---+---+--------+   +-------------+
+```
+
+Remote request frames:
+
+```
+CAN ID (bits)
++---+---+----------+---------+
+| 1 | 1 | Priority | Address |
++---+---+----------+---------+
+```
+
+| Data length field | Priority bit | Usage                                                     |
+|-------------------|--------------|-----------------------------------------------------------|
+| 0b0000            | 1            | Address acquisition                                       |
+| 0b0001            | 0            | Address announce for peers accepting connections          |
+| 0b0010            | 0            | Address announce for peers not accepting new connections  |
+| 0b0101            | 0            | Address discovery for peers accepting connections         |
+| 0b0110            | 0            | Address discovery for peers not accepting new connections |
+| 0b0111            | 0            | Address discovery for all peers                           |
