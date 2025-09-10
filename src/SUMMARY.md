@@ -18,7 +18,6 @@
   - [History](./rpcmethods/history.md)
 - [Types descriptions](./rpctypes.md)
 - [RPC RI](./rpcri.md)
-- [SHV Type Info](./shv-types.md)
 - [RPC Transport layers](./rpctransportlayer.md)
   - [Stream transport layers](./rpctransportlayer/stream.md)
   - [CAN Bus](./rpctransportlayer/can.md)
