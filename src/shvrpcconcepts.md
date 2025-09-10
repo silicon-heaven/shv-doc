@@ -127,16 +127,20 @@ all lover level rights.
 
 ### User ID
 
-Sometimes devices want to record in their logs who triggered some of their
-methods. It can be, for example, when some error state is cleared. The
-information about user, who called that method, is normally known by the brokers
-on the way but not by the final device, because it gets only user's access
-level. And thus SHV RPC provides an optional way to propagate this info to it.
-To enable it the client sending request must add additional `ClientId` field to
-the RPC message's meta table with empty string value. Brokers on the way extend
-this value by their user's identification (appended after comma). The device
-thus gets full range of all users used to access it. Devices can signal the need
-for this field with `UserIDRequired` error.
+Sometimes, devices may want to keep track of which user triggered specific
+methods, for example, when an error state is cleared. While the brokers handling
+the request usually know the user's identity, the device itself typically only
+receives the user’s access level, not the full identity. To address this, SHV
+RPC provides an optional mechanism for passing user identification all the way
+to the device. This is done by including an additional `UserId` field in the RPC
+request’s meta table, set to either an empty string or the client’s system login
+name. As the message passes through brokers, each broker appends its own user
+identification to the `UserId` value, separated by semicolons. By the time the
+message reaches the device, it contains a complete chain of all users involved
+in the request.
+
+If a device requires this field for logging or auditing
+purposes, it can signal this by responding with the `UserIDRequired` error.
 
 ### Unreliability of the message exchange
 

@@ -56,7 +56,7 @@ should be used to get level if this field is not present. *Admin* access level
 should be considered as the base limit if neither `AccessLevel` nor `Access`
 field is present.
 
-`userId` is string containing information about the login names and the
+`UserId` is string containing information about the login names and the
 broker names along the RPC message path through the brokers hierarchy. The format
 is`user-name1:broker-name1;user-name2:broker-name2;...`, for example:
 `john@foo.bar:broker1;broker1-login:broker2`. User name and broker name is delimited by `:`,
