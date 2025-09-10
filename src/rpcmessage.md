@@ -47,7 +47,7 @@ message alongside the `RequestId` to pair requests with their responses and thus
 should be always included in the response message if they were present in the
 request.
 
-The `ShvPath` is used to select exact node of method in the SHV tree. 
+The `ShvPath` is used to select exact node of method in the SHV tree.
 
 `AccessLevel` is the way to specify access level. It is numerical with
 predefined range (0-63) and brokers on the way can lower this number to even
@@ -113,7 +113,7 @@ Keys (only one can be used in the single message):
 **Examples**
 
 RPC call invocation, method `switchLeft` on path `test/pme/849V` with request ID
-`56` and parameter `true`. 
+`56` and parameter `true`.
 ```
 <1:1,8:56,9:"test/pme/849V",10:"switchLeft">i{1:true}
 ```
@@ -187,7 +187,7 @@ Exception when unknown method is called
 
 ## Signal
 
-Spontaneous message sent without prior request and thus without `RequestId`. 
+Spontaneous message sent without prior request and thus without `RequestId`.
 It is used mainly notify clients that some technological value had changed without need to poll.
 
 Attributes:
