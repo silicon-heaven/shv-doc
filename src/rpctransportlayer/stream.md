@@ -75,5 +75,5 @@ other streams, such as TCP/IP or Unix domain named socket, is also possible.
 In some cases the restart of the connection might not be available. That is for
 example when application just doesn't have rights for it or even when such
 restart would not be propagated to the target, for what ever reason. To solve
-this the empty message is reserved (that is message `STX ETX 0x0`). Once client
+this the empty message is reserved (that is message `STX 0x0 ETX`). Once client
 receives a valid empty message then it must drop any state it keeps for it.
