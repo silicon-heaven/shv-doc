@@ -38,6 +38,3 @@ The examples of Resource Identifiers for signals and signals matching:
 | Signal `test/device/track:get:chng`  | ✔️       | ✔️         | ✔️                  | ❌                | ✔️            |
 | Signal `test/device/track:get:mod`   | ✔️       | ✔️         | ❌                  | ❌                | ✔️            |
 | Signal `test/device/track:ls:lsmod`  | ✔️       | ❌         | ❌                  | ✔️                | ❌            |
-
-Please note that the method RI matches all signals associated with the corresponding method. 
-The right to invoke a method also grants the right to receive any signals of its associated method.
