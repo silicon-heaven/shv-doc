@@ -394,22 +394,6 @@ descriptions.
   ```
   i{i:type,i:size,i:pageSize,t|n:accessTime,t|n:modTime,i|n:maxWrite,i|n:maxRead,i|n:eraseSize}
   ```
-* `!exchangeP` is parameter for [`*/ASSIGNED:exchange`
-  method](./rpcmethods/exchange.md#ASSIGNEDexchange). Its expanded form is:
-  ```
-  i{u:counter,u|n:readyToReceive,b|n:data:3}
-  ```
-* `!exchangeR` is result of [`*/ASSIGNED:exchange`
-  method](./rpcmethods/exchange.md#ASSIGNEDexchange). Its expanded form is:
-  ```
-  i{u|n:readyToReceive:1,u|n:readyToSend,b|n:data}
-  ```
-* `!exchangeV` is value of
-  [`*/ASSIGNED:exchange:ready`
-  signal](./rpcmethods/exchange.md#ASSIGNEDexchangeready). Its expanded form is:
-  ```
-  i{u|n:readyToReceive:1,u|n:readyToSend}
-  ```
 * `!getLogP` is parameter for
   [`.history/**:getLog` method](./rpcmethods/history.md#historygetlog). Its
   expanded form is:
