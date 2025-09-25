@@ -15,6 +15,14 @@ extensions.
 This project also implements some tools that can be used from CLI and SHV RPC
 Broker.
 
+### [shv-libs4c](https://github.com/silicon-heaven/shv-libs4c)
+
+Implementation of ChainPack and CPON formats as well as SHV RPC device. It
+targets embedded OS ([NuttX](https://nuttx.apache.org). The aim is an easy
+exposure of SHV RPC API for embedded device. Compared to the SHVC the footprint
+is smaller with specific usage in mind. The generic RPC methods calling and RPC
+Broker are outside of the scope.
+
 ### [libshv](https://github.com/silicon-heaven/libshv/tree/master/libshvchainpack/c)
 
 Implementation of ChainPack and CPON formats. The transport layers or any SHV
