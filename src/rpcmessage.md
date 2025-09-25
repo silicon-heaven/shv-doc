@@ -8,7 +8,7 @@ There are three kinds of RPC messages defined:
 * [Response](#response)
 * [Signal](#signal)
 
-RPC message can have meta-data attribute defined.
+RPC messages have these meta-data attributes defined.
 
 | Attribute number  | Attribute name       | Type               | Description
 | ----------------: | -------------------- | ----------------   | ------------
@@ -27,7 +27,6 @@ RPC message can have meta-data attribute defined.
 | 20                | Repeat               | Bool               | Used for signals to informat that signal was emited as a repeat of some older ones (that might not might not have been sent).
 
 Second part of RPC message is `IMap` with following possible keys.
-
 
 | Key  | Key name   | Description
 | ---: | ---------- | ------------
@@ -107,7 +106,7 @@ Keys (only one can be used in the single message):
 
 | Key name  | Required   | Note
 | --------- | ---------- | -----
-| `Params`  | no         | Any valid [RPC Value](rpcvalue.md)
+| `Param`  | no         | Any valid [RPC Value](rpcvalue.md)
 | `Abort`   | yes        | [Bool](./rpcvalue.md) where `true` forces abort and `false` only immediate Reponse (thus it can be `Delay`).
 
 **Examples**
@@ -160,7 +159,7 @@ Error codes:
 | -----: | -------                       | ----------
 | 1      |                               | Reserved for backward compatibility
 | 2      | `MethodNotFound`              | The method does not exist or is not available or not accessible with given access level.
-| 3      | `InvalidParams`               | Invalid method parameter.
+| 3      | `InvalidParam`               | Invalid method parameter.
 | 4      |                               | Reserved for backward compatibility
 | 5      |                               | Reserved for backward compatibility
 | 6      | `ImplementationReserved1`     | Won't ever be used in the communication and is reserved for implementations usage (such as signaling method timeout)
@@ -206,7 +205,7 @@ Keys:
 
 | Key       | Required   | Note
 | --------- | ---------- | -----
-| `Params`  | no         | Any valid [RPC Value](rpcvalue.md)
+| `Param`   | no         | Any valid [RPC Value](rpcvalue.md)
 
 Warning: all signal names ending with `chng` (that includes `chng` and others
 such as `fchng`) are considered as property changes of the method they are
