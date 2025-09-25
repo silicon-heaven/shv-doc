@@ -10,5 +10,4 @@ of SHV RPC communication.
 - [Broker API](./rpcmethods/broker.md)
 - [Property nodes](./rpcmethods/property.md)
 - [File nodes](./rpcmethods/file.md)
-- [Bytes Exchange nodes](./rpcmethods/exchange.md)
 - [History](./rpcmethods/history.md)
