@@ -62,7 +62,7 @@ this are escaped in the message data.
   only after `ETX` (not after `ATX`).
 
 The transport error is detected if there is no byte received from other side for
-more that 5 seconds during the message transfer or when `STX` or `ATX` is
+more than 5 seconds during the message transfer or when `STX` or `ATX` is
 received before `EXT` or if `CRC32` do not match received data (on channels with
 possible corruption such as RS232 and not TCP/IP).
 
@@ -72,8 +72,3 @@ message can still be consistent. The invalid message should be just dropped.
 The primary transport layer is RS232 with hardware flow control, but usage with
 other streams, such as TCP/IP or Unix domain named socket, is also possible.
 
-In some cases the restart of the connection might not be available. That is for
-example when application just doesn't have rights for it or even when such
-restart would not be propagated to the target, for what ever reason. To solve
-this the empty message is reserved (that is message `STX 0x0 ETX`). Once client
-receives a valid empty message then it must drop any state it keeps for it.
