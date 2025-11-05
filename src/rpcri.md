@@ -14,6 +14,11 @@ __The first field `PATH` is the SHV path.__ It can be glob pattern (rules from
 POSIX.2, 3.13 with added support for ``**`` that matches multiple nodes). Note
 that empty `PATH` is the root of the SHV node tree.
 
+In contrast to the Bash globstar implementation, the SHV glob-star pattern `**`
+matches zero or more directories at the end of the path. For example `foo/**`
+matches `foo`, `foo/bar`, `foo/bar/baz`, etc. By comparison, Bash’s `foo/**`
+pattern matches `foo/bar` and `foo/bar/baz`, but not `foo` itself.
+
 __The second field `METHOD` is the SHV RPC method name.__ It can be wildcard
 pattern (rules from POSIX.2, 3.13). The empty method name is invalid and thus is
 invalid pattern.
@@ -29,12 +34,14 @@ The examples of Resource Identifiers for methods and method matching:
 |----------------------------------|--------|-----------|---------------|----------|
 | Method `.app:name`               | ✔️     | ❌        | ❌            | ❌       |
 | Method `sub/device/track:get`    | ✔️     | ✔️        | ❌            | ❌       |
+| Method `test:get`                | ✔️     | ✔️        | ✔️            | ❌       |
 | Method `test/device/track:get`   | ✔️     | ✔️        | ✔️            | ❌       |
 
 The examples of Resource Identifiers for signals and signals matching:
 
 | Resource                             | `**:*:*` | `**:get:*` | `test/**:get:*chng` | `test/*:ls:lsmod` | `test/**:get` |
 |--------------------------------------|----------|------------|---------------------|-------------------|---------------|
+| Signal `test:get:chng`               | ✔️       | ✔️         | ✔️                  | ❌                | ✔️            |
 | Signal `test/device/track:get:chng`  | ✔️       | ✔️         | ✔️                  | ❌                | ✔️            |
 | Signal `test/device/track:get:mod`   | ✔️       | ✔️         | ❌                  | ❌                | ✔️            |
 | Signal `test/device/track:ls:lsmod`  | ✔️       | ❌         | ❌                  | ✔️                | ❌            |
