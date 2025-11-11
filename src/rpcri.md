@@ -11,13 +11,12 @@ The format is either `PATH:METHOD` for methods or `PATH:METHOD:SIGNAL` for
 signals.
 
 __The first field `PATH` is the SHV path.__ It can be glob pattern (rules from
-POSIX.2, 3.13 with added support for ``**`` that matches multiple nodes). Note
-that empty `PATH` is the root of the SHV node tree.
-
-In contrast to the Bash globstar implementation, the SHV glob-star pattern `**`
+POSIX.2, 3.13 with added support for ``**`` that matches multiple nodes). In
+contrast to the Bash globstar implementation, the SHV glob-star pattern `**`
 matches zero or more directories at the end of the path. For example `foo/**`
 matches `foo`, `foo/bar`, `foo/bar/baz`, etc. By comparison, Bash’s `foo/**`
-pattern matches `foo/bar` and `foo/bar/baz`, but not `foo` itself.
+pattern matches `foo/bar` and `foo/bar/baz`, but not `foo` itself. Note that
+empty `PATH` is the root of the SHV node tree.
 
 __The second field `METHOD` is the SHV RPC method name.__ It can be wildcard
 pattern (rules from POSIX.2, 3.13). The empty method name is invalid and thus is
