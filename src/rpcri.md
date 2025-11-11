@@ -39,9 +39,9 @@ The examples of Resource Identifiers for methods and method matching:
 
 The examples of Resource Identifiers for signals and signals matching:
 
-| Resource                             | `**:*:*` | `**:get:*` | `test/**:get:*chng` | `test/*:ls:lsmod` | `test/**:get` |
-|--------------------------------------|----------|------------|---------------------|-------------------|---------------|
-| Signal `test:get:chng`               | ✔️       | ✔️         | ✔️                  | ❌                | ✔️            |
-| Signal `test/device/track:get:chng`  | ✔️       | ✔️         | ✔️                  | ❌                | ✔️            |
-| Signal `test/device/track:get:mod`   | ✔️       | ✔️         | ❌                  | ❌                | ✔️            |
-| Signal `test/device/track:ls:lsmod`  | ✔️       | ❌         | ❌                  | ✔️                | ❌            |
+| Resource                             | `**:*:*` | `**:get:*` | `test/**:get:*chng` | `test/*:ls:lsmod` |
+|--------------------------------------|----------|------------|---------------------|-------------------|
+| Signal `test:get:chng`               | ✔️       | ✔️         | ✔️                  | ❌                |
+| Signal `test/device/track:get:chng`  | ✔️       | ✔️         | ✔️                  | ❌                |
+| Signal `test/device/track:get:mod`   | ✔️       | ✔️         | ❌                  | ❌                |
+| Signal `test/device/track:ls:lsmod`  | ✔️       | ❌         | ❌                  | ✔️                |
