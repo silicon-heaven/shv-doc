@@ -133,7 +133,7 @@ Attributes:
 | `CallerIds`    | no       | broker's path identifier must be removed from the list            | Sender must copy original value form *Request* if present. |
 | `RevCallerIds` | no       | broker's reverse path identifier can be removed added to the list | Sender must copy original value form *Request* if present. |
 
-Keys (only one can be used in the single message):
+Keys:
 
 | Key name  | Required   | Note
 | --------- | ---------- | -----
@@ -141,7 +141,7 @@ Keys (only one can be used in the single message):
 | `Error`   | yes        | Required in case of method call exception, see [RPC error](#rpc-error) for more details.
 | `Delay`   | yes        | Required in case nor `Result` or `Error` can't be generated immediately. The value is [Double](./rpcvalue.md) from 0 to 1.
 
-RpcResponse is invalid when both keys (`Result` and `Error`) are present.
+RpcResponse is invalid when more than one key is present.
 
 ### RPC Error
 
