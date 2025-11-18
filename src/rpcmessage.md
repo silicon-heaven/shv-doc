@@ -26,7 +26,8 @@ RPC messages have these meta-data attributes defined.
 | 19                | Source               | String             | Used for signals to store method name this signal is associated with.
 | 20                | Repeat               | Bool               | Used for signals to informat that signal was emited as a repeat of some older ones (that might not might not have been sent).
 
-Second part of RPC message is `IMap` with following possible keys.
+Second part of RPC message is `IMap` with following possible keys. RPC message
+is invalid when more than one key is present.
 
 | Key  | Key name   | Description
 | ---: | ---------- | ------------
@@ -133,15 +134,13 @@ Attributes:
 | `CallerIds`    | no       | broker's path identifier must be removed from the list            | Sender must copy original value form *Request* if present. |
 | `RevCallerIds` | no       | broker's reverse path identifier can be removed added to the list | Sender must copy original value form *Request* if present. |
 
-Keys (only one can be used in the single message):
+Keys:
 
 | Key name  | Required   | Note
 | --------- | ---------- | -----
 | `Result`  |            | Used in case of successful method call result, any [RPC Value](rpcvalue.md) is allowed. Result is considered to be `Null` if `Result` key is missing.
 | `Error`   | yes        | Required in case of method call exception, see [RPC error](#rpc-error) for more details.
 | `Delay`   | yes        | Required in case nor `Result` or `Error` can't be generated immediately. The value is [Double](./rpcvalue.md) from 0 to 1.
-
-RpcResponse is invalid when both keys (`Result` and `Error`) are present.
 
 ### RPC Error
 
