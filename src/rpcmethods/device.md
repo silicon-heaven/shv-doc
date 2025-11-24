@@ -28,7 +28,8 @@ device.
 |-----------|-----------|--------|------------|-------------|--------|
 | `version` | `.device` | Getter |            | `s`         | Browse |
 
-This method must provide version (revision) of the device.
+This method can provide version (revision) of the device. It is allowed
+to provide *Null* in case there is no revision assigned to this device.
 
 ```
 => <id:42, method:"name", path:".device">i{}
