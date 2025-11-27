@@ -73,6 +73,7 @@ The provided value is list of *IMap*s with following fields:
 | 7   | UserId    | String   | `UserId` carried by signal message. *Default:* `null`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | 8   | Repeat    | Bool     | `Repeat` carried by signal message. *Default:* `False`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | 9   | Provisional | Bool     | `True` when this entry comes from a [provisional](#provisional-entries) (a.k.a. dirty) log. *Default:* `False`. |
+| 10  | Inaccurate | Bool    | `True` if the record's timestamp might not be accurate because the record [occured before ambiguity](#inaccurate-timestamp). *Default:* `False`. |
 
 The provided records should be sorted according to the `TimeStamp` field `1`
 either in ascending order if `Since` < `Until` or descending order
@@ -100,6 +101,16 @@ especially during periods with a high volume of requests up to the current time.
 When a future log synchronization occurs, provisional entries are replaced by the
 corresponding entries from the actual logs, which could also result in a change
 to the timestamp of those entries.
+
+#### Inaccurate TimeStamp
+
+Usually the device has no mean to determine the time difference between
+the last record before ambiguity and the first after it. It may be seconds,
+days, even months. The logging facility might workaround this problem
+by placing the first record after ambiguity right after the last one
+and as a result ignoring the ambiguity at all. This means that these records
+before ambiguity may be incorrectly moved by a subsequent time jump and
+thus provide inaccurate TimeStamp.
 
 ### `.history/**:getSnapshot`
 

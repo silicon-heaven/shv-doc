@@ -404,7 +404,7 @@ descriptions.
   [`.history/**:getLog` method](./rpcmethods/history.md#historygetlog). Its
   expanded form is:
   ```
-  [i{t|n:timestamp:1,i(0,)|n:ref,s|n:path,s|n:signal,s|n:source,?:value,s|n:userId,b|n:repeat}]
+  [i{t|n:timestamp:1,i(0,)|n:ref,s|n:path,s|n:signal,s|n:source,?:value,s|n:userId,b|n:repeat,b|n:provisional,b|n:inaccurate}]
   ```
 * `!getSnapshotP` is parameter for
   [`.history/**:getSnapshot` method](./rpcmethods/history.md#historygetsnapshot). Its
