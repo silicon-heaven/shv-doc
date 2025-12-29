@@ -440,7 +440,7 @@ descriptions.
 ## Grammar representation
 
 ```
-type             = bool | integer | unsigned integer | enum | double | decimal | string | blob | date time | list | tuple | imap | struct | map | keystruct | bitfield | one of | standard;
+type             = bool | integer | unsigned integer | enum | double | decimal | string | blob | date time | list | tuple | imap | struct | map | keystruct | bitfield | one of | standard | any;
 
 bool             = "b";
 integer          = "i", ["(", [number], ",", [number], ")"], [unit];
@@ -460,6 +460,7 @@ keystruct        = "{", key item, {",", key item}, "}";
 bitfield         = "u", "[", ikey item, {",", ikey item}, "]";
 one of           = type - oneof, "|", type;
 standard         = "!", text;
+any              = "?";
 
 unit             = text;
 enum item        = text, [":", number];
