@@ -24,6 +24,10 @@ The general rules are:
 * Some numerical constants are decimal point numbers. These do not support `^`
   and `>` prefixes and use decimal point (`.`, not comma). They can start with
   `.` (the leading zero can be left out).
+* Type description can be optionally extended by name separated by `:`. This is
+  convenient when one can specify meaning of single parameter or return value,
+  for example: [`.broker/currentClient:unsubscribe`](./rpcmethods/broker.md#brokercurrentclientunsubscribe)
+  has param type: `s:shv_ri` and result type: `b:was_unsubscribed`.
 
 
 ## Null
