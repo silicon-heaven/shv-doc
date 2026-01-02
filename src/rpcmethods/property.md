@@ -18,7 +18,7 @@ table
 
 | Name  | SHV Path | Flags  | Param Type | Result Type | Access |
 |-------|----------|--------|------------|-------------|--------|
-| `get` | Any      | Getter | `i(0,)\|n` | `?`         | Read   |
+| `get` | Any      | Getter | `!get`     | `?`         | Read   |
 
 This method is used for getting the current value associated with SHV path.
 Every property node needs to have `get` method and every node with `get` method
