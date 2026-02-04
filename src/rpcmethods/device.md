@@ -10,9 +10,9 @@ device.
 
 ## `.device:name`
 
-| Name   | SHV Path  | Flags  |Param Type  |Result Type  | Access |
-|--------|-----------|--------|--|--|--------|
-| `name` | `.device` | Getter |  | `s`  | Browse |
+| Name   | SHV Path  | Flags  | Param Type | Result Type | Access |
+|--------|-----------|--------|------------|-------------|--------|
+| `name` | `.device` | Getter |            | `s`         | Browse |
 
 This method must provide the device name. This is a specific generic name of the
 device.
@@ -83,7 +83,7 @@ Initiate the device's reset. This might not be implemented and in such case
 
 | Name  | SHV Path         | Flags  | Param Type | Result Type | Access |
 |-------|------------------|--------|------------|-------------|--------|
-| `get` | `.device/alerts` | Getter | `i\|n`     | `[!alert]`  | Read   |
+| `get` | `.device/alerts` | Getter | `!get`     | `[!alert]`  | Read   |
 
 Get the current device's alerts.
 
