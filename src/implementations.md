@@ -78,3 +78,5 @@ a way to select the minimal requirements for the specific application.
 * [libshvclient-rs](https://github.com/silicon-heaven/libshvclient-rs) is the
   ideal library if you intend to implement client application based on the
   libshvrpc-rs.
+* [shvbroker-rs](https://github.com/silicon-heaven/shvbroker-rs) is the
+  SHV broker rust implementation.
