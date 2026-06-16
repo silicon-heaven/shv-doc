@@ -39,11 +39,9 @@ jobs:
       - uses: actions/checkout@v4.2.2
       - name: Install mdBook
         run: |
-          curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf -y | sh
-          rustup update
           cargo install ${{env.MDBOOK_VERSION}} mdbook
           cargo install ${{env.MDBOOK_PAGETOC_VERSION}} mdbook-pagetoc
-          cargo install ${{env.MDBOOK_OPEN_ON_GH_VERSION}} mdbook-linkcheck
+          cargo install ${{env.MDBOOK_OPEN_ON_GH_VERSION}} mdbook-open-on-gh
           cargo install ${{env.MDBOOK_LINKCHECK_VERSION}} mdbook-linkcheck
       - name: Setup Pages
         id: pages
