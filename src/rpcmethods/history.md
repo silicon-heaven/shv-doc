@@ -113,19 +113,19 @@ before ambiguity may be incorrectly moved by a subsequent time jump and
 thus provide inaccurate TimeStamp.
 
 #### Time shifting
-A `getLog` implementation must shift recorded times according to the time
-jumps. It shouldn't modify times in time jump records. All previous records since
-the time jump up to the a time desynchronization must be considered to be
-shifted by recorded time jump. If there are multiple time jumps in between time
+A `getLog` implementation must shift recorded times according to time jumps. It
+shouldn't modify times in time jump records. All previous records since the time
+jump up to the a time desynchronization record must be considered to be shifted
+by a time jump record. If there are multiple time jumps in between time
 desynchronizations, they are added together.
 
-The optimal implementation of `getLog` for both records and files is to keep
-index of modified times with reference to record ID or file with offset to speed
-up lookup for `getLog`. The memory constrained devices can implement it in less
-time optimal way by keeping only references to the time jumps and calculate the
-correct time for every record when loaded. The logs time sequence is always kept
-regardless of date and time and thus this time shifting only moves the whole
-blocks of consistent logs.
+An optimal implementation of `getLog` for both records and files is to keep an
+index of modified times with references to a record ID or a file with an offset
+to speed up lookups for `getLog`. Memory constrained devices can implement this
+in a less optimal way by keeping only references to the time jumps and
+calculating the correct time for every record when requested. The log time
+sequence is always kept regardless of date and time and thus this time shifting
+only moves the whole blocks of consistent logs.
 
 ### `.history/**:getSnapshot`
 
