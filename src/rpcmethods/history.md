@@ -342,23 +342,31 @@ the logs are always kept as they were on the device that recorded it. This is
 ideal when the device has the correct real time clock. When the device does not
 have the correct real time clock, time modifications are used to correct it.
 
-There are two types of time modifications recorded in the logs. We have either
-known time jump or unknown time desynchronization.
+There are two types of time modifications recorded in the logs:
+- known time jump
+- unknown time desynchronization
 
-The know time jump is detected on device when some log was already recorded and
-suddenly system time doesn't correspond to the monotonic time since the last
-record. The discrepancies up to 1 seconds should be disregarded and covered up
-by time tweaking (that is because we record skips in seconds) to ensure that
-time is still growing (no step backs in time compared to the previous log is
-allowed unless time jump is recorded). This time jump happens commonly if some
-tool synchronizes or in general updates system time. We expect that this
-modification is always the correct one (that our time up to now was shifted by
-skip) and time jump is recorded. `getLog` implementation thus must shift
-virtually all recorded times. It can't modify date and time recorded in those
-records but all previous records since the time jump up to the any time
-desynchronization must be considered to be shifted by recorded time jump. The
-multiple time jumps must be added together when you are reaching for older
-records and have multiple time jumps in between.
+### Known time jump
+Known time jump is detected on the device when the system time suddenly doesn't
+correspond to the monotonic time since the last record.
+
+Discrepancies of up to 1 second should be disregarded and covered up
+by time tweaking. (that is because we record skips in seconds)
+
+Log time must be always growing. For stepping back in time compared to the previous
+log, time jumps must be used.
+
+Time jumps happen commonly if some tool synchronizes or in general updates
+system time.
+
+Time jumps are expected to be correct, i.e. our time up to now was shifted by
+skip when a time jump has been recorded.
+
+`getLog` implementation thus must shift virtually all recorded times. It can't
+modify date and time recorded in those records but all previous records since
+the time jump up to the any time desynchronization must be considered to be
+shifted by recorded time jump. The multiple time jumps must be added together
+when you are reaching for older records and have multiple time jumps in between.
 
 The time desynchronization can happen only on first record after boot because
 otherwise we know the previous time and can thus calculate the time jump. The
