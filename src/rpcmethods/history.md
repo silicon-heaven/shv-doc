@@ -346,6 +346,25 @@ There are two types of time modifications recorded in the logs:
 - known time jump
 - unknown time desynchronization
 
+### Time desynchronization
+A time desynchronization can happen only on the first record after boot. If the
+time changes after that, we can calculate a time jump.
+
+A common detection pattern for time desynchronization is to check the latest
+record. If it is in the future, then desynchronization occurred and must be
+recorded.
+
+A time desynchronization creates a break point in the time sequence. Time jumps
+are not performed for records before a time desynchronization.
+
+The only exception is in the unlikely event where logs after a time
+desynchronization (after all time shifts from jumps are applied) are recorded as
+happening before the last log before desynchronization and in such case a time
+shift is introduced to move logs before the time desynchronization to be right
+before logs after desynchronization. This can really happen only if someone sets
+date and time in the future, then powers down the device, resets the RTC and
+sets the correct date and time after boot.
+
 ### Known time jump
 Known time jump is detected on the device when the system time suddenly doesn't
 correspond to the monotonic time since the last record.
@@ -362,25 +381,11 @@ system time.
 Time jumps are expected to be correct, i.e. our time up to now was shifted by
 skip when a time jump has been recorded.
 
-`getLog` implementation thus must shift virtually all recorded times. It can't
-modify date and time recorded in those records but all previous records since
-the time jump up to the any time desynchronization must be considered to be
-shifted by recorded time jump. The multiple time jumps must be added together
-when you are reaching for older records and have multiple time jumps in between.
-
-The time desynchronization can happen only on first record after boot because
-otherwise we know the previous time and can thus calculate the time jump. The
-common detection for time desynchronization is the check of the latest record,
-if it is in the future then desynchronization occurred and must be recorded.
-Desynchronization creates break point in the time sequence and thus shifts
-described in the previous paragraph are not performed after for records before
-desynchronization. The only exception is in an unlikely event when logs after
-desynchronization (after all time shifts from jumps are applied) are recorded as
-happening before last log before desynchronization and in such case time shift
-is introduced to move logs before desynchronization to be right before logs
-after desynchronization. This can really happen only if someone sets date and
-time in the future, then powers down the device, resets RTC and sets the correct
-date and time after boot.
+A `getLog` implementation must shift recorded times according to the time
+jumps. It shouldn't modify times in time jump records. All previous records since
+the time jump up to the a time desynchronization must be considered to be
+shifted by recorded time jump. If there are multiple time jumps in between time
+desynchronizations, they are added together.
 
 The optimal implementation of `getLog` for both records and files is to keep
 index of modified times with reference to record ID or file with offset to speed
