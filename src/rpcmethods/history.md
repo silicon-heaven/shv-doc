@@ -112,6 +112,21 @@ and as a result ignoring the ambiguity at all. This means that these records
 before ambiguity may be incorrectly moved by a subsequent time jump and
 thus provide inaccurate TimeStamp.
 
+#### Time shifting
+A `getLog` implementation must shift recorded times according to the time
+jumps. It shouldn't modify times in time jump records. All previous records since
+the time jump up to the a time desynchronization must be considered to be
+shifted by recorded time jump. If there are multiple time jumps in between time
+desynchronizations, they are added together.
+
+The optimal implementation of `getLog` for both records and files is to keep
+index of modified times with reference to record ID or file with offset to speed
+up lookup for `getLog`. The memory constrained devices can implement it in less
+time optimal way by keeping only references to the time jumps and calculate the
+correct time for every record when loaded. The logs time sequence is always kept
+regardless of date and time and thus this time shifting only moves the whole
+blocks of consistent logs.
+
 ### `.history/**:getSnapshot`
 
 #### Snapshot
@@ -335,7 +350,6 @@ Implementations should use time when they last called
 `**/.history/**/.records/*:fetch` or `**/.history/**/.files/*:ls`.
 
 ## Time management in logs
-
 Logs are recorded with the device's UTC time. Logs are synchronization from one
 instance to another without modification. This means that the date and time of
 the logs are always kept as they were on the device that recorded it. This is
@@ -345,6 +359,9 @@ have the correct real time clock, time modifications are used to correct it.
 There are two types of time modifications recorded in the logs:
 - known time jump
 - unknown time desynchronization
+
+A `getLog` implementation must shift recorded times according to the time
+jumps. More info in the method's description.
 
 ### Time desynchronization
 A time desynchronization can happen only on the first record after boot. If the
@@ -380,17 +397,3 @@ system time.
 
 Time jumps are expected to be correct, i.e. our time up to now was shifted by
 skip when a time jump has been recorded.
-
-A `getLog` implementation must shift recorded times according to the time
-jumps. It shouldn't modify times in time jump records. All previous records since
-the time jump up to the a time desynchronization must be considered to be
-shifted by recorded time jump. If there are multiple time jumps in between time
-desynchronizations, they are added together.
-
-The optimal implementation of `getLog` for both records and files is to keep
-index of modified times with reference to record ID or file with offset to speed
-up lookup for `getLog`. The memory constrained devices can implement it in less
-time optimal way by keeping only references to the time jumps and calculate the
-correct time for every record when loaded. The logs time sequence is always kept
-regardless of date and time and thus this time shifting only moves the whole
-blocks of consistent logs.
