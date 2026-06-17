@@ -360,8 +360,8 @@ There are two types of time modifications recorded in the logs:
 - known time jump
 - unknown time desynchronization
 
-A `getLog` implementation must shift recorded times according to the time
-jumps. More info in the method's description.
+`getLog` implementations must shift recorded times according to the time jumps.
+More info in the method's description.
 
 ### Time desynchronization
 A time desynchronization can happen only on the first record after boot. If the
