@@ -336,11 +336,11 @@ Implementations should use time when they last called
 
 ## Time management in logs
 
-Logs are recorded with device's UTC time. The RPC History then only copies these
-logs from one instance to the other without modification. This means that date
-and time is always kept as it was on the device that recorded it. This is ideal
-when device has the correct real time clock but that might not be true and thus
-time modifications come into play.
+Logs are recorded with the device's UTC time. Logs are synchronization from one
+instance to another without modification. This means that the date and time of
+the logs are always kept as they were on the device that recorded it. This is
+ideal when the device has the correct real time clock. When the device does not
+have the correct real time clock, time modifications are used to correct it.
 
 There are two types of time modifications recorded in the logs. We have either
 known time jump or unknown time desynchronization.
