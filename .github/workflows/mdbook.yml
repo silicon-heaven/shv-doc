@@ -10,7 +10,7 @@ on:
     branches: ["master"]
   pull_request:
     branches: [ "master" ]
-    
+
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -31,17 +31,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      MDBOOK_VERSION: --version 0.5.3
-      MDBOOK_PAGETOC_VERSION: --version 0.3.0
+      MDBOOK_VERSION: 0.5.3
+      MDBOOK_PAGETOC_VERSION: 0.3.0
       MDBOOK_LINKCHECK_VERSION: --git https://github.com/Michael-F-Bryan/mdbook-linkcheck --rev ed981be6ded11562e604fff290ae4c08f1c419c5
-      MDBOOK_OPEN_ON_GH_VERSION: --version 3.0.0
+      MDBOOK_OPEN_ON_GH_VERSION: 3.0.0
     steps:
       - uses: actions/checkout@v4.2.2
       - name: Install mdBook
         run: |
-          cargo install ${{env.MDBOOK_VERSION}} mdbook
-          cargo install ${{env.MDBOOK_PAGETOC_VERSION}} mdbook-pagetoc
-          cargo install ${{env.MDBOOK_OPEN_ON_GH_VERSION}} mdbook-open-on-gh
+          cargo install mdbook@${{env.MDBOOK_VERSION}} mdbook-pagetoc@${{env.MDBOOK_PAGETOC_VERSION}} mdbook-open-on-gh@${{env.MDBOOK_OPEN_ON_GH_VERSION}}
           cargo install ${{env.MDBOOK_LINKCHECK_VERSION}} mdbook-linkcheck
       - name: Setup Pages
         id: pages
