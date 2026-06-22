@@ -397,7 +397,8 @@ date and time after boot.
 ### Known time jump
 A known time jump is detected on the device when the difference between system
 time and monotonic time suddenly doesn't correspond to the time difference when
-the last record was written.
+the last record was written. This usually happens when time gets synchronized
+via GPS or NTP.
 
 Discrepancies of up to 1 second should be disregarded and covered up by time
 tweaking (that is because we record time jumps in seconds).
