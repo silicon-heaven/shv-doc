@@ -115,9 +115,9 @@ thus provide inaccurate TimeStamp.
 #### Time shifting
 A `getLog` implementation must shift recorded times according to time jumps. It
 shouldn't modify times in time jump records. All previous records since the time
-jump up to the a time desynchronization record must be considered to be shifted
+jump up to the a time ambiguity record must be considered to be shifted
 by a time jump record. If there are multiple time jumps in between time
-desynchronizations, they are added together.
+ambiguity records, they are added together.
 
 An optimal implementation of `getLog` for both records and files is to keep an
 index of modified times with references to a record ID or a file with an offset
@@ -358,36 +358,36 @@ have the correct real time clock, time modifications are used to correct it.
 
 There are two types of time modifications recorded in the logs:
 - known time jump
-- unknown time desynchronization
+- time ambiguity event
 
 `getLog` implementations must shift recorded times according to the time jumps.
 More info in the method's description.
 
-### Time desynchronization
-A time desynchronization can happen only on the first record after boot. If the
-time changes after that, we can calculate a time jump.
+### Time ambiguity event
+A time ambiguity event can happen only on the first record after boot. If the
+time changes after that, a time jump is calculated instead.
 
-A common detection pattern for time desynchronization is to check the latest
-record. If it is in the future, then desynchronization occurred and must be
+A common detection pattern for time ambiguities is to check the latest record.
+If it is in the future, then a time ambiguity event occurred and must be
 recorded.
 
-A time desynchronization creates a break point in the time sequence. Time jumps
-are not performed for records before a time desynchronization.
+A time ambiguity event creates a break point in the time sequence. Time jumps
+are not performed for records before a time ambiguity event.
 
-The only exception is in the unlikely event where logs after a time
-desynchronization (after all time shifts from jumps are applied) are recorded as
-happening before the last log before desynchronization and in such case a time
-shift is introduced to move logs before the time desynchronization to be right
-before logs after desynchronization. This can really happen only if someone sets
-date and time in the future, then powers down the device, resets the RTC and
-sets the correct date and time after boot.
+The only exception is in the unlikely event where logs after a time ambiguity
+event (after all time shifts from jumps are applied) are recorded as happening
+before the last log before ambiguity and in such case a time shift is introduced
+to move logs before the time ambiguity event to be right before logs after the
+time ambiguity event. This can really happen only if someone sets date and time
+in the future, then powers down the device, resets the RTC and sets the correct
+date and time after boot.
 
 ### Known time jump
-Known time jump is detected on the device when the system time suddenly doesn't
-correspond to the monotonic time since the last record.
+A known time jump is detected on the device when the system time suddenly
+doesn't correspond to the monotonic time since the last record.
 
-Discrepancies of up to 1 second should be disregarded and covered up
-by time tweaking. (that is because we record skips in seconds)
+Discrepancies of up to 1 second should be disregarded and covered up by time
+tweaking (that is because we record time jumps in seconds).
 
 Log time must be always growing. For stepping back in time compared to the previous
 log, time jumps must be used.
