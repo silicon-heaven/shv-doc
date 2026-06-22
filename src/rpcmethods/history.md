@@ -372,7 +372,19 @@ If it is in the future, then a time ambiguity event occurred and must be
 recorded.
 
 A time ambiguity event creates a break point in the time sequence. Time jumps
-are not performed for records before a time ambiguity event.
+only affect those records that are surrounded between the same two time
+ambiguities. In other words, a time jump does not have an effect and a record
+which is behind a time ambiguity boundary:
+```
+AMBIGUITY
+RECORD <------------------------------------------|
+RECORD <------------------------------------------|
+TIME-JUMP - this time jump affects these records -|
+RECORD <------------------------------------------|
+RECORD <------------------------------------------|
+AMBIGUITY
+RECORD - but not this record
+```
 
 The only exception is in the unlikely event where logs after a time ambiguity
 event (after all time shifts from jumps are applied) are recorded as happening
