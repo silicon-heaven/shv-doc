@@ -33,7 +33,7 @@ jobs:
     env:
       MDBOOK_VERSION: --version 0.5.3
       MDBOOK_PAGETOC_VERSION: --version 0.3.0
-      MDBOOK_LINKCHECK_VERSION: --git https://github.com/Michael-F-Bryan/mdbook-linkcheck --rev ed981be6ded11562e604fff290ae4c08f1c419c5
+      MDBOOK_LINKCHECK_VERSION: --version 0.12.2
       MDBOOK_OPEN_ON_GH_VERSION: --version 3.0.0
     steps:
       - uses: actions/checkout@v4.2.2
@@ -42,7 +42,7 @@ jobs:
           cargo install ${{env.MDBOOK_VERSION}} mdbook
           cargo install ${{env.MDBOOK_PAGETOC_VERSION}} mdbook-pagetoc
           cargo install ${{env.MDBOOK_OPEN_ON_GH_VERSION}} mdbook-open-on-gh
-          cargo install ${{env.MDBOOK_LINKCHECK_VERSION}} mdbook-linkcheck
+          cargo install ${{env.MDBOOK_LINKCHECK_VERSION}} mdbook-linkcheck2
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5.0.0

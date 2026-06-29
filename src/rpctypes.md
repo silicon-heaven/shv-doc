@@ -403,19 +403,19 @@ descriptions.
   [`.history/**:getLog` method](./rpcmethods/history.md#historygetlog). Its
   expanded form is:
   ```
-  {t|n:since:1,t|n:until,i(0,)|n:count,s|n:ri}
+  i{t|n:since:1,t|n:until,i(0,)|n:count,s|n:ri}
   ```
 * `!getLogR` is result of
   [`.history/**:getLog` method](./rpcmethods/history.md#historygetlog). Its
   expanded form is:
   ```
-  [i{t|n:timestamp:1,i(0,)|n:ref,s|n:path,s|n:signal,s|n:source,?:value,s|n:userId,b|n:repeat,b|n:provisional,b|n:inaccurate}]
+  [i{t|n:timestamp:1,i(0,)|n:ref,s|n:path,s|n:signal,s|n:source,?:value,s|n:userId,b|n:repeat,b|n:provisional,b|n:inaccurate,t|n:originalTimestamp}]
   ```
 * `!getSnapshotP` is parameter for
   [`.history/**:getSnapshot` method](./rpcmethods/history.md#historygetsnapshot). Its
   expanded form is:
   ```
-  {t|n:time:1,s|n:ri}
+  i{t|n:time:1,s|n:ri}
   ```
 * `!getSnapshotR` is result of
   [`.history/**:getSnapshot` method](./rpcmethods/history.md#historygetsnapshot). Its
@@ -427,7 +427,7 @@ descriptions.
   [`.history/**:getSnapshot` method](./rpcmethods/history.md#historygetsnapshot). Its
   expanded form is:
   ```
-  {t|n:time:1,s|n:ri}
+  i{t|n:time:1,s|n:ri}
   ```
 * `!getSnapshotR` is result of
   [`.history/**:getSnapshot` method](./rpcmethods/history.md#historygetsnapshot). Its
@@ -440,6 +440,24 @@ descriptions.
   method](./rpcmethods/history.md#historyrecordsfetch). Its expanded form is:
   ```
   [i{i[normal:1,keep,timeJump,timeAbig]:type,t:timestamp,s|n:path,s|n:signal,s|n:source,?:value,i(0,63)|n:accessLevel,s|n:userId,b|n:repeat,i(0,)|n:id,i(0,)|n:ref,i|n:timeJump:60}]
+  ```
+* `!historySpan` is result of
+  [`.history/**/.records/*:span`
+  method](./rpcmethods/history.md#historyrecordsspan). Its expanded form is:
+  ```
+  [i:smallest,i:biggest,i(1,):span]
+  ```
+* `!historyDateSpanP` is parameter of
+  [`.history/**/.records/*:dateSpan`
+  method](./rpcmethods/history.md#historyrecordsdatespan). Its expanded form is:
+  ```
+  i{t|n:since:1,t|n:until,t|n:now}
+  ```
+* `!historyDateSpanR` is result of
+  [`.history/**/.records/*:dateSpan`
+  method](./rpcmethods/history.md#historyrecordsdatespan). Its expanded form is:
+  ```
+  [i:sinceID,i:untilID.t:untilDate]
   ```
 
 ## Grammar representation
