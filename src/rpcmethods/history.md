@@ -386,13 +386,13 @@ AMBIGUITY
 RECORD - but not this record
 ```
 
-The only exception is in the unlikely event where logs after a time ambiguity
-event (after all time shifts from jumps are applied) are recorded as happening
-before the last log before ambiguity and in such case a time shift is introduced
-to move logs before the time ambiguity event to be right before logs after the
-time ambiguity event. This can really happen only if someone sets date and time
-in the future, then powers down the device, resets the RTC and sets the correct
-date and time after boot.
+The only exception is in the unlikely event where logs before an ambiguity have
+a time-jump such that logs would be in the future relative to the logs after the
+time ambiguity. and in such case a time shift is introduced to move logs before
+the time ambiguity event to be right before logs after the time ambiguity event.
+This can really happen only if someone sets date and time in the future, then
+powers down the device, resets the RTC and sets the correct date and time after
+boot.
 
 ### Known time jump
 A known time jump is detected on the device when the difference between system
