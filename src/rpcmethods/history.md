@@ -350,7 +350,7 @@ Implementations should use time when they last called
 `**/.history/**/.records/*:fetch` or `**/.history/**/.files/*:ls`.
 
 ## Time management in logs
-Logs are recorded with the device's UTC time. Logs are synchronization from one
+Logs are recorded with the device's UTC time. Logs are synchronized from one
 instance to another without modification. This means that the date and time of
 the logs are always kept as they were on the device that recorded it. This is
 ideal when the device has the correct real time clock. When the device does not
