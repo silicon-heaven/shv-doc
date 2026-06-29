@@ -15,4 +15,4 @@ git-branch = "master"
 additional-css = ["theme/pagetoc.css", "theme/open-in.css"]
 additional-js  = ["theme/pagetoc.js"]
 git-repository-url = "https://github.com/silicon-heaven/shv-doc"
-[output.linkcheck]
+[output.linkcheck2]
