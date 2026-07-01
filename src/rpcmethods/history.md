@@ -112,6 +112,21 @@ and as a result ignoring the ambiguity at all. This means that these records
 before ambiguity may be incorrectly moved by a subsequent time jump and
 thus provide inaccurate TimeStamp.
 
+#### Time shifting
+A `getLog` implementation must shift recorded times according to time jumps. It
+shouldn't modify times in time jump records. All previous records since the time
+jump up to the a time ambiguity record must be considered to be shifted
+by a time jump record. If there are multiple time jumps in between time
+ambiguity records, they are added together.
+
+An optimal implementation of `getLog` for both records and files is to keep an
+index of modified times with references to a record ID or a file with an offset
+to speed up lookups for `getLog`. Memory constrained devices can implement this
+in a less optimal way by keeping only references to the time jumps and
+calculating the correct time for every record when requested. The log time
+sequence is always kept regardless of date and time and thus this time shifting
+only moves the whole blocks of consistent logs.
+
 ### `.history/**:getSnapshot`
 
 #### Snapshot
@@ -335,49 +350,64 @@ Implementations should use time when they last called
 `**/.history/**/.records/*:fetch` or `**/.history/**/.files/*:ls`.
 
 ## Time management in logs
+Logs are recorded with the device's UTC time. Logs are synchronized from one
+instance to another without modification. This means that the date and time of
+the logs are always kept as they were on the device that recorded it. This is
+ideal when the device has the correct real time clock. When the device does not
+have the correct real time clock, time modifications are used to correct it.
 
-Logs are recorded with device's UTC time. The RPC History then only copies these
-logs from one instance to the other without modification. This means that date
-and time is always kept as it was on the device that recorded it. This is ideal
-when device has the correct real time clock but that might not be true and thus
-time modifications come into play.
+There are two types of time modifications recorded in the logs:
+- known time jump
+- time ambiguity event
 
-There are two types of time modifications recorded in the logs. We have either
-known time jump or unknown time desynchronization.
+`getLog` implementations must shift recorded times according to the time jumps.
+More info in the method's description.
 
-The know time jump is detected on device when some log was already recorded and
-suddenly system time doesn't correspond to the monotonic time since the last
-record. The discrepancies up to 1 seconds should be disregarded and covered up
-by time tweaking (that is because we record skips in seconds) to ensure that
-time is still growing (no step backs in time compared to the previous log is
-allowed unless time jump is recorded). This time jump happens commonly if some
-tool synchronizes or in general updates system time. We expect that this
-modification is always the correct one (that our time up to now was shifted by
-skip) and time jump is recorded. `getLog` implementation thus must shift
-virtually all recorded times. It can't modify date and time recorded in those
-records but all previous records since the time jump up to the any time
-desynchronization must be considered to be shifted by recorded time jump. The
-multiple time jumps must be added together when you are reaching for older
-records and have multiple time jumps in between.
+### Time ambiguity event
+A time ambiguity event can happen only on the first record after boot. If the
+time changes after that, a time jump is calculated instead.
 
-The time desynchronization can happen only on first record after boot because
-otherwise we know the previous time and can thus calculate the time jump. The
-common detection for time desynchronization is the check of the latest record,
-if it is in the future then desynchronization occurred and must be recorded.
-Desynchronization creates break point in the time sequence and thus shifts
-described in the previous paragraph are not performed after for records before
-desynchronization. The only exception is in an unlikely event when logs after
-desynchronization (after all time shifts from jumps are applied) are recorded as
-happening before last log before desynchronization and in such case time shift
-is introduced to move logs before desynchronization to be right before logs
-after desynchronization. This can really happen only if someone sets date and
-time in the future, then powers down the device, resets RTC and sets the correct
-date and time after boot.
+A common detection pattern for time ambiguities is to check the latest record.
+If it is in the future, then a time ambiguity event occurred and must be
+recorded.
 
-The optimal implementation of `getLog` for both records and files is to keep
-index of modified times with reference to record ID or file with offset to speed
-up lookup for `getLog`. The memory constrained devices can implement it in less
-time optimal way by keeping only references to the time jumps and calculate the
-correct time for every record when loaded. The logs time sequence is always kept
-regardless of date and time and thus this time shifting only moves the whole
-blocks of consistent logs.
+A time ambiguity event creates a break point in the time sequence. Time jumps
+only affect those records that are surrounded between the same two time
+ambiguities. In other words, a time jump does not have an effect and a record
+which is behind a time ambiguity boundary:
+```
+AMBIGUITY
+RECORD <------------------------------------------|
+RECORD <------------------------------------------|
+TIME-JUMP - this time jump affects these records -|
+RECORD <------------------------------------------|
+RECORD <------------------------------------------|
+AMBIGUITY
+RECORD - but not this record
+```
+
+The only exception is in the unlikely event where logs before an ambiguity have
+a time-jump such that logs would be in the future relative to the logs after the
+time ambiguity. and in such case a time shift is introduced to move logs before
+the time ambiguity event to be right before logs after the time ambiguity event.
+This can really happen only if someone sets date and time in the future, then
+powers down the device, resets the RTC and sets the correct date and time after
+boot.
+
+### Known time jump
+A known time jump is detected on the device when the difference between system
+time and monotonic time suddenly doesn't correspond to the time difference when
+the last record was written. This usually happens when time gets synchronized
+via GPS or NTP.
+
+Discrepancies of up to 1 second should be disregarded and covered up by time
+tweaking (that is because we record time jumps in seconds).
+
+Log time must be always growing. For stepping back in time compared to the previous
+log, time jumps must be used.
+
+Time jumps happen commonly if some tool synchronizes or in general updates
+system time.
+
+Time jumps are expected to be correct, i.e. our time up to now was shifted by
+skip when a time jump has been recorded.
