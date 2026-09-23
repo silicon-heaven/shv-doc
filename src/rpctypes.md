@@ -445,7 +445,7 @@ descriptions.
   [`.history/**/.records/*:span`
   method](./rpcmethods/history.md#historyrecordsspan). Its expanded form is:
   ```
-  [i:smallest,i:biggest,i(1,):span,i|n:newestTimeRecord]
+  [i(0,):smallest,i(0,):biggest,i(1,):span,i(0,)|n:newestTimeRecord]
   ```
 
 ## Grammar representation
