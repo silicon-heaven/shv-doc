@@ -279,7 +279,7 @@ This method provides List with the following items:
 
 | Name       | SHV Path                 | Flags  | Param Type | Result Type | Access  |
 |------------|--------------------------|--------|------------|-------------|---------|
-| `contains` | `.history/**/.records/*` | Getter | `s`        | `b`         | Service |
+| `contains` | `.history/**/.records/*` |        | `s`        | `b`         | Service |
 
 Check if log contains records of given RPC RI. This allows generic tools to
 decide on which log should be fetched.
