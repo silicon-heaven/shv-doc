@@ -85,7 +85,7 @@ an appropriate range.
 ## Enum
 
 ```
-i[KEY,KEY:INDEX,...]
+i[KEY,KEY:INDEX,KEY:TYPE,...]
 ```
 
 This is *Int* that can have only predefined values. For every value this type
@@ -100,6 +100,25 @@ Examples:
   `FALSE` and `2` with `INVALID`.
 * `i[fail:-1,success]` Enum where `-1` is aliased with `fail` and `0` with
   `success`.
+
+### Enum with variant types
+
+An item can also carry a value type with `KEY:TYPE` syntax. Such an item
+describes a variant that holds a value of type `TYPE` (also called a tagged
+union or sum type, as in Rust enums with data). The item is assigned an index
+in the same way as a plain `KEY` item. An item has either an explicit `INDEX` or a
+`TYPE`, never both. The two forms can't be confused, because a `TYPE` never starts
+with a digit or with `-`, `^` or `<`.
+
+The type string describes the variants and their values only. It doesn't say
+how a variant is encoded in the data, that is left to the method
+documentation.
+
+Examples:
+
+* `i[None,Id:i,pos:{i:x,i|n:Y},Other:123]` Enum where `None` is `0`, `Id`
+  (`1`) carries an *Int*, `pos` (`2`) carries a *KeyStruct* with `x` and `Y`
+  items, and `Other` is aliased with `123`.
 
 ## Double (floating point number)
 
@@ -474,7 +493,7 @@ standard         = "!", text;
 any              = "?";
 
 unit             = text;
-enum item        = text, [":", number];
+enum item        = text, [":", (number | type)];
 key item         = type, ":", text;
 ikey item        = type, ":", text, [":", number];
 decimal number   = ["-"], ({digit} | [digit] , [".", {digit}]);
