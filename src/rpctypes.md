@@ -154,7 +154,7 @@ Examples:
 * `s(0,63)` String with maximal length 63 characters.
 * `s(16)` String with exactly 16 characters.
 
-## String Enum
+## KeyEnum
 
 ```
 s[KEY,KEY:TYPE,...]
@@ -173,9 +173,9 @@ Examples:
 
 * `s[TRUE,FALSE,INVALID]` String Enum that can be one of the strings `"TRUE"`,
   `"FALSE"` or `"INVALID"`.
-* `s[None,Id:i,pos:{i:x,i|n:Y}]` String Enum that can be `"None"`, `{"Id":3}`
-  where the value is *Int*, or `{"pos":{"x":1}}` where the value is
-  *KeyStruct* with `x` and `Y` items.
+* `s[None,Id:i,Pos:{i:x,i|n:y}]` String Enum that can be `"None"`, `{"Id":3}`
+  where the value is *Int*, or `{"Pos":{"x":1}}` where the value is
+  *KeyStruct* with `x` and `y` items.
 
 ## Blob
 
