@@ -85,7 +85,7 @@ an appropriate range.
 ## Enum
 
 ```
-i[KEY,KEY:INDEX,KEY:TYPE,...]
+i[KEY,KEY:INDEX,...]
 ```
 
 This is *Int* that can have only predefined values. For every value this type
@@ -100,25 +100,6 @@ Examples:
   `FALSE` and `2` with `INVALID`.
 * `i[fail:-1,success]` Enum where `-1` is aliased with `fail` and `0` with
   `success`.
-
-### Enum with variant types
-
-An item can also carry a value type with `KEY:TYPE` syntax. Such an item
-describes a variant that holds a value of type `TYPE` (also called a tagged
-union or sum type, as in Rust enums with data). The item is assigned an index
-in the same way as a plain `KEY` item. An item has either an explicit `INDEX` or a
-`TYPE`, never both. The two forms can't be confused, because a `TYPE` never starts
-with a digit or with `-`, `^` or `<`.
-
-The type string describes the variants and their values only. It doesn't say
-how a variant is encoded in the data, that is left to the method
-documentation.
-
-Examples:
-
-* `i[None,Id:i,pos:{i:x,i|n:Y},Other:123]` Enum where `None` is `0`, `Id`
-  (`1`) carries an *Int*, `pos` (`2`) carries a *KeyStruct* with `x` and `Y`
-  items, and `Other` is aliased with `123`.
 
 ## Double (floating point number)
 
@@ -172,6 +153,29 @@ Examples:
 
 * `s(0,63)` String with maximal length 63 characters.
 * `s(16)` String with exactly 16 characters.
+
+## String Enum
+
+```
+s[KEY,KEY:TYPE,...]
+```
+
+This is an Enum whose value is identified by its alias (`KEY`) instead of by
+an index. An item can also carry a value type with `KEY:TYPE` syntax. Such an
+item describes a variant that holds a value of type `TYPE` (also called a
+tagged union or sum type, as in Rust enums with data). Be aware that having
+the same `KEY` more than once is forbidden.
+
+A plain `KEY` item is encoded as *String* `KEY`. A `KEY:TYPE` item is encoded
+as *Map* with the single `KEY` holding the value of type `TYPE`.
+
+Examples:
+
+* `s[TRUE,FALSE,INVALID]` String Enum that can be one of the strings `"TRUE"`,
+  `"FALSE"` or `"INVALID"`.
+* `s[None,Id:i,pos:{i:x,i|n:Y}]` String Enum that can be `"None"`, `{"Id":3}`
+  where the value is *Int*, or `{"pos":{"x":1}}` where the value is
+  *KeyStruct* with `x` and `Y` items.
 
 ## Blob
 
@@ -470,7 +474,7 @@ descriptions.
 ## Grammar representation
 
 ```
-type             = bool | integer | unsigned integer | enum | double | decimal | string | blob | date time | list | tuple | imap | struct | map | keystruct | bitfield | one of | standard | any;
+type             = bool | integer | unsigned integer | enum | double | decimal | string | string enum | blob | date time | list | tuple | imap | struct | map | keystruct | bitfield | one of | standard | any;
 
 bool             = "b";
 integer          = "i", ["(", [number], ",", [number], ")"], [unit];
@@ -479,6 +483,7 @@ enum             = "i", "[", enum item, {",", enum item}, "]"
 double           = "f", [unit];
 decimal          = "d", ["(", [decimal number], ",", [decimal number], [",", decimal number], ")"], [unit];
 string           = "s", ["(", [number], [",", number], ")"];
+string enum      = "s", "[", string enum item, {",", string enum item}, "]";
 blob             = "b", ["(", [number], [",", number], ")"];
 date time        = "t";
 list             = "[", type, "]", ["(", [number], [",", [number]], ")"];
@@ -493,7 +498,8 @@ standard         = "!", text;
 any              = "?";
 
 unit             = text;
-enum item        = text, [":", (number | type)];
+enum item        = text, [":", number];
+string enum item = text, [":", type];
 key item         = type, ":", text;
 ikey item        = type, ":", text, [":", number];
 decimal number   = ["-"], ({digit} | [digit] , [".", {digit}]);
