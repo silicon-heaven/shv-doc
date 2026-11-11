@@ -154,6 +154,29 @@ Examples:
 * `s(0,63)` String with maximal length 63 characters.
 * `s(16)` String with exactly 16 characters.
 
+## KeyEnum
+
+```
+s[KEY,KEY:TYPE,...]
+```
+
+This is an Enum whose value is identified by its alias (`KEY`) instead of by
+an index. An item can also carry a value type with `KEY:TYPE` syntax. Such an
+item describes a variant that holds a value of type `TYPE` (also called a
+tagged union or sum type, as in Rust enums with data). Be aware that having
+the same `KEY` more than once is forbidden.
+
+A plain `KEY` item is encoded as *String* `KEY`. A `KEY:TYPE` item is encoded
+as *Map* with the single `KEY` holding the value of type `TYPE`.
+
+Examples:
+
+* `s[TRUE,FALSE,INVALID]` String Enum that can be one of the strings `"TRUE"`,
+  `"FALSE"` or `"INVALID"`.
+* `s[None,Id:i,Pos:{i:x,i|n:y}]` String Enum that can be `"None"`, `{"Id":3}`
+  where the value is *Int*, or `{"Pos":{"x":1}}` where the value is
+  *KeyStruct* with `x` and `y` items.
+
 ## Blob
 
 ```
@@ -451,7 +474,7 @@ descriptions.
 ## Grammar representation
 
 ```
-type             = bool | integer | unsigned integer | enum | double | decimal | string | blob | date time | list | tuple | imap | struct | map | keystruct | bitfield | one of | standard | any;
+type             = bool | integer | unsigned integer | enum | double | decimal | string | string enum | blob | date time | list | tuple | imap | struct | map | keystruct | bitfield | one of | standard | any;
 
 bool             = "b";
 integer          = "i", ["(", [number], ",", [number], ")"], [unit];
@@ -460,6 +483,7 @@ enum             = "i", "[", enum item, {",", enum item}, "]"
 double           = "f", [unit];
 decimal          = "d", ["(", [decimal number], ",", [decimal number], [",", decimal number], ")"], [unit];
 string           = "s", ["(", [number], [",", number], ")"];
+string enum      = "s", "[", string enum item, {",", string enum item}, "]";
 blob             = "b", ["(", [number], [",", number], ")"];
 date time        = "t";
 list             = "[", type, "]", ["(", [number], [",", [number]], ")"];
@@ -475,6 +499,7 @@ any              = "?";
 
 unit             = text;
 enum item        = text, [":", number];
+string enum item = text, [":", type];
 key item         = type, ":", text;
 ikey item        = type, ":", text, [":", number];
 decimal number   = ["-"], ({digit} | [digit] , [".", {digit}]);
