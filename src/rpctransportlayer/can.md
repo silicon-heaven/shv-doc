@@ -1,8 +1,5 @@
 ## CAN-FD transport layer
 
-| ❗ This document is in DRAFT stage |
-|------------------------------------|
-
 The communication over CAN-FD (Control Area Network) bus. Compared to other
 transport layers, that are point-to-point, this is bus and thus it must not only
 provide message transfer but also a connection tracking and multiplexing.
