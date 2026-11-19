@@ -14,22 +14,21 @@ a different levels of access to different users to same file (such as append to
 regular user, while write and truncate to super users).
 
 The combination of provided method for file node will define the expected
-functionality of the file. For the convinience of reader the following table is
+functionality of the file. For the convenience of reader the following table is
 provided with various, but not all, types of file node modes. The methods
 `*:stat`, and `*:size` are always provided.
 
-|             | `*:crc` / `*:sha1` | `*:read` | `*:write` | `*:truncate` | `*:append` |
-|-------------|--------------------|----------|-----------|--------------|------------|
-| Read only   | ✔️                  | ✔️        | ❌        | ❌           | ❌         |
-| Fixed size  | ✔️                  | ✔️        | ✔️         | ❌           | ❌         |
-| Resizable   | ✔️                  | ✔️        | ✔️         | ✔️            | ✔️          |
-| Append only | ✔️                  | ✔️        | ❌        | ❌           | ✔️          |
+|             | `*:crc` / `*:sha1` | `*:read` | `*:write` | `*:truncate` |
+|-------------|--------------------|----------|-----------|--------------|
+| Read only   | ✔️                 | ✔️       | ❌        | ❌           |
+| Fixed size  | ✔️                 | ✔️       | ✔️        | ❌           |
+| Resizable   | ✔️                 | ✔️       | ✔️        | ✔️           |
 
 ## File types
 
 File node provides support for two types of file. A regular file is a standard
 file that can support all methods listed above. MTD layer provides a direct
-access to a raw flash. This imposes requiremts on the implementations, notably
+access to a raw flash. This imposes requirements on the implementations, notably
 the page has to be erased before write. This means the MTD file node can only
 support writes in a sequential order within one erase page (refer to
 `EraseSize` in `*:stat` method), otherwise the written data may be
@@ -132,7 +131,7 @@ with files that are growing.
 
 | Name   | SHV Path | Flags | Param Type                        | Result Type | Access |
 |--------|----------|-------|-----------------------------------|-------------|--------|
-| `sha1` | Any      |       | `[i(0,):offset,i(0,)\|n:size]\|n` | `b(20)`     | Read   |
+| `sha1` | Any      |       | `[i(0,):offset,i(0,)\|n:size]\|n` | `x(20)`     | Read   |
 
 The basic CRC32 algorithm, that is required alongside with `*:read`, is
 serviceable but it has higher probability of result collision. If you want to
@@ -159,9 +158,9 @@ The result must always be 20 bytes long *Bytes*.
 
 ## `*:read`
 
-| Name   | SHV Path | Flags             | Param Type                  | Result Type | Access |
-|--------|----------|-------------------|-----------------------------|-------------|--------|
-| `read` | Any      | LARGE_RESULT_HINT | `[i(0,):offset,i(0,):size]` | `b`         | Read   |
+| Name   | SHV Path | Flags       | Param Type                  | Result Type | Access |
+|--------|----------|-------------|-----------------------------|-------------|--------|
+| `read` | Any      | largeResult | `[i(0,):offset,i(0,):size]` | `x`         | Read   |
 
 Method for reading data from file. This method should be implemented only if you
 allow reading of the file.
@@ -185,7 +184,7 @@ length blob is returned.
 
 | Name    | SHV Path | Flags | Param Type              | Result Type | Access |
 |---------|----------|-------|-------------------------|-------------|--------|
-| `write` | Any      |       | `[i(0,):offset,b:data]` |             | Write  |
+| `write` | Any      |       | `[i(0,):offset,x:data]` |             | Write  |
 
 Write is optional method that can be provided if modification of the file over
 SHV RPC is allowed.
@@ -226,7 +225,7 @@ such as only increase is allowed, or maximal size of the file.
 
 | Name     | SHV Path | Flags | Param Type | Result Type | Access |
 |----------|----------|-------|------------|-------------|--------|
-| `append` | Any      |       | `b`        |             | Write  |
+| `append` | Any      |       | `x`        |             | Write  |
 
 | ❗ This method is not idempotent while not implementing *notIdempotent* protocol. Do not implement it in this version of standard. |
 |------------------------------------------------------------------------------------------------------------------------------------|

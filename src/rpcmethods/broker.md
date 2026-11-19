@@ -118,9 +118,8 @@ existing subscriptions. *Null* TTL means, that the subscription lasts forever.
 ## Clients
 
 The primary use for SHV Broker is the communication between multiple clients.
-The information about connected clients and its parameters is beneficial not
-only for the client's them self but primarily to the administrators of the SHV
-network.
+Information about connected clients and their parameters is useful not only
+to the clients themselves, but also to the administrators of the SHV network.
 
 ### `.broker:clientInfo`
 
@@ -152,7 +151,7 @@ required nor standardized at the moment.
 
 ```
 => <id:42, method:"clientInfo", path:".broker">i{1:68}
-<= <id:42>i{2:{"clientId:68, "userName":"smith", "mountPoint": "iot/device", "subscriptions":{"**:*:chng":null}}}
+<= <id:42>i{2:i{1:68, 2:"smith", 3: "iot/device", 4:{"**:*:chng":null}}}
 ```
 ```
 => <id:42, method:"clientInfo", path:".broker">i{1:126}
@@ -174,7 +173,7 @@ in case there is no mount point to which given path would belong to.
 
 ```
 => <id:42, method:"mountedClientInfo", path:".broker">i{1:"iot/device/node"}
-<= <id:42>i{2:{"clientId:68, "userName":"smith", "mountPoint": "iot/device", "subscriptions":{"**:*:chng":null}}}
+<= <id:42>i{2:i{1:68, 2:"smith", 3: "iot/device", 4:{"**:*:chng":null}}}
 ```
 ```
 => <id:42, method:"mountedClientInfo", path:".broker">i{1:"invalid"}
@@ -197,7 +196,7 @@ accessible only to the privileged users.
 
 ```
 => <id:42, method:"info", path:".broker/currentClient">i{}
-<= <id:42>i{2:{"clientId:68, "userName":"smith", "mountPoint": "iot/device", "subscriptions":[{1:"chng"}]}}
+<= <id:42>i{2:i{1:68, 2:"smith", 3: "iot/device", 4:{"**:*:chng":null}}}
 ```
 
 ### `.broker:clients`
@@ -260,8 +259,8 @@ reconnection request.
 It is desirable to be able to access clients directly without mounting them on a
 specific path. This helps with their identification by administrators. This is
 done by automatically mounting them in `.broker/client/<clientId>`. This
-mount won't be reported by `.broker:mountPoints` method, nor it should be
-the mount point reported in `.broker:cientInfo`. And due to not being mount
+mount won't be reported by `.broker:mounts` method, nor it should be
+the mount point reported in `.broker:clientInfo`. And due to not being mount
 point it also can't support signal messages.
 
 The access to this path should be allowed only to the broker administrators. The

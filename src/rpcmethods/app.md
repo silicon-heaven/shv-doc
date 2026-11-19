@@ -1,9 +1,9 @@
 # Application API
 
-These are methods that are required for every device to be present on its SHV
-path `".app"`. Clients do not have to implement these, but their implementation
-is highly suggested if they are supposed to be connected to the broker for more
-than just a few requests.
+These are methods that are required for every mounted client to be present on
+its SHV path `".app"`. Clients do not have to implement these in case they will
+never be mounted, but their implementation is highly suggested if they are
+supposed to be connected to the broker for more than just a few requests.
 
 ## `.app:shvVersionMajor`
 
@@ -17,7 +17,7 @@ interested just in this number.
 
 ```
 => <id:42, method:"shvVersionMajor", path:".app">i{}
-<= <id:42>i{2:0}
+<= <id:42>i{2:3}
 ```
 
 ## `.app:shvVersionMinor`
@@ -32,7 +32,7 @@ these additions you can use this number.
 
 ```
 => <id:42, method:"shvVersionMinor", path:".app">i{}
-<= <id:42>i{2:1}
+<= <id:42>i{2:0}
 ```
 
 ## `.app:name`
@@ -57,7 +57,7 @@ implementation used in the application.
 
 This method must provide the application version, or at least the SHV
 implementation used in the application (must be consistent with information in
-`.app:appName`).
+`.app:name`).
 
 ```
 => <id:42, method:"version", path:".app">i{}

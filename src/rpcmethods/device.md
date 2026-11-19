@@ -1,11 +1,11 @@
 # Device API
 
 Device is a special application that represents a single physical device. It is
-benefical to see the difference between random application and application that
+beneficial to see the difference between random application and application that
 runs in dedicated device and controls such device. This allows generic
 identification of such devices in the SHV tree.
 
-The call to `:ls(".app")` can be used to identify application as being a
+The call to `:ls(".device")` can be used to identify application as being a
 device.
 
 ## `.device:name`
@@ -26,13 +26,13 @@ device.
 
 | Name      | SHV Path  | Flags  | Param Type | Result Type | Access |
 |-----------|-----------|--------|------------|-------------|--------|
-| `version` | `.device` | Getter |            | `s`         | Browse |
+| `version` | `.device` | Getter |            | `s\|n`      | Browse |
 
 This method can provide version (revision) of the device. It is allowed
 to provide *Null* in case there is no revision assigned to this device.
 
 ```
-=> <id:42, method:"name", path:".device">i{}
+=> <id:42, method:"version", path:".device">i{}
 <= <id:42>i{2:"g2"}
 ```
 
@@ -57,7 +57,7 @@ assigned to this device.
 |----------|-----------|--------|------------|------------|--------|
 | `uptime` | `.device` | Getter |            | `u\|n`     | Read   |
 
-This provide current device's uptime in seconds. It is allowed to provide *Null*
+This provides current device's uptime in seconds. It is allowed to provide *Null*
 in case device doesn't track its uptime.
 
 ```
@@ -106,8 +106,8 @@ Every alert is *IMap* with following fields:
   * Error: from 43 to 63. These should be used for issues affecting the primary
     functionality of the device.
 * `2` (*id*): string with notice identifier. This identifier should be chosen to
-  be unique for not for the single device but also between devices. It should be
-  short but at the same time precise and unique. The benefit is human
+  be unique not just for the single device but also between devices. It should
+  be short but at the same time precise and unique. The benefit is human
   readability. This ID then should be used in device's manual.
 * `3` (*info*): any SHV value that provides additional info. This is optional
   field that can be used to pass some additional info related to the alert. The

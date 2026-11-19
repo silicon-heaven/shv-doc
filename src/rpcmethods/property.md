@@ -5,14 +5,14 @@ path. The value can be received, optionally modified and its change can be
 signaled.
 
 The type of the property depends on the presence of the methods. The following
-table 
+table demonstrates the naming convention:
 
 |                                 | `*:get` | `*:get:*chng` | `*:set` |
 |---------------------------------|---------|---------------|---------|
-| Read only                       | ✔️       | ❌            | ❌      |
-| Read only with signaled change  | ✔️       | ✔️             | ❌      |
-| Read-write                      | ✔️       | ❌            | ✔️       |
-| Read-write with signaled change | ✔️       | ✔️             | ✔️       |
+| Read only                       | ✔️      | ❌            | ❌      |
+| Read only with signaled change  | ✔️      | ✔️            | ❌      |
+| Read-write                      | ✔️      | ❌            | ✔️      |
+| Read-write with signaled change | ✔️      | ✔️            | ✔️      |
 
 ## `*:get`
 
@@ -27,11 +27,11 @@ can be considered as property node.
 Integer argument is maximal age in milliseconds. Value can be of any age if
 *Null* parameter is used (or omitted). The age is relevant when latest value
 must be received over some other medium (such as from Modbus) and thus every
-request would trigger a new exchange. Instead if latest exchange was withing
+request would trigger a new exchange. Instead if latest exchange was within
 specified age the value can be served from cache.
 
 ```
-=> <id:42, mtehod:"get", path:"test/property">i{}
+=> <id:42, method:"get", path:"test/property">i{}
 <= <id:42>i{2:"hello"}
 ```
 ```

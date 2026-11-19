@@ -29,7 +29,7 @@ functionality.
 These are standalone server applications implementing SHV RPC History
 functionality. They aggregate history logs.
 
-No standalone implementation that fulfils the SVH 3.0 requirements is available,
+No standalone implementation that fulfils the SHV 3.0 requirements is available,
 yet (07.2024).
 
 

@@ -82,11 +82,11 @@ Examples of `dir` requests:
 
 ```
 => <id:42, method:"dir", path:"">i{}
-<= <id:42>i{2:[i{1:"dir", 2:0, 3:"idir", 4:"odir", 5:1},i{1:"ls", 2:0, 3:"ils", 4:"ols", 5:1, 6:{"lsmod":"olsmod"}}]}
+<= <id:42>i{2:[i{1:"dir", 2:0, 3:"n|b|s", 4:"[!dir]|b", 5:1},i{1:"ls", 2:0, 3:"s|n", 4:"[s]|b", 5:1, 6:{"lsmod":"{b}"}}]}
 ```
 ```
 => <id:43, method:"dir", path:"test/path">i{1:false}
-<= <id:43>i{2:[i{1:"dir", 2:0, 3:"idir", 4:"odir", 5:1},i{1:"ls", 2:0, 3:"ils", 4:"ols", 5:1, 6:{"lsmod":"olsmod"}},{1:"get", 2:2, 3:"iget", 4:"String", 5:8, 6:{"chng":null}}]}
+<= <id:43>i{2:[i{1:"dir", 2:0, 3:"n|b|s", 4:"[!dir]|b", 5:1},i{1:"ls", 2:0, 3:"s|n", 4:"[s]|b", 5:1, 6:{"lsmod":"{b}"}},{1:"get", 2:2, 3:"!get", 4:"?", 5:8, 6:{"chng":null}}]}
 ```
 ```
 => <id:44, method:"dir", path:"test/path">i{1:"get"}

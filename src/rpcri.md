@@ -3,7 +3,7 @@
 This is definition of Resource Identifiers for SHV RPC. SHV has two types of
 resources; those are methods and signals.
 
-Resource identifiers are human readable and are used thorough this
+Resource identifiers are human readable and are used throughout this
 documentation as well as in the broker's signal filtering. They can also be used
 by other tools.
 

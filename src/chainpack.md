@@ -1,6 +1,6 @@
 # ChainPack
 
-ChainPack is binary data format that caries type information with data. It is
+ChainPack is binary data format that carries type information with data. It is
 designed to be read and written in streams.
 
 Note that different implementations can have different limitations on data
@@ -206,27 +206,27 @@ Double-precision floating-point as defined in IEEE 754-2008 in little-endian.
 
 ### Decimal
 Exponential number of base 10 is packed as two **Int** types (without *packing
-schema*) where first is the mantisa and second is exponent (`mantisa *
+schema*) where first is the mantissa and second is exponent (`mantissa *
 10^exponent`). The second **Int** (exponent) can also be special value `0xff`
 (also use as **TERM**) to encode special values.
 
 ```
 +------+---       ---+---         ---+
-| 0x8c | Int mantisa | Int exponent |
+| 0x8c | Int mantissa | Int exponent |
 +------+---       ---+---         ---+
 ```
 
 The special values when exponent is `0xff`:
-* `mantisa == 1` is positive infinity (`+INF`)
-* `mantisa == -1` is negative infinity (`-INF`)
-* `matinsa == 0` is quiet NaN (`qNaN`)
-* `mantisa == 2` is signaling NaN (`sNaN`)
-* Other values of mantisa are reserved
+* `mantissa == 1` is positive infinity (`+INF`)
+* `mantissa == -1` is negative infinity (`-INF`)
+* `mantissa == 0` is quiet NaN (`qNaN`)
+* `mantissa == 2` is signaling NaN (`sNaN`)
+* Other values of mantissa are reserved
 
 
 ### Blob
 Blob is sent with **UInt** (without *packing schema*) prefixed that specifies
-number of data bytes. The data should be sent in little-endian.
+number of data bytes.
 
 ```
 +------+---       ---+---      ---+
@@ -236,7 +236,7 @@ number of data bytes. The data should be sent in little-endian.
 
 Example:
 ```
-"fpowf\u0000sapofkpsaokfsa":  10001010|00010100|01100110|01110000|01101111|01110111|01100110|00000000|01110011|01100001|01110000|01101111|01100110|01101011|01110000|01110011|01100001|01101111|01101011|01100110|01110011|01100001
+"fpowf\u0000sapofkpsaokfsa":  10000101|00010100|01100110|01110000|01101111|01110111|01100110|00000000|01110011|01100001|01110000|01101111|01100110|01101011|01110000|01110011|01100001|01101111|01101011|01100110|01110011|01100001
 ```
 
 ### BlobChain
@@ -253,8 +253,7 @@ length.
 
 ### String
 UTF-8 encoded string. It is sent with **UInt** (without *packing schema*)
-prefixed that specifies number of data bytes (not characters!). The data must be
-sent in little-endian.
+prefixed that specifies number of data bytes (not characters!).
 
 ```
 +------+-------------+------------+
@@ -264,7 +263,7 @@ sent in little-endian.
 
 Example:
 ```
-"fpowf":  10001010|00000101|01100110|01110000|01101111|01110111|01100110
+"fpowf":  10000110|00000101|01100110|01110000|01101111|01110111|01100110
 ```
 
 ### CString
@@ -280,7 +279,7 @@ byte inside because there is no escaping of it available.
 
 Example:
 ```
-"fpowf":  10001110|00000101|01100110|01110000|01101111|01110111|01100110|00000000
+"fpowf":  10001110|01100110|01110000|01101111|01110111|01100110|00000000
 ```
 
 ### DateTime
@@ -333,7 +332,7 @@ terminate with **TERM** (`0xff`).
 Example:
 ```
 ["a",123,true,[1,2,3],null]
-10001100|10001010|00000001|01100001|10000110|01000000|01111011|10000011|10001100|01000001|01000010|01000011|11111111|10000100|11111111
+10001000|10000110|00000001|01100001|10000010|10000000|01111011|11111110|10001000|01000001|01000010|01000011|11111111|10000000|11111111
 ```
 
 ### Map
@@ -350,9 +349,9 @@ last pair must be followed by **TERM** (`0xff`) that terminates the **Map**.
 Example:
 ```
 {"bar":2,"baz":3,"foo":1}
-10001101|00000011|01100010|01100001|01110010|01000010|00000011|01100010|01100001|01111010|01000011|00000011|01100110|01101111|01101111|01000001|11111111
+10001001|10000110|00000011|01100010|01100001|01110010|01000010|10000110|00000011|01100010|01100001|01111010|01000011|10000110|00000011|01100110|01101111|01101111|01000001|11111111
 {"bar":2,"baz":3,"foo":[11,12,13]}
-10001101|00000011|01100010|01100001|01110010|01000010|00000011|01100010|01100001|01111010|01000011|00000011|01100110|01101111|01101111|10001100|01001011|01001100|01001101|11111111|11111111
+10001001|10000110|00000011|01100010|01100001|01110010|01000010|10000110|00000011|01100010|01100001|01111010|01000011|10000110|00000011|01100110|01101111|01101111|10001000|01001011|01001100|01001101|11111111|11111111
 ```
 
 ### IMap
@@ -369,7 +368,7 @@ pair must be followed by **TERM** (`0xff`) that terminates the **IMap**.
 Example:
 ```
 i{1:"foo",2:"bar",333:15}
-10001110|00000001|10001010|00000011|01100110|01101111|01101111|00000010|10001010|00000011|01100010|01100001|01110010|10000001|01001101|01001111|11111111
+10001010|01000001|10000110|00000011|01100110|01101111|01101111|01000010|10000110|00000011|01100010|01100001|01110010|10000010|10000001|01001101|01001111|11111111
 ```
 
 Notice that keys are of type **Int** not **UInt**!

@@ -17,7 +17,7 @@ CAN-FD has the following abilities:
 CAN(-FD) supports different types of the frames:
 * Data frames: regular frames used to transfer data in blocks of 0, 1, 2, 3, 4,
   5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64 bytes.
-* Remote request frames: frame that caries no data and data length (`0x0` -
+* Remote request frames: frames that carry no data and data length (`0x0` -
   `0xf`) is just informative.
 
 CAN bus is designed for control applications but SHV RPC is rather configuration
