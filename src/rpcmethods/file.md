@@ -228,6 +228,9 @@ such as only increase is allowed, or maximal size of the file.
 |----------|----------|-------|------------|-------------|--------|
 | `append` | Any      |       | `b`        |             | Write  |
 
+| ❗ This method is not idempotent while not implementing *notIdempotent* protocol. Do not implement it in this version of standard. |
+|------------------------------------------------------------------------------------------------------------------------------------|
+
 Append is a optional special way to perform write by always appending to the end
 of the file. Append can be provided even if `*:write` is not and other way
 around.  `*:truncate` also doesn't have to be implemented, append is always

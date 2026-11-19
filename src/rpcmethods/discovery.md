@@ -41,11 +41,10 @@ The method info in *IMap* must contain these fields:
     going to be large. This exists to signal that by calling this method you can
     block the connection for considerable amount of time.
   * `16` (*notIdempotent*, `1 << 4`) specifies that method is not idempotent.
-    Such method can't be simply called but instead needs to be called first
-    without parameter to get unique submit ID that needs to be used in argument
-    for real call. This unique submit ID prevents from same request being
-    handled multiple times because first execution will invalidate the submit ID
-    and thus prevents re-execution.
+    Such method can't be simply called but instead needs to be called first to
+    get unique submit ID that needs to be used for real call. This unique submit
+    ID prevents from same request being handled multiple times because first
+    execution will invalidate the submit ID and thus prevents re-execution.
   * `32` (*userIDRequired*, `1 << 5`) specifies that method requires UserID to
     be called. Calling this method without it should result in `UserIDRequired`
     error.
@@ -76,7 +75,7 @@ The method info in *IMap* must contain these fields:
   result type (of
   course field `4` must be defined).
 * `63` (*extra*): extra *Map* that can contain anything you want. It is provided
-  only if `true` is passed as argument and can be used to provide additional
+  only if `true` is passed as parameter and can be used to provide additional
   implementation specific info for this method.
 
 Examples of `dir` requests:
@@ -99,7 +98,7 @@ Examples of `dir` requests:
 ```
 
 The previous version (before SHV RPC 3.0) supported both *Null* and *String* but
-provided *Map* instead of *IMap*. The *String* argument also always provided
+provided *Map* instead of *IMap*. The *String* parameter also always provided
 list (with one or no maps). Even older implementations provided list of lists
 `[[name, signature, flags, description],...]`. Clients that do want to fully
 support all existing devices should support both of the old representations as
@@ -149,7 +148,7 @@ Examples of ls requests:
 <= <id:45>i{2:false}
 ```
 
-The previous versions (before SHV RPC 0.1) supported *Null* argument but not
+The previous versions (before SHV RPC 0.1) supported *Null* parameter but not
 *String*, instead it supported list with *String* and *Int*. This variant is
 discouraged to be used by new clients. The *Null* variant is fully backward
 compatible.
