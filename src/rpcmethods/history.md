@@ -80,11 +80,16 @@ The provided records should be sorted according to the `TimeStamp` field `1`
 either in ascending order if `Since` < `Until` or descending order
 if `Until` < `Since`.
 
+#### Access control
+
 The method itself has only `Browse` access level but it must filter provided
 logs based on their access level and thus user with low access level might not
-see all that is provided. Note that it is not possible to decrease access level
-of the user for some part of the SHV tree because he could always ask the upper
-node where his access level is high enough and logs would be provided.
+see all that is provided.
+
+Be aware that method performs recursive logs fetch. This means that access can't
+be reduced for subtree. If user gets higher access to the node then it
+inherently has that access level for all logs associated with nodes bellow that
+node as well. Be aware of that when configuring broker access rules.
 
 #### Provisional entries
 
@@ -163,6 +168,8 @@ The parameter is an *IMap* containing the following fields:
 The snapshot includes a list of records representing the state of every value
 under the getLog SHV path at `Time`. This feature is primarily used to retrieve
 the entire device state as it existed at the given moment.
+
+The same access control rules must be applies as for `.history/**:getLog`.
 
 ### `.history/**/.records/*`
 
