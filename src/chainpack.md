@@ -47,14 +47,14 @@ Represented just with its *packing schema*, no additional bytes are expected.
 Represented with either **TRUE** or **FALSE** *packing schema*. There are no
 additional bytes expected after it.
 
-True:
+False:
 ```
 +------+
 | 0xfd |
 +------+
 ```
 
-False:
+True:
 ```
 +------+
 | 0xfe |
