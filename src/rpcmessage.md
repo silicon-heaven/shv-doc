@@ -101,7 +101,7 @@ Attributes:
 | `RevCallerIds` | no       | broker's reverse path identifier can be removed from the list | If tunneling or multi-part message is needed                    |
 | `Access`       | no       | set and modified                                              | Must be kept in sync with `AccessLevel` or not specified at all |
 | `AccessLevel`  | no       | set and modified                                              | Broker always only reduces the already present value            |
-| `UserId`       | no       | appended if present                                           | Append to non-zero string with comma                            |
+| `UserId`       | no       | appended if present                                           | Append to non-zero string with semicolons                       |
 
 Keys (only one can be used in the single message):
 
