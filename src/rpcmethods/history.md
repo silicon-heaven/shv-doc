@@ -169,7 +169,7 @@ The snapshot includes a list of records representing the state of every value
 under the getLog SHV path at `Time`. This feature is primarily used to retrieve
 the entire device state as it existed at the given moment.
 
-The same access control rules must be applies as for `.history/**:getLog`.
+The same access control rules must be applied as for `.history/**:getLog`.
 
 ### `.history/**/.records/*`
 
