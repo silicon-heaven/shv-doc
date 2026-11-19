@@ -19,12 +19,12 @@ RPC messages have these meta-data attributes defined.
 | 10                | Method/Signal        | String             | Name of called RPC method or raised signal.
 | 11                | CallerIds            | List of Int or Int | Internal attribute filled by broker in request message to distinguish requests with the same request ID, but issued by different clients.
 | 13                | RevCallerIds         | List of Int or Int | Reserved for SHV v2 broker compatibility
-| 14                | Access               | String             | Access granted by broker for called `shvPath` and `method` to current user. This should be used only for extra access info and for backward compatibility while `AccessLevel` is prefered instead.
+| 14                | Access               | String             | Access granted by broker for called `shvPath` and `method` to current user. This should be used only for extra access info and for backward compatibility while `AccessLevel` is preferred instead.
 | 16                | UserId               | String             | ID of user calling RPC method.
 | 17                | AccessLevel          | Int                | Access level user has assigned for request or minimal access level needed to allow signal to be received.
 | 18                | SeqNo                | Int                | Reserved, it will be used in next API version for multi-part messages   <https://github.com/silicon-heaven/libshv/wiki/multipart-messages>
 | 19                | Source               | String             | Used for signals to store method name this signal is associated with.
-| 20                | Repeat               | Bool               | Used for signals to informat that signal was emited as a repeat of some older ones (that might not might not have been sent).
+| 20                | Repeat               | Bool               | Used for signals to indicate that signal was emitted as a repeat of some older ones (that might not have been sent).
 
 Second part of RPC message is `IMap` with following possible keys. RPC message
 is invalid when more than one key is present.
@@ -51,14 +51,14 @@ The `ShvPath` is used to select exact node of method in the SHV tree.
 
 `AccessLevel` is the way to specify access level. It is numerical with
 predefined range (0-63) and brokers on the way can lower this number to even
-further limit access. Broker are prohibited to increase this number. `Access`
+further limit access. Brokers are prohibited to increase this number. `Access`
 should be used to get level if this field is not present. *Admin* access level
 should be considered as the base limit if neither `AccessLevel` nor `Access`
 field is present.
 
 `UserId` is string containing information about the login names and the
 broker names along the RPC message path through the brokers hierarchy. The format
-is`user-name1:broker-name1;user-name2:broker-name2;...`, for example:
+is `user-name1:broker-name1;user-name2:broker-name2;...`, for example:
 `john@foo.bar:broker1;broker1-login:broker2`. User name and broker name is delimited by `:`,
 user:broker pairs are delimited by ';'.
 
@@ -101,14 +101,14 @@ Attributes:
 | `RevCallerIds` | no       | broker's reverse path identifier can be removed from the list | If tunneling or multi-part message is needed                    |
 | `Access`       | no       | set and modified                                              | Must be kept in sync with `AccessLevel` or not specified at all |
 | `AccessLevel`  | no       | set and modified                                              | Broker always only reduces the already present value            |
-| `UserId`       | no       | appended if present                                           | Append to non-zero string with comma                            |
+| `UserId`       | no       | appended if present                                           | Append to non-zero string with semicolons                       |
 
 Keys (only one can be used in the single message):
 
 | Key name  | Required   | Note
 | --------- | ---------- | -----
-| `Param`  | no         | Any valid [RPC Value](rpcvalue.md)
-| `Abort`   | yes        | [Bool](./rpcvalue.md) where `true` forces abort and `false` only immediate Reponse (thus it can be `Delay`).
+| `Param`   | no         | Any valid [RPC Value](rpcvalue.md)
+| `Abort`   | yes        | [Bool](./rpcvalue.md) where `true` forces abort and `false` only immediate Response (thus it can be `Delay`).
 
 **Examples**
 
@@ -122,8 +122,8 @@ RPC call invocation, method `switchLeft` on path `test/pme/849V` with request ID
 
 Response to [Request](#request). The response should be generated as soon
 as possible. If some work has to be performed before full response can be
-generated then [Response Delay](#responsedelay) can be sent in reasonable
-intervals, until Result or Error is prepared.
+generated then response Delay can be sent in reasonable intervals, until Result
+or Error is prepared.
 
 Attributes:
 
@@ -158,7 +158,7 @@ Error codes:
 | -----: | -------                       | ----------
 | 1      |                               | Reserved for backward compatibility
 | 2      | `MethodNotFound`              | The method does not exist or is not available or not accessible with given access level.
-| 3      | `InvalidParam`               | Invalid method parameter.
+| 3      | `InvalidParam`                | Invalid method parameter.
 | 4      |                               | Reserved for backward compatibility
 | 5      |                               | Reserved for backward compatibility
 | 6      | `ImplementationReserved1`     | Won't ever be used in the communication and is reserved for implementations usage (such as signaling method timeout)
@@ -180,7 +180,7 @@ Successful response to method call from example above
 ```
 Exception when unknown method is called
 ```
-<1:1,8:11>i{3:i{1:8,2:"method: foo path:  what: Method: 'foo' on path 'shv/cze' doesn't exist"}}
+<1:1,8:11>i{3:i{1:2,2:"method: foo path:  what: Method: 'foo' on path 'shv/cze' doesn't exist"}}
 ```
 
 ## Signal
@@ -190,15 +190,15 @@ It is used mainly notify clients that some technological value had changed witho
 
 Attributes:
 
-| Attribute     | Required | Broker propagation                     | Note                                                                             |
-|---------------|----------|----------------------------------------|----------------------------------------------------------------------------------|
-| `MetaTypeId`  | yes      | copied                                 |                                                                                  |
-| `ShvPath`     | yes      | mouint point of the source is prefixed |                                                                                  |
-| `Signal`      | no       | copied                                 | If not specified `"chng"` is assumed                                             |
-| `Source`      | no       | copied                                 | If not specified `"get"` is assumed)                                             |
-| `AccessLevel` | no       | copied                                 | Used to decide signal propagation on brokers, if not specified *Read* is assumed |
-| `UserId`      | no       | copied                                 |                                                                                  |
-| `Repeat`      | no       | copied                                 | If not specified `false` is assumed                                              |
+| Attribute     | Required | Broker propagation                    | Note                                                                             |
+|---------------|----------|---------------------------------------|----------------------------------------------------------------------------------|
+| `MetaTypeId`  | yes      | copied                                |                                                                                  |
+| `ShvPath`     | yes      | mount point of the source is prefixed |                                                                                  |
+| `Signal`      | no       | copied                                | If not specified `"chng"` is assumed                                             |
+| `Source`      | no       | copied                                | If not specified `"get"` is assumed                                              |
+| `AccessLevel` | no       | copied                                | Used to decide signal propagation on brokers, if not specified *Read* is assumed |
+| `UserId`      | no       | copied                                |                                                                                  |
+| `Repeat`      | no       | copied                                | If not specified `false` is assumed                                              |
 
 Keys:
 

@@ -63,7 +63,7 @@ this are escaped in the message data.
 
 The transport error is detected if there is no byte received from other side for
 more than 5 seconds during the message transfer or when `STX` or `ATX` is
-received before `EXT` or if `CRC32` do not match received data (on channels with
+received before `ETX` or if `CRC32` do not match received data (on channels with
 possible corruption such as RS232 and not TCP/IP).
 
 Transport errors do not have to be handled explicitly because any subsequent

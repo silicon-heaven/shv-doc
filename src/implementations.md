@@ -1,7 +1,7 @@
 # Implementations
 
 This is the list of projects implementing at least ChainPack and/or CPON data
-formats. Most of the provide the abstraction on SHV RPC.
+formats. Most of them provide the abstraction on SHV RPC.
 
 ## C
 
@@ -18,7 +18,7 @@ Broker.
 ### [shv-libs4c](https://github.com/silicon-heaven/shv-libs4c)
 
 Implementation of ChainPack and CPON formats as well as SHV RPC device. It
-targets embedded OS ([NuttX](https://nuttx.apache.org). The aim is an easy
+targets embedded OS ([NuttX](https://nuttx.apache.org)). The aim is an easy
 exposure of SHV RPC API for embedded device. Compared to the SHVC the footprint
 is smaller with specific usage in mind. The generic RPC methods calling and RPC
 Broker are outside of the scope.
@@ -45,7 +45,7 @@ The additional applications are provided based on this library in
 
 ### [libshv-js](https://github.com/silicon-heaven/libshv-js)
 
-Implementation intended to be used in web browsers to access SVH RPC over
+Implementation intended to be used in web browsers to access SHV RPC over
 WebSocket. It provides SHV RPC message exchange functionality, but higher levels
 of SHV APIs integration is not provided.
 

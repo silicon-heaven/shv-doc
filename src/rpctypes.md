@@ -17,8 +17,8 @@ The general rules are:
   where they are interpreted as part of the unit text).
 * Numerical constants are decimal (hex nor bin are supported) with optional
   leading `-`. The leading `+` is not allowed. Integer numbers can also be
-  prefixed with either `^` or `>` (must be used after `-`). The `^` symbol can
-  be used if you need power of two number (`-^8` is `-256`). The `>` synbol can
+  prefixed with either `^` or `>` (after the leading sign). The `^` symbol can
+  be used if you need power of two number (`-^8` is `-256`). The `>` symbol can
   be used if you need power of two minus one (`->8` is `-255`). These extensions
   are provided as these numbers are common numerical limits in computers.
 * Some numerical constants are decimal point numbers. These do not support `^`
@@ -118,13 +118,13 @@ Examples:
 ```
 d                      dUNIT
 d(MIN,MAX)             d(MIN,MAX)UNIT
-d(MIN,MAX,PRECISSION)  d(MIN,MAX,PRECISSION)UNIT
+d(MIN,MAX,PRECISION)  d(MIN,MAX,PRECISION)UNIT
 ```
 
 The *Decimal* type that can optionally have range or range and precision
 specified as decimal point numerical constants. The precision is number of
 decimal points expected. The negative number can be also used for the
-precission. Any of the limits can be unspecified and in such case it is not
+precision. Any of the limits can be unspecified and in such case it is not
 applied.
 
 Type specifier can be followed by unit specification (`UNIT`).
@@ -136,7 +136,7 @@ Examples:
   precision of `0.01`. The unit is `%`.
 * `d(1000,2000,-2)` Decimal that can be from one thousands to two thousands in
   steps of hundred.
-* `d(,,2)` Decimal that can be any number but only with precission of `0.01`.
+* `d(,,2)` Decimal that can be any number but only with precision of `0.01`.
 
 ## String
 
@@ -255,9 +255,9 @@ be specified as well.
 
 Examples:
 
-* `i{d:date,i(0,63):level,s:id,?:info}` The description of standard
+* `i{t:date,i(0,63):level,s:id,?:info}` The description of standard
   alert as defined in [device API](./rpcmethods/device.md#devicealertsget).
-* `i{s:name:1,u[,isGetter,isSetter,largeResult,notIndempotent,userIDRequired]|n:flags,s|n:paramType,s|n:resultType,i(0,63):accessLevel,{s|n}:signals,{?}:extra:63}`
+* `i{s:name:1,u[b:isGetter:1,b:isSetter,b:largeResult,b:notIndempotent,b:userIDRequired,b:isUpdatable,b:longExecution]|n:flags,s|n:paramType,s|n:resultType,i(0,63):accessLevel,{s|n}:signals,{?}:extra:63}`
   The method info as defined in [discovery API](./rpcmethods/discovery.md#dir).
 
 ## Map
@@ -327,11 +327,10 @@ Examples:
 * `u[i[OK,STARTUP,ERROR]:status,b:debug]` The bitfield where two least
   significant bits are used to store value for enum (`0` is `OK`, `1` is
   `STARTUP` and `2` is `ERROR`), and the third bit is used to store boolean
-  `debug`. In total this is an unsigned integer with largest possible value 8
-  (three bits used).
-* `u[u(32):phase,u(24,32):outOf]` This is bitfield where least significant five
-  bits are used to store unsigned integer with value up to 32 and subsequent
-  three bits are used to store integer between 24 and 32. The total unsigned
+  `debug`. In total this is an unsigned integer with three bits used.
+* `u[u(31):phase,u(24,31):outOf]` This is bitfield where least significant five
+  bits are used to store unsigned integer with value up to 31 and subsequent
+  three bits are used to store integer between 24 and 31. The total unsigned
   integer size is 8 bits.
 
 ## One of types
@@ -372,7 +371,7 @@ descriptions.
 * `!dir` is one of results of [`*:dir` method](./rpcmethods/discovery.md#dir).
   Its expanded form is:
   ```
-  i{s:name:1,u[b:isGetter:1,b:isSetter,b:largeResult,b:notIndempotent,b:userIDRequired,b:isUpdatable]|n:flags,s|n:paramType,s|n:resultType,i(0,63):accessLevel,{s|n}:signals,{?}:extra:63}
+  i{s:name:1,u[b:isGetter:1,b:isSetter,b:largeResult,b:notIndempotent,b:userIDRequired,b:isUpdatable,b:longExecution]|n:flags,s|n:paramType,s|n:resultType,i(0,63):accessLevel,{s|n}:signals,{?}:extra:63}
   ```
 * `!get` is parameter of [`*:get` method](./rpcmethods/property.md#get).
   Its expanded form is:
@@ -388,7 +387,7 @@ descriptions.
   ```
 * `!clientInfo` is result of [`.broker:clientInfo`
   method](./rpcmethods/broker.md#brokerclientinfo), [`.broker:mountedClientInfo`
-  method](./rpcmethods/broker.md#brokermountedclientinfo), and ,
+  method](./rpcmethods/broker.md#brokermountedclientinfo), and
   [`.broker/currentClient:info`
   method](./rpcmethods/broker.md#brokercurrentclientinfo). Its expanded form is:
   ```
@@ -409,7 +408,7 @@ descriptions.
   [`.history/**:getLog` method](./rpcmethods/history.md#historygetlog). Its
   expanded form is:
   ```
-  [i{t|n:timestamp:1,i(0,)|n:ref,s|n:path,s|n:signal,s|n:source,?:value,s|n:userId,b|n:repeat,b|n:provisional,b|n:inaccurate,t|n:originalTimestamp}]
+  [i{t:timestamp:1,i(0,)|n:ref,s|n:path,s|n:signal,s|n:source,?:value,s|n:userId,b|n:repeat,b|n:provisional,b|n:inaccurate,t|n:originalTimestamp}]
   ```
 * `!getSnapshotP` is parameter for
   [`.history/**:getSnapshot` method](./rpcmethods/history.md#historygetsnapshot). Its
@@ -421,25 +420,13 @@ descriptions.
   [`.history/**:getSnapshot` method](./rpcmethods/history.md#historygetsnapshot). Its
   expanded form is:
   ```
-  [i{t:timestamp:1,s|n:path:3,s|n:signal,s|n:source,?:value,s|n:userId,b|n:repeat}]
-  ```
-* `!getSnapshotP` is parameter for
-  [`.history/**:getSnapshot` method](./rpcmethods/history.md#historygetsnapshot). Its
-  expanded form is:
-  ```
-  i{t|n:time:1,s|n:ri}
-  ```
-* `!getSnapshotR` is result of
-  [`.history/**:getSnapshot` method](./rpcmethods/history.md#historygetsnapshot). Its
-  expanded form is:
-  ```
-  [i{t:timestamp:1,s|n:path:3,s|n:signal,s|n:source,?:value,s|n:userId,b|n:repeat}]
+  [i{t|n:timestamp:1,s|n:path:3,s|n:signal,s|n:source,?:value,s|n:userId,b|n:repeat}]
   ```
 * `!historyRecords` is result of
   [`.history/**/.records/*:fetch`
   method](./rpcmethods/history.md#historyrecordsfetch). Its expanded form is:
   ```
-  [i{i[normal:1,keep,timeJump,timeAbig]:type,t:timestamp,s|n:path,s|n:signal,s|n:source,?:value,i(0,63)|n:accessLevel,s|n:userId,b|n:repeat,i(0,)|n:id,i(0,)|n:ref,i|n:timeJump:60}]
+  [i{i[normal:1,keep,timeJump,timeAbig]:type,t:timestamp,s|n:path,s|n:signal,s|n:source,?:value,i(0,63)|n:accessLevel,s|n:userId,b|n:repeat,i(0,)|n:id,i(0,)|n:ref,i|n:idref,i|n:timeJump:60}]
   ```
 * `!historySpan` is result of
   [`.history/**/.records/*:span`
@@ -454,13 +441,13 @@ descriptions.
 type             = bool | integer | unsigned integer | enum | double | decimal | string | blob | date time | list | tuple | imap | struct | map | keystruct | bitfield | one of | standard | any;
 
 bool             = "b";
-integer          = "i", ["(", [number], ",", [number], ")"], [unit];
-unsigned integer = "u", ["(", [positive number], ",", [positive number], ")"], [unit];
-enum             = "i", "[", enum item, {",", enum item}, "]"
+integer          = "i", ["(", [number], [",", [number]], ")"], [unit];
+unsigned integer = "u", ["(", [positive number], [",", [positive number]], ")"], [unit];
+enum             = "i", "[", enum item, {",", enum item}, "]";
 double           = "f", [unit];
 decimal          = "d", ["(", [decimal number], ",", [decimal number], [",", decimal number], ")"], [unit];
 string           = "s", ["(", [number], [",", number], ")"];
-blob             = "b", ["(", [number], [",", number], ")"];
+blob             = "x", ["(", [number], [",", number], ")"];
 date time        = "t";
 list             = "[", type, "]", ["(", [number], [",", [number]], ")"];
 tuple            = "[", key item, {",", key item}, "]";
@@ -469,17 +456,17 @@ struct           = "i", "{", ikey item, {",", ikey item}, "}";
 map              = "{", type, "}";
 keystruct        = "{", key item, {",", key item}, "}";
 bitfield         = "u", "[", ikey item, {",", ikey item}, "]";
-one of           = type - oneof, "|", type;
+oneof            = type - oneof, "|", type;
 standard         = "!", text;
-any              = "?";
+any              = "?", ["(", text, ")"];
 
 unit             = text;
 enum item        = text, [":", number];
 key item         = type, ":", text;
 ikey item        = type, ":", text, [":", number];
 decimal number   = ["-"], ({digit} | [digit] , [".", {digit}]);
-number           = "0" | ["^" | "<"], ["-"], digit - "0", {digit};
-positive number  = "0" | ["^" | "<"], digit - "0", {digit};
+number           = "0" | ["-"], ["^" | ">"], digit - "0", {digit};
+positive number  = "0" | ["^" | ">"], digit - "0", {digit};
 digit            = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
 text             = character, {character};
 character        = ? UTF-8 character ? - ("[" | "]" | "{" | "}" | "(" | ")" | ":" | "," | "|");

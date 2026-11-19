@@ -17,7 +17,7 @@ The base format is:
 URL = scheme ":" ["//" [username "@"] authority] [path] ["?" options]
 ```
 
-`options` is sequence of attribute-value pairs split by `=` an joined by
+`options` is sequence of attribute-value pairs split by `=` and joined by
 `&` (example: `password=test&devid=foo`). Generally supported options are:
 
 * `password`: Plain text password used to login to the server.
@@ -42,7 +42,7 @@ authority = host [":" port]
 The default `host` is `localhost` and `port` is `3755`. Any non-empty `path` is
 invalid as it has no meaning in IP.
 
-This uses TCP/IP with [Block transport layer](rpctransportlayer.md#block).
+This uses TCP/IP with [Block transport layer](rpctransportlayer/stream.md#block).
 
 
 ## TCP/IP serial protocol
@@ -56,7 +56,7 @@ This is variant of TCP/IP protocol. It is same except of used transport layer.
 Please refer to the previous section for more info. The only difference is the
 default `port` that is `3765`.
 
-This uses TCP/IP with [Serial transport layer](rpctransportlayer.md#serial).
+This uses TCP/IP with [Serial transport layer](rpctransportlayer/stream.md#serial).
 
 
 ## TCP/IP protocol with SSL
@@ -135,7 +135,7 @@ transport layer](rpctransportlayer/stream.md#serial).
 scheme = ("serial" | "tty")
 ```
 
-`path` needs to point to valit serial device. There is no default path and thus
+`path` needs to point to valid serial device. There is no default path and thus
 empty `path` is considered invalid. Any non-empty `authority` is also considered
 as invalid because it has no meaning.
 

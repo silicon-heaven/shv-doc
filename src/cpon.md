@@ -28,11 +28,11 @@ with JSON).
 Represented as **Int** with suffix `u` (e.g. `123u`, `0x20u`, `0b1001u`).
 
 ### Double
-Represented in scientific notation with `P` (or `p`) between significant and
+Represented in scientific notation with `P` (or `p`) between significand and
 exponent represented as **Int** (e.g.  `1.25p-2`, `-0.0625p3`, `0b1001p+2`).
 
 Tools generating CPON should prefer format `[-]0xh.hhhp[+|-]dd`, thus
-significant is normalized hexadecimal number and exponent is decimal.
+significand is normalized hexadecimal number and exponent is decimal.
 
 ### Decimal
 Represented as decimal numbers with decimal point (`.`) or in scientific E
@@ -87,7 +87,7 @@ sequences:
 | BS (backspace)       | `\b`            |
 | NUL (null character) | `\0`            |
 
-Octal, hexadecimal and Unicode escape sequences are not support (this is
+Octal, hexadecimal and Unicode escape sequences are not supported (this is
 incompatibility with JSON).
 
 Example: `"some\tstring"`
@@ -97,31 +97,31 @@ Represented as **String** with `d` prefix where string's value is date, time and
 optional time zone in ISO-8601 format (e.g. `d"2017-05-03T15:52:31.123"`)
 
 ### List
-Represented as sequence of other RPC values wrapped in `[]`. Th sequence is
+Represented as sequence of other RPC values wrapped in `[]`. The sequence is
 delimited by comma (`,`). The additional comma is allowed after last item (JSON
 incompatible).
 
-Examples: `[1 2 3]`, `[1,2,3,]`
+Examples: `[1, 2, 3]`, `[1,2,3,]`
 
 ### Map
 Represented as pairs of **String** key and RPC value delimited by colon (`:`).
-All pairs are wrapped in `{}` and delimited by comma (`,`). Contrary to JSON's
-objects comma after last pair is allowed.
+All pairs are wrapped in `{}` and delimited by commas (`,`). Unlike JSON,
+CPON allows a trailing comma after the last pair.
 
 Examples: `{"one": 1, "dec": 1.22,}`
 
 ### IMap
-Reprensented as pairs of **Int** key and RPC value delimited by colon (`:`). All
-pairs are wrapped in `{}` and delimited by comma (`,`). Contrary to JSON's
-object comma after past pair is allowed.
+Represented as pairs of **Int** key and RPC value delimited by colon (`:`). All
+pairs are wrapped in `i{}` and delimited by commas (`,`). Unlike JSON,
+CPON allows a trailing comma after the last pair.
 
-Examples: `{1: "one", 2: b"foo",}`
+Examples: `i{1: "one", 2: b"foo",}`
 
 ### MetaMap
 Represented as pairs of **String** or **Int** key and RPC value delimited by
-color (`:`). All pairs are wrapped in `<>` and delimited by comma (`,`). Comma
-after past pair is allowed. **MetaMap** can't be alone, it must be followed by
-some other RPC value (that is not **MetaMap**).
+colon (`:`). All pairs are wrapped in `<>` and delimited by commas (`,`).
+CPON allows a trailing comma after the last pair. **MetaMap** cannot appear
+alone; it must be followed by another RPC value (not a **MetaMap**).
 
 Example: `<1: "foo", "date": d"2017-05-03T15:52:31.123">42`
 

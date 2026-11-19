@@ -11,9 +11,9 @@ doesn't have to implement all of them:
 * Aggregated access to the logs on time bases, that is method
   `.history/**:getLog`.
 * Systematic retrieval of records (for other histories to use) by providing
-  appropriate methods bellow `.history/**/.records` nodes.
+  appropriate methods below `.history/**/.records` nodes.
 * Systematic retrieval of file logs (for other histories to use) by providing
-  appropriate nodes bellow  `.history/**/.files` nodes.
+  appropriate nodes below  `.history/**/.files` nodes.
 
 History can be implemented either directly as part of the application or it can
 be mounted to SHV RPC Broker. It **must** always be mounted in `.history` mount
@@ -39,9 +39,9 @@ but all paths recorded (or to be recorded) in single log must be provided.
 
 ### `.history/**:getLog`
 
-| Name     | SHV Path      | Flags           | Param Type | Result Type | Access |
-|----------|---------------|-----------------|------------|-------------|--------|
-| `getLog` | `.history/**` | HintLargeResult | `!getLogP` | `!getLogR`  | Browse |
+| Name     | SHV Path      | Flags       | Param Type | Result Type | Access |
+|----------|---------------|-------------|------------|-------------|--------|
+| `getLog` | `.history/**` | largeResult | `!getLogP` | `!getLogR`  | Browse |
 
 Queries logs for the recorded signals in given time range.
 
@@ -56,35 +56,40 @@ The parameter is an *IMap* containing the following fields:
 | --- | ----- | --------------                               | ----------------------
 | 1   | Since | DateTime\|Null                               | Defines the starting point for log retrieval. Records with a timestamp exactly matching this value are excluded, allowing seamless continuation from the last retrieved record. *Default:* The time at which the request is received.
 | 2   | Until | DateTime\|Null                               | Specifies the end point for log retrieval. Only records with a timestamp within the range `(Since, Until>` will be returned. If `Until` comes before `Since`, the interval becomes `<Until, Since)`. In such cases, log records are returned in **reverse order** (from newest to oldest). If there are too many log records matching the specified interval, the device may return fewer records and stop before reaching the `Until` timestamp. To retrieve all logs, send a follow-up request using the timestamp of the last returned record as the new `Since`. *Default:* The time at which the request is received.
-| 3   | Count | Int\|Null                                    | Limits the maximum number of records returned. The device can provide number of records it decides on, but sometimes it is desirable to lower this limit, for example, to a single record, and this option allows that. If multiple logs have the same timestamp, all must be included, even if this exceeds the limit.  *Default:* Unlimited. The snapshot is always returned complete regardless of the `Count` value specified.
+| 3   | Count | Int\|Null                                    | Limits the maximum number of records returned. The device can provide number of records it decides on, but sometimes it is desirable to lower this limit, for example, to a single record, and this option allows that. If multiple logs have the same timestamp, all must be included, even if this exceeds the limit.  *Default:* Unlimited.
 | 4   | Ri    | [RPC Resource Identifier](../rpcri.md)\|Null | Filters the results to include only signals matching the specified RI. Filter must be relative to `getLog` shv path. It is strongly recommended to call `getLog` using the most specific path possible instead of relying on the `Ri` field, as access permissions are determined by the request path. Using a shorter path may result in insufficient access rights. *Default:* Null, filter is off.
 
 
-The provided a value is list of *IMap*s with the following fields:
+The result is a list of *IMap*s with the following fields:
 
 | Key | Name              | Type           | Description
 | --- | ---------         | --------       | -------------------
 | 1   | TimeStamp         | DateTime       | Timestamp of the record. This is time relative to the current device time or the current time provided in the request.
-| 2   | Ref               | Int            | It provides a way to reference the previous record to use it as the value for `Path`, `Signal`, and `Source`. It is *Int* where `0` is the record right before this one in the list. The offset must always be to the most closest record that specifies desired values. This simplifies parsing because there is no need to remember every single received record, but only the latest unique ones. It is up to the implementation whether this is used or not. Simple implementations can choose to generate bigger messages and not use this field at all.
-| 3   | Path              | String         | SHV path to the node relative to the path `getLog` was called on. *Default:* empty path `""`.
-| 4   | Signal            | String         | Signal name. *Default:* `chng`.
-| 5   | Source            | String         | Signal's associated method name.  *Default:* `get`.
+| 2   | Ref               | Int\|Null      | It provides a way to reference the previous record to use it as the value for `Path`, `Signal`, and `Source`. It is an *Int*, where `0` refers to the immediately preceding record in the list. The offset must point to the nearest preceding record that specifies the desired values. This simplifies parsing because there is no need to remember every single received record, but only the latest unique ones. It is up to the implementation whether this is used or not. Simple implementations can choose to generate bigger messages and not use this field at all.
+| 3   | Path              | String\|Null   | SHV path to the node relative to the path `getLog` was called on. *Default:* empty path `""`.
+| 4   | Signal            | String\|Null   | Signal name. *Default:* `chng`.
+| 5   | Source            | String\|Null   | Signal's associated method name.  *Default:* `get`.
 | 6   | Value             | Any            | Signal's value (parameter).
 | 7   | UserId            | String\|Null   | `UserId` carried by signal message. *Default:* `null`.
-| 8   | Repeat            | Bool           | `Repeat` carried by signal message. *Default:* `false`.
-| 9   | Provisional       | Bool           | `True` when this entry comes from a [provisional](#provisional-entries) (a.k.a. dirty) log. *Default:* `false`.
-| 10  | Inaccurate        | Bool           | `True` if the record's timestamp might not be accurate because the record [occured before ambiguity](#inaccurate-timestamp). *Default:* `false`.
-| 11  | OriginalTimeStamp | DateTime\|Null | Original timestamp of the record. This is the time of the device creating the original log at the time of the log creation. This timestamp can't change if teh current time of the device changes. *Default*: `null`.
+| 8   | Repeat            | Bool\|Null     | `Repeat` carried by signal message. *Default:* `false`.
+| 9   | Provisional       | Bool\|Null     | `True` when this entry comes from a [provisional](#provisional-entries) (a.k.a. dirty) log. *Default:* `false`.
+| 10  | Inaccurate        | Bool\|Null     | `True` if the record's timestamp might not be accurate because the record [occurred before ambiguity](#inaccurate-timestamp). *Default:* `false`
+| 11  | OriginalTimeStamp | DateTime\|Null | Original timestamp of the record. This is the time of the device creating the original log at the time of the log creation. This timestamp can't change if the current time of the device changes. *Default*: `null`.
 
 The provided records should be sorted according to the `TimeStamp` field `1`
 either in ascending order if `Since` < `Until` or descending order
 if `Until` < `Since`.
 
+#### Access control
+
 The method itself has only `Browse` access level but it must filter provided
 logs based on their access level and thus user with low access level might not
-see all that is provided. Note that it is not possible to decrease access level
-of the user for some part of the SHV tree because he could always ask the upper
-node where his access level is high enough and logs would be provided.
+see all that is provided.
+
+Be aware that method performs recursive logs fetch. This means that access can't
+be reduced for subtree. If user gets higher access to the node then it
+inherently has that access level for all logs associated with nodes below that
+node as well. Be aware of that when configuring broker access rules.
 
 #### Provisional entries
 
@@ -105,9 +110,9 @@ to the timestamp of those entries.
 
 #### Inaccurate TimeStamp
 
-Usually the device has no mean to determine the time difference between
+Usually the device has no means to determine the time difference between
 the last record before ambiguity and the first after it. It may be seconds,
-days, even months. The logging facility might workaround this problem
+days, even months. The logging facility can work around this problem
 by placing the first record after ambiguity right after the last one
 and as a result ignoring the ambiguity at all. This means that these records
 before ambiguity may be incorrectly moved by a subsequent time jump and
@@ -116,9 +121,9 @@ thus provide inaccurate TimeStamp.
 #### Time shifting
 A `getLog` implementation must shift recorded times according to time jumps. It
 shouldn't modify times in time jump records. All previous records since the time
-jump up to the a time ambiguity record must be considered to be shifted
-by a time jump record. If there are multiple time jumps in between time
-ambiguity records, they are added together.
+jump up to the time ambiguity record must be considered shifted by a time jump
+record. If there are multiple time jumps in between time ambiguity records, they
+are added together.
 
 An optimal implementation of `getLog` for both records and files is to keep an
 index of modified times with references to a record ID or a file with an offset
@@ -132,9 +137,9 @@ only moves the whole blocks of consistent logs.
 
 #### Snapshot
 
-| Name     | SHV Path      | Flags           | Param Type | Result Type | Access |
-|----------|---------------|-----------------|------------|-------------|--------|
-| `getSnapshot` | `.history/**` | HintLargeResult | `!getSnapshotP` | `!getSnapshotR`  | Browse |
+| Name          | SHV Path      | Flags       | Param Type      | Result Type     | Access |
+|---------------|---------------|-------------|-----------------|-----------------|--------|
+| `getSnapshot` | `.history/**` | largeResult | `!getSnapshotP` | `!getSnapshotR` | Browse |
 
 Queries logs for the recorded signals at given point in time.
 
@@ -150,19 +155,21 @@ The parameter is an *IMap* containing the following fields:
 
 `!getSnapshotR` is defined as list of *IMap*s with following fields:
 
-| Key | Name      | Type     |                     |
-| --- | --------- | -------- | ------------------- |
-| 1   | TimeStamp | DateTime | Timestamp of the record. This field is optional depending on ability of device to provide it. |
-| 3   | Path      | String   | SHV path to the node relative to the path `getLog` was called on. *Default:* empty path `""`. |
-| 4   | Signal    | String   | Signal name. *Default:* `chng`. |
-| 5   | Source    | DateTime | Signal's associated method name.  *Default:* `get`. |
-| 6   | Value     | Any      | Signal's value (parameter). |
-| 7   | UserId    | String   | `UserId` carried by signal message. *Default:* `null`. |
-| 8   | Repeat    | Bool     | `Repeat` carried by signal message. *Default:* `False`. |
+| Key | Name      | Type           |                                                                                                    |
+| --- | --------- | --------       | -------------------                                                                                |
+| 1   | TimeStamp | DateTime\|Null | Timestamp of the record. This field is optional depending on ability of device to provide it.      |
+| 3   | Path      | String\|Null   | SHV path to the node relative to the path `getSnapshot` was called on. *Default:* empty path `""`. |
+| 4   | Signal    | String\|Null   | Signal name. *Default:* `chng`.                                                                    |
+| 5   | Source    | String\|Null   | Signal's associated method name.  *Default:* `get`.                                                |
+| 6   | Value     | Any            | Signal's value (parameter).                                                                        |
+| 7   | UserId    | String\|Null   | `UserId` carried by signal message. *Default:* `null`.                                             |
+| 8   | Repeat    | Bool\|Null     | `Repeat` carried by signal message. *Default:* `False`.                                            |
 
 The snapshot includes a list of records representing the state of every value
-under the getLog SHV path at `Time`. This feature is primarily used to retrieve
-the entire device state as it existed at the given moment.
+under the `getSnapshot` SHV path at `Time`. This feature is primarily used to
+retrieve the entire device state as it existed at the given moment.
+
+The same access control rules must be applied as for `.history/**:getLog`.
 
 ### `.history/**/.records/*`
 
@@ -173,14 +180,14 @@ records but it doesn't have to be sequential (there can be unused IDs).
 Other history implementations can take ID of their latest record and fetch
 everything from it to correctly synchronize.
 
-The implementation backed in not specified but records based access matches well
+The implementation backed is not specified but records-based access matches well
 storage such as database or cyclic buffer.
 
 #### `.history/**/.records/*:fetch`
 
-| Name    | SHV Path                 | Flags           | Param Type                   | Result Type       | Access  |
-|---------|--------------------------|-----------------|------------------------------|-------------------|---------|
-| `fetch` | `.history/**/.records/*` | HintLargeResult | `[i:offset,i(0,):count]` | `!historyRecords` | Service |
+| Name    | SHV Path                 | Flags       | Param Type               | Result Type       | Access  |
+|---------|--------------------------|-------------|--------------------------|-------------------|---------|
+| `fetch` | `.history/**/.records/*` | largeResult | `[i:offset,i(0,):count]` | `!historyRecords` | Service |
 
 This allows you to fetch records from log.
 
@@ -191,7 +198,7 @@ The call provides list of records. The number of records is at maximum requested
 number but less amount of records can be returned either due to device
 limitations or ID holes (IDs without any associated records). To ensure that all
 records in the requested range are fetched you should take *id* of the last
-provided record use it as offset.
+provided record plus one and use it as offset.
 
 Every record is *IMap* with following fields:
 * `0`(*type*): *Int* signaling record type:
@@ -221,7 +228,6 @@ Every record is *IMap* with following fields:
   not specified is `"get"`.
 * `5`(*value*): with signal's value (parameter). The default if not specified is
   `null`.
-  specified is `null`.
 * `6`(*accessLevel*): *Int* with signal's access level. The default if not
   specified is *Read*.
 * `7`(*userId*): *String* with `UserId` carried by signal message. The default
@@ -233,12 +239,12 @@ Every record is *IMap* with following fields:
   not provided is the *id* of previous provided record plus one. The default of
   the first record is the *offset* parameter.
 * `10` (*ref*): obsolete variant of *idref*. The difference is that offset is
-  relative to the index of the record in the list. *idref* is preffered instead
+  relative to the index of the record in the list. *idref* is preferred instead
   because it allows referencing records outside of the provided list.
 * `11` (*idref*): *Int* with offset for the *id* to the older matching record.
   This must always be the closest matching record. For *normal* and *keep*
   records this is matching combination of *path*, *signal*, *source*, and
-  *accessLevel*. For *timeJump* and *timeAbiq* records, this is the closest older
+  *accessLevel*. For *timeJump* and *timeAbig* records, this is the closest older
   record of either type. The fields *type*, *path*, *signal*, *source*, and
   *accessLevel* can be left out in case the referenced record is in the same
   list (same method invocation). The value `0` is special (points to itself) and
@@ -271,7 +277,7 @@ This method provides List with the following items:
   for some time. It allows of fetching the full log state without going through
   the whole history. 
 * The fourth optional item is *Int* with ID of the newest *timeJump* or
-  *timeAbiq* record. In combination with *idref* in
+  *timeAbig* record. In combination with *idref* in
   `.history/**/.records/*:fetch` method this provides a way for following a real
   time modifications in the records.
 
@@ -317,7 +323,7 @@ expected to have *Map* while rest should be *iMap*s.
 The first line in the log file is *Map* with these fields:
 * `"logVersion"` that right now should be set to `3.0` and thus must be
   *Decimal*.
-* `"timeJump"`is the optional `true` or *Int* with the offset in seconds that
+* `"timeJump"` is the optional `true` or *Int* with the offset in seconds that
   should be applied to all log files before this one. This thus not specify
   offset of times in this file but times recorded in files so far. The `true` is
   used for ambiguity time jumps. This is used when time desynchronization is
@@ -350,9 +356,9 @@ following fields:
 
 ### `.history/**/.records/*:sync` and `.history/**/.files/*:sync`
 
-| Name       | SHV Path                                           | Flags | Param Type | Result Type | Access       |
-|------------|----------------------------------------------------|-------|------------|-------------|--------------|
-| `lastSync` | `.history/**/.records/*` or `.history/**/.files/*` |       |            |             | SuperService |
+| Name   | SHV Path                                           | Flags | Param Type | Result Type | Access       |
+|--------|----------------------------------------------------|-------|------------|-------------|--------------|
+| `sync` | `.history/**/.records/*` or `.history/**/.files/*` |       |            |             | SuperService |
 
 Trigger the synchronization manually right now.
 
@@ -417,7 +423,7 @@ RECORD - but not this record
 
 The only exception is in the unlikely event where logs before an ambiguity have
 a time-jump such that logs would be in the future relative to the logs after the
-time ambiguity. and in such case a time shift is introduced to move logs before
+time ambiguity. And in such case a time shift is introduced to move logs before
 the time ambiguity event to be right before logs after the time ambiguity event.
 This can really happen only if someone sets date and time in the future, then
 powers down the device, resets the RTC and sets the correct date and time after

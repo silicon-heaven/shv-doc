@@ -2,9 +2,9 @@
 
 SHV RPC is a protocol that allows remote control, data collection and general
 supervision on multiple devices. It tries to land middle ground between "feature
-rich" and "minimal and simple". It archives it by breaking different
-responsibilities to a different components. The full network is built from these
-components.
+rich" and "minimal and simple". It achieves this by breaking different
+responsibilities among different components. The full network is built from
+these components.
 
 ## Messages in the network
 
@@ -83,7 +83,7 @@ if it should be delivered back to caller.
 
 [Signal](rpcmessage.md#signal) - Signals are propagated based on the
 subscriptions clients made beforehand. All clients are checked for the
-subscription and if message matches some and client has hight enough access
+subscription and if message matches some and client has high enough access
 level, then it is propagated to that client. The SHV path of the message is
 prefixed with mount point of the client the signal was received from. This way
 other clients see signals as being delivered from the correct place in the SHV
@@ -123,7 +123,11 @@ The predefined access levels are the following:
 | Admin         | Provides user with access to all methods.                                                                                                                    |
 
 Levels are sorted from the lowest to the highest and are understood to include
-all lover level rights.
+all lower-level rights.
+
+Be aware that this functionality provides only limited security. SHV by design
+expects all authenticated users to not perform offensive actions like
+constructing non-compliant messages or performing denial of service attacks.
 
 ### User ID
 
@@ -144,7 +148,7 @@ purposes, it can signal this by responding with the `UserIDRequired` error.
 
 ### Unreliability of the message exchange
 
-The [RPC transport layer](./rpctransportlayer.md) as defined doesn't not require
+The [RPC transport layer](./rpctransportlayer.md) as defined does not require
 reliable message delivery. Thus it must be expected that any message can be lost
 or dropped without any of the peers detecting that. That has a few impacts on
 the overall RPC usage.
