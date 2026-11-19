@@ -117,10 +117,10 @@ of options, but they must support at least these options:
     used by the broker to automatically assign a mount point based on its
     internal rules.
   * `"mountPoint"`: a *String* value that specifies the path where the broker
-    should broker mount the device tree in its own tree. This should override
-    any mount point assigned by the broker based on `"deviceId"`, but it can be
-    disregarded if the user doesn't have access rights for the specified
-    mountpoint.
+    should broker mount the device tree in its own tree. This must override
+    any mount point assigned by the broker based on `"deviceId"`. It is up to
+    the broker implementation what happens if this mount point is not allowed by
+    the broker for this user.
 * `"idleWatchDogTimeOut"`: an *Int* value specifying the number of seconds
   without receiving a message before the broker considers the connection to be
   dead and disconnects it. The default timeout by the broker should be 180
