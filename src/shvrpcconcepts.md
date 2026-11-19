@@ -125,6 +125,10 @@ The predefined access levels are the following:
 Levels are sorted from the lowest to the highest and are understood to include
 all lover level rights.
 
+Be aware that this functionality provides only limited security. SHV by design
+expects all authenticated users to not perform offensive actions like
+constructing non-compliant messages or performing denial of service attacks.
+
 ### User ID
 
 Sometimes, devices may want to keep track of which user triggered specific
