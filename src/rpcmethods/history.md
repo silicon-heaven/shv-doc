@@ -30,9 +30,10 @@ access to logs it stores.
 
 If history provides aggregated access to the logs then it must contain a virtual
 tree of the logs sources. This allows setting limited log access based on the
-same path as the real SHV RPC Broker node tree. This means that if history
-records signal with SHV path `test/device/foo/status` then path
-`.history/test/device/foo/status` must be valid and discoverable.
+same path as the real SHV RPC Broker node tree. The virtual tree must end at
+each device's mount point. For a device mounted at `test/device`, the path
+`.history/test/device` must be valid and discoverable. A `getLog` call there
+returns records for `test/device/foo/status` with the relative path `foo/status`.
 
 The aggregated access to the logs doesn't have to be provided for all the logs,
 but all paths recorded (or to be recorded) in single log must be provided.
